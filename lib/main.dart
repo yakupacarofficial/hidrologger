@@ -310,6 +310,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   ChannelData? _currentData;
   String _connectionStatus = 'Bağlanıyor...';
   bool _isConnected = false;
+  String _searchQuery = '';
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -351,6 +353,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void dispose() {
     widget.webSocketService.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -421,6 +424,40 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
           
+          // Arama Kutusu
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Kanal ismine göre ara...',
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: _searchQuery.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          _searchController.clear();
+                          setState(() {
+                            _searchQuery = '';
+                          });
+                        },
+                      )
+                    : null,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                filled: true,
+                fillColor: Theme.of(context).colorScheme.surface,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value.toLowerCase();
+                });
+              },
+            ),
+          ),
+          
           // Kanal Verileri Başlığı
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -434,6 +471,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
+                if (_searchQuery.isNotEmpty) ...[
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      'Arama: "$_searchQuery"',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
@@ -499,18 +553,55 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildChannelDataList() {
     final channels = _currentData!.channels;
     final variableData = _currentData!.variableData;
+    
+    // Arama filtresi uygula
+    final filteredChannels = _searchQuery.isEmpty
+        ? channels
+        : channels.where((channel) =>
+            channel.name.toLowerCase().contains(_searchQuery) ||
+            channel.description.toLowerCase().contains(_searchQuery)
+          ).toList();
 
     if (channels.isEmpty) {
       return const Center(
         child: Text('Kanal verisi bulunamadı'),
       );
     }
+    
+    if (_searchQuery.isNotEmpty && filteredChannels.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.search_off,
+              size: 64,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              '"$_searchQuery" için sonuç bulunamadı',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Farklı bir arama terimi deneyin',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: channels.length,
+      itemCount: filteredChannels.length,
       itemBuilder: (context, index) {
-        final channel = channels[index];
+        final channel = filteredChannels[index];
         final data = variableData.where((d) => d.channelId == channel.id).toList();
         final latestData = data.isNotEmpty ? data.first : null;
 
@@ -592,7 +683,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         Expanded(
                           child: _buildDataItem(
                             'Kalite',
-                            latestData.quality,
+                            '${latestData.quality} (${latestData.signalStrength}%)',
                             Icons.check_circle,
                             _getQualityColor(latestData.quality),
                           ),

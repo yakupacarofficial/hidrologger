@@ -5,7 +5,34 @@
         "channel": 1,
         "value_type": 1,
         "value_timestamp": 1722479940,
+        "value": 466,
+        "battery_percentage": 50,
+        "signal_strength": 50
+      },
+      {
+        "id": 2,
+        "channel": 2,
+        "value_type": 1,
+        "value_timestamp": 1722479940,
         "value": 3.7,
+        "battery_percentage": 95,
+        "signal_strength": 87
+      },  
+      {
+        "id": 3,
+        "channel": 3,
+        "value_type": 3,
+        "value_timestamp": 1722479940,
+        "value": 13.2,
+        "battery_percentage": 95,
+        "signal_strength": 87
+      },  
+      {
+        "id": 4,
+        "channel": 4,
+        "value_type": 3,
+        "value_timestamp": 1722479940,
+        "value": 7.2,
         "battery_percentage": 95,
         "signal_strength": 87
       }

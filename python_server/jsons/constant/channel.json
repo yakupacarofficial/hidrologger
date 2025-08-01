@@ -32,6 +32,17 @@
         "measurement_unit": 9,
         "log_interval": 60,
         "offset": 0.0
+      },
+      {
+        "id": 4,
+        "name": "pH",
+        "description": "pH",
+        "channel_category": 1,
+        "channel_sub_category": 1,
+        "channel_parameter": 19,
+        "measurement_unit": 11,
+        "log_interval": 60,
+        "offset": 0.0
       }
     ]
   }  
