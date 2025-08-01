@@ -3,7 +3,7 @@
       {
         "id": 1,
         "channel": 1,
-        "value_type": 1,
+        "value_type": 2,
         "value_timestamp": 1722479940,
         "value": 466,
         "battery_percentage": 50,
