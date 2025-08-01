@@ -1,0 +1,11 @@
+{
+  "istCode": "TST0000001",
+  "securityCode": "1234567890",
+  "parameter": 18,
+  "deviceSettings": {
+    "dataPostFrequency": 60,
+    "yellowAlert": [50, 10],
+    "orangeAlert": [55, 5],
+    "redAlert": [70, 1]
+  }
+}
