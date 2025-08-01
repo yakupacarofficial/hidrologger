@@ -87,7 +87,17 @@ class JSONReader:
                 
                 data = self._read_json_file(file_path)
                 if data is not None:
-                    result[file_key] = data
+                    # Çift başlık problemini önlemek için:
+                    # 1. Dosya içeriği tek bir anahtar içeriyorsa ve bu anahtar dosya adıyla aynıysa
+                    # 2. Veya dosya adı kategori adıyla aynıysa (örn: alarm.json -> alarm kategorisi)
+                    if (len(data) == 1 and file_key in data) or (file_key == category_name.lower()):
+                        if len(data) == 1 and file_key in data:
+                            result[file_key] = data[file_key]
+                        else:
+                            # Dosya adı kategori adıyla aynıysa, içeriği doğrudan kullan
+                            result.update(data)
+                    else:
+                        result[file_key] = data
                     logger.info(f"{category_name} verisi yüklendi: {file_key}")
                 else:
                     logger.error(f"{category_name} verisi yüklenemedi: {file_key}")
