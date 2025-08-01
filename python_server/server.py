@@ -295,7 +295,7 @@ async def main():
         # Sunucuyu oluştur
         server = WebSocketServer()
         
-        # Sinyal işleyicilerini ayarla
+        # Sinyal işleyiciler    ini ayarla
         setup_signal_handlers(server)
         
         # Sunucuyu başlat

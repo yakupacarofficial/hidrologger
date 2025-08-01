@@ -600,12 +600,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ],
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      'Son Güncelleme: ${_formatTimestamp(latestData.timestamp)}',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                      ),
-                    ),
+                                         Text(
+                       'Son Güncelleme: ${latestData.formattedTimestamp}',
+                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                         color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                       ),
+                     ),
                   ] else ...[
                     Container(
                       padding: const EdgeInsets.all(12),

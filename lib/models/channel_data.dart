@@ -21,12 +21,12 @@ class ChannelData {
   }
 
   List<Channel> get channels {
-    final channelData = constant['channel']?['channel'] as List<dynamic>? ?? [];
+    final channelData = constant['channel'] as List<dynamic>? ?? [];
     return channelData.map((channel) => Channel.fromJson(channel)).toList();
   }
 
   List<VariableData> get variableData {
-    final data = variable['data']?['data'] as List<dynamic>? ?? [];
+    final data = variable['data'] as List<dynamic>? ?? [];
     return data.map((item) => VariableData.fromJson(item)).toList();
   }
 
@@ -38,15 +38,23 @@ class Channel {
   final int id;
   final String name;
   final String description;
-  final String unit;
-  final String category;
+  final int channelCategory;
+  final int channelSubCategory;
+  final int channelParameter;
+  final int measurementUnit;
+  final int logInterval;
+  final double offset;
 
   Channel({
     required this.id,
     required this.name,
     required this.description,
-    required this.unit,
-    required this.category,
+    required this.channelCategory,
+    required this.channelSubCategory,
+    required this.channelParameter,
+    required this.measurementUnit,
+    required this.logInterval,
+    required this.offset,
   });
 
   factory Channel.fromJson(Map<String, dynamic> json) {
@@ -54,31 +62,67 @@ class Channel {
       id: json['id'] ?? 0,
       name: json['name'] ?? '',
       description: json['description'] ?? '',
-      unit: json['unit'] ?? '',
-      category: json['category'] ?? '',
+      channelCategory: json['channel_category'] ?? 0,
+      channelSubCategory: json['channel_sub_category'] ?? 0,
+      channelParameter: json['channel_parameter'] ?? 0,
+      measurementUnit: json['measurement_unit'] ?? 0,
+      logInterval: json['log_interval'] ?? 0,
+      offset: (json['offset'] ?? 0.0).toDouble(),
     );
+  }
+
+  String get unit {
+    switch (measurementUnit) {
+      case 4: return 'm';
+      case 9: return 'mS/cm';
+      case 10: return '°C';
+      default: return '';
+    }
+  }
+
+  String get category {
+    switch (channelCategory) {
+      case 1: return 'Su Kalitesi';
+      case 2: return 'Hava';
+      case 3: return 'Toprak';
+      default: return 'Diğer';
+    }
   }
 }
 
 class VariableData {
   final int channelId;
   final double value;
-  final String timestamp;
-  final String quality;
+  final int valueTimestamp;
+  final int batteryPercentage;
+  final int signalStrength;
 
   VariableData({
     required this.channelId,
     required this.value,
-    required this.timestamp,
-    required this.quality,
+    required this.valueTimestamp,
+    required this.batteryPercentage,
+    required this.signalStrength,
   });
 
   factory VariableData.fromJson(Map<String, dynamic> json) {
     return VariableData(
-      channelId: json['channel_id'] ?? 0,
+      channelId: json['channel'] ?? 0, // 'channel' alanını kullan
       value: (json['value'] ?? 0.0).toDouble(),
-      timestamp: json['timestamp'] ?? '',
-      quality: json['quality'] ?? '',
+      valueTimestamp: json['value_timestamp'] ?? 0,
+      batteryPercentage: json['battery_percentage'] ?? 0,
+      signalStrength: json['signal_strength'] ?? 0,
     );
+  }
+
+  String get quality {
+    if (signalStrength >= 80) return 'Good';
+    if (signalStrength >= 60) return 'Uncertain';
+    return 'Bad';
+  }
+
+  String get formattedTimestamp {
+    final dateTime = DateTime.fromMillisecondsSinceEpoch(valueTimestamp * 1000);
+    return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}:${dateTime.second.toString().padLeft(2, '0')}';
   }
 } 
