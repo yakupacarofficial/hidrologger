@@ -96,6 +96,7 @@ class VariableData {
   final int valueTimestamp;
   final int batteryPercentage;
   final int signalStrength;
+  final int valueType;
 
   VariableData({
     required this.channelId,
@@ -103,6 +104,7 @@ class VariableData {
     required this.valueTimestamp,
     required this.batteryPercentage,
     required this.signalStrength,
+    required this.valueType,
   });
 
   factory VariableData.fromJson(Map<String, dynamic> json) {
@@ -112,6 +114,7 @@ class VariableData {
       valueTimestamp: json['value_timestamp'] ?? 0,
       batteryPercentage: json['battery_percentage'] ?? 0,
       signalStrength: json['signal_strength'] ?? 0,
+      valueType: json['value_type'] ?? 1,
     );
   }
 
@@ -119,6 +122,20 @@ class VariableData {
     if (signalStrength >= 80) return 'Good';
     if (signalStrength >= 60) return 'Uncertain';
     return 'Bad';
+  }
+
+  String get valueTypeName {
+    switch (valueType) {
+      case 1: return 'Unknown';
+      case 2: return 'AVG';
+      case 3: return 'INS';
+      case 4: return 'MAX';
+      case 5: return 'MIN';
+      case 6: return 'TOT24H';
+      case 7: return 'TOT1H';
+      case 8: return 'ENDEX';
+      default: return 'Unknown';
+    }
   }
 
   String get formattedTimestamp {

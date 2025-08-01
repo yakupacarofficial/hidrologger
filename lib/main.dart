@@ -691,6 +691,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ],
                     ),
                     const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildDataItem(
+                            'Değer Tipi',
+                            latestData.valueTypeName,
+                            Icons.category,
+                            Colors.purple,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: _buildDataItem(
+                            'Batarya',
+                            '${latestData.batteryPercentage}%',
+                            Icons.battery_full,
+                            _getBatteryColor(latestData.batteryPercentage),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
                                          Text(
                        'Son Güncelleme: ${latestData.formattedTimestamp}',
                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -771,6 +793,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
       default:
         return Colors.grey;
     }
+  }
+
+  Color _getBatteryColor(int percentage) {
+    if (percentage >= 80) return Colors.green;
+    if (percentage >= 50) return Colors.orange;
+    if (percentage >= 20) return Colors.red;
+    return Colors.red.shade900;
   }
 
   String _formatTimestamp(String timestamp) {
