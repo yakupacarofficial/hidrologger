@@ -1,0 +1,44 @@
+{
+    "value_type": [
+      {
+        "id": 1,
+        "name": "Unknown",
+        "description": "Bilinmeyen Değer Tipi"
+      },
+      {
+        "id": 2,
+        "name": "AVG",
+        "description": "Ortalama Değer (Gün sonunda o gün içerisinde bir parametre için ölçülen tüm değerlerin ortalamasını ifade eder.<br>Ör: 01.01.2022 00:00:00 - 01.01.2022 23:59:59 arasında ölçülen Su Sıcaklığı değerlerinin ortalaması)"
+      },
+      {
+        "id": 3,
+        "name": "INS",
+        "description": "Anlık Değer (Bir sensörden anlık olarak ölçüm yapılan değeri ifade eder.)"
+      },
+      {
+        "id": 4,
+        "name": "MAX",
+        "description": "Maksimum Değer (Gün sonunda o gün içerisinde bir parametre için ölçülen maksimum değeri ifade eder.<br>Ör: 01.01.2022 00:00:00 - 01.01.2022 23:59:59 arasında ölçülen Su Sıcaklığı değerlerinden en büyük olan değerdir. Ölçüm Zamanının (ValueTimestamp) saati 23:59:59 olmalıdır."
+      },
+      {
+        "id": 5,
+        "name": "MIN",
+        "description": "Minimum Değer (Gün sonunda o gün içerisinde bir parametre için ölçülen minimum değeri ifade eder.<br>Ör: 01.01.2022 00:00:00 - 01.01.2022 23:59:59 arasında ölçülen Su Sıcaklığı değerlerinden en küçük olan değer)"
+      },
+      {
+        "id": 6,
+        "name": "TOT24H",
+        "description": "Toplam Değer (Gün sonunda o gün içerisinde bir parametre için ölçülen toplam değeri ifade eder.<br>Ör: 01.01.2022 00:00:00 - 01.01.2022 23:59:59 arasında ölçülen Su Miktarı değerlerinden toplamıdır. Ölçüm Zamanının (ValueTimestamp) saati 23:59:59 olmalıdır."
+      },
+      {
+        "id": 7,
+        "name": "TOT1H",
+        "description": "Toplam Değer (Bir parametre için son 1 saatte ölçülen toplam değeri ifade eder.<br>Ör: 01.01.2022 15:00:00 - 01.01.2022 16:00:00 arasında ölçülen Su Miktarı değerlerinden toplamıdır. Ölçüm Zamanının (ValueTimestamp) saati bu örnekte 16:00:00 olmalıdır."
+      },
+      {
+        "id": 8,
+        "name": "ENDEX",
+        "description": "Endex Değeri (Bir parametre için o anlık endex değerini ifade eder.)<br>Ör: Bir debimetreden kurulduğu günden şimdiye kadarki geçen su miktarının toplamıdır."
+      }
+    ]
+  }  

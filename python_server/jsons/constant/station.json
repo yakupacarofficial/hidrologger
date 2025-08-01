@@ -1,0 +1,16 @@
+{
+    "station": [
+      {
+        "id": 1,
+        "code": "0606001",
+        "security_code": "ReS5w+bH5aTvQ4v/VMKBtg==",
+        "name": "Test Station",
+        "region": 0,
+        "basin": 0,
+        "no": 0,
+        "latitude": 0.0,
+        "longitude": 0.0,
+        "phone": null
+      }
+    ]
+  }  
