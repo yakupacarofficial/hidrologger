@@ -10,30 +10,38 @@ async def test_client():
         async with websockets.connect(uri) as websocket:
             print(f"✅ Sunucuya bağlandı: {uri}")
             
-            # İlk 5 mesajı al
-            for i in range(5):
-                try:
-                    message = await asyncio.wait_for(websocket.recv(), timeout=2.0)
-                    data = json.loads(message)
-                    print(f"\n📡 Mesaj {i+1}:")
-                    print(f"   Timestamp: {data.get('timestamp')}")
-                    print(f"   Kanal Sayısı: {len(data.get('constant', {}).get('channel', {}).get('channel', []))}")
-                    print(f"   Veri Sayısı: {len(data.get('variable', {}).get('data', {}).get('data', []))}")
-                    
-                    # İlk kanal bilgisini göster
-                    channels = data.get('constant', {}).get('channel', {}).get('channel', [])
-                    if channels:
-                        first_channel = channels[0]
-                        print(f"   İlk Kanal: {first_channel.get('name')} - {first_channel.get('description')}")
-                    
-                except asyncio.TimeoutError:
-                    print(f"⏰ Mesaj {i+1}: Timeout")
-                except Exception as e:
-                    print(f"❌ Mesaj {i+1} hatası: {e}")
-                    
+            # İlk mesajı al ve göster
+            try:
+                message = await asyncio.wait_for(websocket.recv(), timeout=3.0)
+                data = json.loads(message)
+                print(f"\n📡 Alınan JSON Verisi:")
+                print(json.dumps(data, indent=2, ensure_ascii=False))
+                
+                # Veri yapısını analiz et
+                print("\n📊 Veri Analizi:")
+                print(f"- Timestamp: {data.get('timestamp')}")
+                
+                # Alarm verilerini kontrol et
+                alarm_data = data.get('alarm', {})
+                print(f"- Alarm veri anahtarları: {list(alarm_data.keys())}")
+                
+                # Constant verilerini kontrol et
+                constant_data = data.get('constant', {})
+                print(f"- Constant veri anahtarları: {list(constant_data.keys())}")
+                
+                # Variable verilerini kontrol et
+                variable_data = data.get('variable', {})
+                print(f"- Variable veri anahtarları: {list(variable_data.keys())}")
+                
+                print(f"\n📈 Toplam veri boyutu: {len(json.dumps(data, ensure_ascii=False))} byte")
+                
+            except asyncio.TimeoutError:
+                print(f"⏰ Mesaj alınamadı: Timeout")
+            except Exception as e:
+                print(f"❌ Mesaj işleme hatası: {e}")
+                
     except Exception as e:
         print(f"❌ Bağlantı hatası: {e}")
 
 if __name__ == "__main__":
-    print("🧪 WebSocket Sunucu Testi Başlıyor...")
-    asyncio.run(test_client()) 
+    asyncio.run(test_client())
