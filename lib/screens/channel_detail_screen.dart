@@ -4,11 +4,13 @@ import '../models/channel_data.dart';
 class ChannelDetailScreen extends StatelessWidget {
   final Channel channel;
   final VariableData? latestData;
+  final List<VariableData>? allData; // Tüm veri geçmişi için
 
   const ChannelDetailScreen({
     super.key,
     required this.channel,
     this.latestData,
+    this.allData,
   });
 
   @override
@@ -59,6 +61,12 @@ class ChannelDetailScreen extends StatelessWidget {
               // Kanal Bilgileri
               _buildChannelInfoCard(context),
               const SizedBox(height: 20),
+              
+              // Veri Geçmişi
+              if (allData != null && allData!.isNotEmpty) ...[
+                _buildDataHistoryCard(context),
+                const SizedBox(height: 20),
+              ],
             ],
           ),
         ),
@@ -447,7 +455,11 @@ class ChannelDetailScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             _buildInfoRow('Kanal ID', '#${channel.id}'),
-            _buildInfoRow('Kategori', channel.category),
+            _buildInfoRow('Kanal Adı', channel.name),
+            _buildInfoRow('Açıklama', channel.description),
+            _buildInfoRow('Ana Kategori', channel.category),
+            _buildInfoRow('Alt Kategori', channel.subCategory),
+            _buildInfoRow('Parametre', channel.parameter),
             _buildInfoRow('Ölçüm Birimi', channel.unit),
             _buildInfoRow('Log Aralığı', '${channel.logInterval} saniye'),
             _buildInfoRow('Offset Değeri', channel.offset.toString()),
@@ -541,5 +553,234 @@ class ChannelDetailScreen extends StatelessWidget {
       case 8: return 'Endex';
       default: return 'Bilinmeyen';
     }
+  }
+
+
+
+  Widget _buildDataHistoryCard(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withOpacity(0.1),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.history,
+                    color: Theme.of(context).colorScheme.secondary,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Veri Geçmişi',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const Spacer(),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '${allData!.length} kayıt',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 300,
+              child: ListView.builder(
+                itemCount: allData!.length,
+                itemBuilder: (context, index) {
+                  final data = allData![index];
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.background,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.outline.withOpacity(0.1),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        // Değer
+                        Expanded(
+                          flex: 2,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Değer',
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Colors.grey[600],
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '${data.value.toStringAsFixed(2)} ${channel.unit}',
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Değer Tipi
+                        Expanded(
+                          flex: 2,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Tip',
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Colors.grey[600],
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                data.valueTypeName,
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Kalite
+                        Expanded(
+                          flex: 2,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Kalite',
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Colors.grey[600],
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 8,
+                                    height: 8,
+                                    decoration: BoxDecoration(
+                                      color: _getQualityColor(data.quality),
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    data.quality,
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Zaman
+                        Expanded(
+                          flex: 2,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Zaman',
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Colors.grey[600],
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                data.formattedTimestamp,
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Batarya
+                        Expanded(
+                          flex: 1,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Batarya',
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Colors.grey[600],
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Icon(
+                                _getBatteryIcon(data.batteryPercentage),
+                                color: _getBatteryColor(data.batteryPercentage),
+                                size: 16,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  IconData _getBatteryIcon(int percentage) {
+    if (percentage >= 80) return Icons.battery_full;
+    if (percentage >= 60) return Icons.battery_6_bar;
+    if (percentage >= 40) return Icons.battery_4_bar;
+    if (percentage >= 20) return Icons.battery_2_bar;
+    return Icons.battery_alert;
   }
 } 
