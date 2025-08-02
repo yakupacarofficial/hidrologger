@@ -6,6 +6,7 @@ class WebSocketService {
   WebSocketChannel? _channel;
   bool _isConnected = false;
   String _lastError = '';
+  Stream<ChannelData>? _dataStream;
   
   bool get isConnected => _isConnected;
   String get lastError => _lastError;
@@ -16,6 +17,17 @@ class WebSocketService {
       _channel = WebSocketChannel.connect(Uri.parse(uri));
       _isConnected = true;
       _lastError = '';
+      
+      // Stream'i oluştur
+      _dataStream = _channel!.stream.map((data) {
+        try {
+          final jsonData = jsonDecode(data);
+          return ChannelData.fromJson(jsonData);
+        } catch (e) {
+          throw Exception('JSON parse error: $e');
+        }
+      }).asBroadcastStream(); // Broadcast stream yap
+      
       return true;
     } catch (e) {
       _lastError = e.toString();
@@ -27,22 +39,15 @@ class WebSocketService {
   void disconnect() {
     _channel?.sink.close();
     _channel = null;
+    _dataStream = null;
     _isConnected = false;
   }
 
   Stream<ChannelData> get dataStream {
-    if (_channel == null) {
+    if (_dataStream == null) {
       return Stream.empty();
     }
-    
-    return _channel!.stream.map((data) {
-      try {
-        final jsonData = jsonDecode(data);
-        return ChannelData.fromJson(jsonData);
-      } catch (e) {
-        throw Exception('JSON parse error: $e');
-      }
-    });
+    return _dataStream!;
   }
 
   void dispose() {

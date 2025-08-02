@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import '../models/channel_data.dart';
 import '../services/websocket_service.dart';
 
-class ChannelDetailScreen extends StatelessWidget {
+class ChannelDetailScreen extends StatefulWidget {
   final Channel channel;
   final VariableData? latestData;
   final List<VariableData>? allData; // Tüm veri geçmişi için
@@ -17,7 +18,64 @@ class ChannelDetailScreen extends StatelessWidget {
   });
 
   @override
+  State<ChannelDetailScreen> createState() => _ChannelDetailScreenState();
+}
+
+class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
+  Channel? _currentChannel;
+  VariableData? _currentLatestData;
+  List<VariableData>? _currentAllData;
+  StreamSubscription<ChannelData>? _dataSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentChannel = widget.channel;
+    _currentLatestData = widget.latestData;
+    _currentAllData = widget.allData;
+    _listenToDataUpdates();
+  }
+
+  @override
+  void dispose() {
+    _dataSubscription?.cancel();
+    super.dispose();
+  }
+
+  void _listenToDataUpdates() {
+    _dataSubscription = widget.webSocketService.dataStream.listen(
+      (channelData) {
+        setState(() {
+          // Güncel kanal verisini bul
+          final updatedChannel = channelData.channels.firstWhere(
+            (ch) => ch.id == widget.channel.id,
+            orElse: () => widget.channel,
+          );
+          _currentChannel = updatedChannel;
+
+          // Güncel variable verilerini bul
+          final updatedVariableData = channelData.variableData
+              .where((data) => data.channelId == widget.channel.id)
+              .toList();
+          
+          if (updatedVariableData.isNotEmpty) {
+            _currentLatestData = updatedVariableData.first;
+            _currentAllData = updatedVariableData;
+          }
+        });
+      },
+      onError: (error) {
+        print('Detay ekranı veri güncelleme hatası: $error');
+      },
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final channel = _currentChannel ?? widget.channel;
+    final latestData = _currentLatestData ?? widget.latestData;
+    final allData = _currentAllData ?? widget.allData;
+    
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
@@ -54,7 +112,7 @@ class ChannelDetailScreen extends StatelessWidget {
               
               // Veri Kartları
               if (latestData != null) ...[
-                _buildDataCards(context),
+                _buildDataCards(context, latestData, channel),
                 const SizedBox(height: 20),
               ] else ...[
                 _buildNoDataCard(context),
@@ -62,12 +120,12 @@ class ChannelDetailScreen extends StatelessWidget {
               ],
               
               // Kanal Bilgileri
-              _buildChannelInfoCard(context),
+              _buildChannelInfoCard(context, channel),
               const SizedBox(height: 20),
               
               // Veri Geçmişi
               if (allData != null && allData!.isNotEmpty) ...[
-                _buildDataHistoryCard(context),
+                _buildDataHistoryCard(context, allData, channel),
                 const SizedBox(height: 20),
               ],
             ],
@@ -110,7 +168,7 @@ class ChannelDetailScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Icon(
-                _getChannelIcon(),
+                _getChannelIcon(_currentChannel!),
                 size: 48,
                 color: Theme.of(context).colorScheme.onPrimary,
               ),
@@ -119,7 +177,7 @@ class ChannelDetailScreen extends StatelessWidget {
             
             // Kanal İsmi
             Text(
-              channel.name,
+              _currentChannel!.name,
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                 color: Theme.of(context).colorScheme.onPrimary,
                 fontWeight: FontWeight.bold,
@@ -130,7 +188,7 @@ class ChannelDetailScreen extends StatelessWidget {
             
             // Kanal Açıklaması
             Text(
-              channel.description,
+              _currentChannel!.description,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.9),
               ),
@@ -159,7 +217,7 @@ class ChannelDetailScreen extends StatelessWidget {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    channel.category,
+                    _currentChannel!.category,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(context).colorScheme.onPrimary,
                       fontWeight: FontWeight.w600,
@@ -174,7 +232,7 @@ class ChannelDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDataCards(BuildContext context) {
+  Widget _buildDataCards(BuildContext context, VariableData latestData, Channel channel) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -190,7 +248,7 @@ class ChannelDetailScreen extends StatelessWidget {
         ),
         
         // Ana Değer Kartı
-        _buildMainValueCard(context),
+        _buildMainValueCard(context, latestData, channel),
         const SizedBox(height: 16),
         
         // Alt Veri Kartları
@@ -250,7 +308,7 @@ class ChannelDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMainValueCard(BuildContext context) {
+  Widget _buildMainValueCard(BuildContext context, VariableData latestData, Channel channel) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -411,7 +469,7 @@ class ChannelDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildChannelInfoCard(BuildContext context) {
+  Widget _buildChannelInfoCard(BuildContext context, Channel channel) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -539,7 +597,7 @@ class ChannelDetailScreen extends StatelessWidget {
     );
   }
 
-  IconData _getChannelIcon() {
+  IconData _getChannelIcon(Channel channel) {
     switch (channel.name.toLowerCase()) {
       case 'seviye':
         return Icons.water_drop;
@@ -595,7 +653,7 @@ class ChannelDetailScreen extends StatelessWidget {
 
 
 
-  Widget _buildDataHistoryCard(BuildContext context) {
+  Widget _buildDataHistoryCard(BuildContext context, List<VariableData> allData, Channel channel) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -867,6 +925,7 @@ class ChannelDetailScreen extends StatelessWidget {
   }
 
   void _updateChannelField(String fieldName, String newValue) async {
+    final channel = _currentChannel ?? widget.channel;
     // WebSocket üzerinden sunucuya güncelleme mesajı gönder
     final updateMessage = {
       'command': 'update_channel',
@@ -876,11 +935,11 @@ class ChannelDetailScreen extends StatelessWidget {
     };
     
     try {
-      final success = await webSocketService.sendMessage(updateMessage);
+      final success = await widget.webSocketService.sendMessage(updateMessage);
       if (success) {
         print('Kanal güncelleme mesajı gönderildi: $updateMessage');
       } else {
-        print('Kanal güncelleme hatası: ${webSocketService.lastError}');
+        print('Kanal güncelleme hatası: ${widget.webSocketService.lastError}');
       }
     } catch (e) {
       print('Kanal güncelleme exception: $e');
