@@ -38,7 +38,7 @@ class ConnectionScreen extends StatefulWidget {
 
 class _ConnectionScreenState extends State<ConnectionScreen>
     with TickerProviderStateMixin {
-  final _ipController = TextEditingController(text: '192.168.1.100');
+  final _ipController = TextEditingController(text: '127.0.0.1');
   final _portController = TextEditingController(text: '8765');
   final _formKey = GlobalKey<FormState>();
   
@@ -618,6 +618,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     channel: channel,
                     latestData: latestData,
                     allData: allData,
+                    webSocketService: widget.webSocketService,
                   ),
                 ),
               );

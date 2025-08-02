@@ -48,4 +48,20 @@ class WebSocketService {
   void dispose() {
     disconnect();
   }
+
+  Future<bool> sendMessage(Map<String, dynamic> message) async {
+    if (_channel == null || !_isConnected) {
+      _lastError = 'WebSocket bağlantısı yok';
+      return false;
+    }
+    
+    try {
+      final jsonMessage = jsonEncode(message);
+      _channel!.sink.add(jsonMessage);
+      return true;
+    } catch (e) {
+      _lastError = 'Mesaj gönderme hatası: $e';
+      return false;
+    }
+  }
 } 

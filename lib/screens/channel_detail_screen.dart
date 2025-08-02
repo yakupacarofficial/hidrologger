@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import '../models/channel_data.dart';
+import '../services/websocket_service.dart';
 
 class ChannelDetailScreen extends StatelessWidget {
   final Channel channel;
   final VariableData? latestData;
   final List<VariableData>? allData; // Tüm veri geçmişi için
+  final WebSocketService webSocketService;
 
   const ChannelDetailScreen({
     super.key,
     required this.channel,
     this.latestData,
     this.allData,
+    required this.webSocketService,
   });
 
   @override
@@ -454,22 +457,22 @@ class ChannelDetailScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20),
-            _buildInfoRow('Kanal ID', '#${channel.id}'),
-            _buildInfoRow('Kanal Adı', channel.name),
-            _buildInfoRow('Açıklama', channel.description),
-            _buildInfoRow('Ana Kategori', channel.category),
-            _buildInfoRow('Alt Kategori', channel.subCategory),
-            _buildInfoRow('Parametre', channel.parameter),
-            _buildInfoRow('Ölçüm Birimi', channel.unit),
-            _buildInfoRow('Log Aralığı', '${channel.logInterval} saniye'),
-            _buildInfoRow('Offset Değeri', channel.offset.toString()),
+            _buildInfoRow(context, 'Kanal ID', '#${channel.id}'),
+            _buildInfoRow(context, 'Kanal Adı', channel.name, isEditable: true, fieldName: 'name'),
+            _buildInfoRow(context, 'Açıklama', channel.description, isEditable: true, fieldName: 'description'),
+            _buildInfoRow(context, 'Ana Kategori', channel.category, isEditable: true, fieldName: 'channelCategory'),
+            _buildInfoRow(context, 'Alt Kategori', channel.subCategory, isEditable: true, fieldName: 'channelSubCategory'),
+            _buildInfoRow(context, 'Parametre', channel.parameter, isEditable: true, fieldName: 'channelParameter'),
+            _buildInfoRow(context, 'Ölçüm Birimi', channel.unit, isEditable: true, fieldName: 'measurementUnit'),
+            _buildInfoRow(context, 'Log Aralığı', '${channel.logInterval} saniye', isEditable: true, fieldName: 'logInterval'),
+            _buildInfoRow(context, 'Offset Değeri', channel.offset.toString(), isEditable: true, fieldName: 'offset'),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
+  Widget _buildInfoRow(BuildContext context, String label, String value, {bool isEditable = false, String? fieldName}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -488,13 +491,48 @@ class ChannelDetailScreen extends StatelessWidget {
           ),
           Expanded(
             flex: 3,
-            child: Text(
-              value,
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 14,
-              ),
-            ),
+            child: isEditable
+                ? GestureDetector(
+                    onTap: () {
+                      _showEditDialog(context, label, value, fieldName!);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              value,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                          ),
+                          Icon(
+                            Icons.edit,
+                            size: 16,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : Text(
+                    value,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
           ),
         ],
       ),
@@ -782,5 +820,70 @@ class ChannelDetailScreen extends StatelessWidget {
     if (percentage >= 40) return Icons.battery_4_bar;
     if (percentage >= 20) return Icons.battery_2_bar;
     return Icons.battery_alert;
+  }
+
+  void _showEditDialog(BuildContext context, String label, String currentValue, String fieldName) {
+    final controller = TextEditingController(text: currentValue);
+    
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('$label Düzenle'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: controller,
+                decoration: InputDecoration(
+                  labelText: label,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                autofocus: true,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('İptal'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final newValue = controller.text.trim();
+                if (newValue.isNotEmpty && newValue != currentValue) {
+                  _updateChannelField(fieldName, newValue);
+                }
+                Navigator.of(context).pop();
+              },
+              child: const Text('Kaydet'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _updateChannelField(String fieldName, String newValue) async {
+    // WebSocket üzerinden sunucuya güncelleme mesajı gönder
+    final updateMessage = {
+      'command': 'update_channel',
+      'channel_id': channel.id,
+      'field': fieldName,
+      'value': newValue,
+    };
+    
+    try {
+      final success = await webSocketService.sendMessage(updateMessage);
+      if (success) {
+        print('Kanal güncelleme mesajı gönderildi: $updateMessage');
+      } else {
+        print('Kanal güncelleme hatası: ${webSocketService.lastError}');
+      }
+    } catch (e) {
+      print('Kanal güncelleme exception: $e');
+    }
   }
 } 

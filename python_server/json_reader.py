@@ -269,3 +269,82 @@ class JSONReader:
         except Exception as e:
             logger.error(f"Belirli veri alma hatası: {e}")
             return None
+
+    def update_channel_field(self, channel_id: int, field: str, value: Any) -> bool:
+        """Kanal bilgilerini güncelle"""
+        try:
+            logger.info(f"Kanal güncelleme: ID={channel_id}, Field={field}, Value={value}")
+            
+            # Channel dosyasının yolunu belirle
+            channel_file_path = os.path.join(self.constant_path, "channel.json")
+            
+            if not os.path.exists(channel_file_path):
+                logger.error(f"Channel dosyası bulunamadı: {channel_file_path}")
+                return False
+            
+            # Dosyayı oku
+            with open(channel_file_path, 'r', encoding='utf-8') as file:
+                data = json.load(file)
+            
+            # Kanalı bul
+            channels = data.get('channel', [])
+            channel_found = False
+            
+            for channel in channels:
+                if channel.get('id') == channel_id:
+                    channel_found = True
+                    
+                    # Alan adını JSON formatına çevir (snake_case)
+                    json_field = field
+                    if field == 'logInterval':
+                        json_field = 'log_interval'
+                    elif field == 'measurementUnit':
+                        json_field = 'measurement_unit'
+                    elif field == 'channelCategory':
+                        json_field = 'channel_category'
+                    elif field == 'channelSubCategory':
+                        json_field = 'channel_sub_category'
+                    elif field == 'channelParameter':
+                        json_field = 'channel_parameter'
+                    
+                    # Değer tipini kontrol et ve dönüştür
+                    if json_field in ['id', 'channel_category', 'channel_sub_category', 'channel_parameter', 'measurement_unit', 'log_interval']:
+                        try:
+                            value = int(value)
+                        except (ValueError, TypeError):
+                            logger.error(f"Geçersiz sayısal değer: {value}")
+                            return False
+                    elif json_field == 'offset':
+                        try:
+                            value = float(value)
+                        except (ValueError, TypeError):
+                            logger.error(f"Geçersiz ondalıklı değer: {value}")
+                            return False
+                    
+                    # Değeri güncelle
+                    old_value = channel.get(json_field)
+                    channel[json_field] = value
+                    logger.info(f"Kanal {channel_id} güncellendi: {json_field} = {old_value} -> {value}")
+                    break
+            
+            if not channel_found:
+                logger.error(f"Kanal bulunamadı: ID={channel_id}")
+                return False
+            
+            # Dosyayı geri yaz
+            with open(channel_file_path, 'w', encoding='utf-8') as file:
+                json.dump(data, file, indent=2, ensure_ascii=False)
+            
+            # Dosya değişiklik zamanını güncelle
+            self.file_last_modified[channel_file_path] = os.path.getmtime(channel_file_path)
+            
+            # Cache'i temizle
+            self.last_successful_data = None
+            
+            logger.info(f"Kanal {channel_id} başarıyla güncellendi")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Kanal güncelleme hatası: {e}")
+            logger.error(traceback.format_exc())
+            return False

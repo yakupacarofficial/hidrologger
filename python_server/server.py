@@ -102,6 +102,25 @@ class WebSocketServer:
                     else:
                         await self.send_error_to_client(websocket, "Yeniden yükleme başarısız")
                         
+                elif command == 'update_channel':
+                    # Kanal bilgilerini güncelle
+                    logger.info(f"Kanal güncelleme istendi: {client_address}")
+                    channel_id = msg_data.get('channel_id')
+                    field = msg_data.get('field')
+                    value = msg_data.get('value')
+                    
+                    if channel_id is not None and field and value is not None:
+                        success = self.json_reader.update_channel_field(channel_id, field, value)
+                        if success:
+                            # Güncellenmiş veriyi gönder
+                            updated_data = self.json_reader.read_all_data()
+                            await self.send_to_client(websocket, updated_data)
+                            logger.info(f"Kanal {channel_id} güncellendi: {field} = {value}")
+                        else:
+                            await self.send_error_to_client(websocket, f"Kanal güncelleme başarısız: {channel_id}")
+                    else:
+                        await self.send_error_to_client(websocket, "Geçersiz kanal güncelleme parametreleri")
+                        
                 else:
                     await self.send_error_to_client(websocket, f"Bilinmeyen komut: {command}")
                     
