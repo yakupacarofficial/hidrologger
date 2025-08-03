@@ -5,6 +5,7 @@ import '../widgets/info_card.dart';
 import '../widgets/data_item.dart';
 import '../widgets/connection_status_badge.dart';
 import 'channel_detail_screen.dart';
+import 'constant_data_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   final WebSocketService webSocketService;
@@ -79,6 +80,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
         elevation: 0,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.info_outline),
+            onPressed: _currentData != null ? () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ConstantDataScreen(
+                    channelData: _currentData!,
+                  ),
+                ),
+              );
+            } : null,
+            tooltip: 'Constant Verileri',
+          ),
           ConnectionStatusBadge(
             isConnected: _isConnected,
             status: _connectionStatus,
