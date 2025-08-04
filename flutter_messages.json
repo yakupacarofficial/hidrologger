@@ -1,0 +1,4 @@
+{"command": "update_channel", "channel_id": 1, "field": "name", "value": "Test Kanal"}
+{"command": "get_data"}
+{"command": "get_summary"}
+{"command": "reload"}
