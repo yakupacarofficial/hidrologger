@@ -25,6 +25,10 @@ class JSONReader:
         self.last_check_time = 0
         self.check_interval = 1.0  # Saniye cinsinden kontrol aralığı
         
+        # Veri geçmişi için
+        self.data_history = {}  # {channel_id: [data_list]}
+        self.max_history_size = 50  # Her kanal için maksimum 50 veri noktası
+        
         # Başlangıçta tüm dosyaları tara
         self._initialize_file_tracking()
         
@@ -32,6 +36,7 @@ class JSONReader:
         logger.info(f"Alarm klasörü: {self.alarm_path}")
         logger.info(f"Constant klasörü: {self.constant_path}")
         logger.info(f"Variable klasörü: {self.variable_path}")
+        logger.info(f"Veri geçmişi sistemi aktif - Maksimum {self.max_history_size} veri noktası/kanal")
     
     def _initialize_file_tracking(self):
         """Tüm JSON dosyalarının son değiştirilme zamanlarını kaydet"""
@@ -174,8 +179,19 @@ class JSONReader:
             
             # Veri doğrulama
             if self._validate_data(combined_data):
+                # Variable data'yı geçmiş verilerle birleştir
+                variable_data = combined_data.get('variable', {})
+                data_list = variable_data.get('data', [])
+                
+                # Geçmiş verileri güncelle
+                if data_list:
+                    self.update_data_history(data_list)
+                
+                # Geçmiş verileri combined_data'ya ekle
+                combined_data['data_history'] = self.data_history
+                
                 self.last_successful_data = combined_data
-                logger.info("JSON verileri başarıyla okundu ve birleştirildi")
+                logger.info("JSON verileri başarıyla okundu ve birleştirildi (geçmiş veriler dahil)")
                 return combined_data
             else:
                 logger.error("Veri doğrulama başarısız")
@@ -348,3 +364,88 @@ class JSONReader:
             logger.error(f"Kanal güncelleme hatası: {e}")
             logger.error(traceback.format_exc())
             return False
+    
+    def update_data_history(self, variable_data: List[Dict[str, Any]]) -> None:
+        """Veri geçmişini güncelle"""
+        try:
+            for data_item in variable_data:
+                channel_id = data_item.get('channel', 0)
+                
+                if channel_id not in self.data_history:
+                    self.data_history[channel_id] = []
+                
+                # Yeni veriyi ekle
+                self.data_history[channel_id].append(data_item)
+                
+                # Maksimum boyutu aşarsa en eski veriyi kaldır
+                if len(self.data_history[channel_id]) > self.max_history_size:
+                    self.data_history[channel_id].pop(0)
+                
+            logger.debug(f"Veri geçmişi güncellendi - Toplam kanal sayısı: {len(self.data_history)}")
+            
+        except Exception as e:
+            logger.error(f"Veri geçmişi güncelleme hatası: {e}")
+    
+    def get_data_history(self, channel_id: int = None) -> Dict[str, Any]:
+        """Veri geçmişini döndür"""
+        try:
+            if channel_id is not None:
+                # Belirli bir kanalın geçmişini döndür
+                return {
+                    "channel_id": channel_id,
+                    "history": self.data_history.get(channel_id, []),
+                    "count": len(self.data_history.get(channel_id, []))
+                }
+            else:
+                # Tüm kanalların geçmişini döndür
+                return {
+                    "all_history": self.data_history,
+                    "total_channels": len(self.data_history),
+                    "total_data_points": sum(len(history) for history in self.data_history.values())
+                }
+                
+        except Exception as e:
+            logger.error(f"Veri geçmişi alma hatası: {e}")
+            return {}
+    
+    def get_combined_data_with_history(self) -> Optional[Dict[str, Any]]:
+        """Mevcut verileri geçmiş verilerle birleştirerek döndür"""
+        try:
+            # Mevcut verileri al
+            current_data = self.read_all_data()
+            if current_data is None:
+                return None
+            
+            # Variable data'yı geçmiş verilerle birleştir
+            variable_data = current_data.get('variable', {})
+            data_list = variable_data.get('data', [])
+            
+            # Geçmiş verileri güncelle
+            if data_list:
+                self.update_data_history(data_list)
+            
+            # Birleştirilmiş veriyi oluştur
+            combined_data = current_data.copy()
+            
+            # Her kanal için geçmiş verileri ekle
+            for channel_id, history in self.data_history.items():
+                # Mevcut verilerde bu kanalın verisi var mı kontrol et
+                current_channel_data = [d for d in data_list if d.get('channel') == channel_id]
+                
+                if current_channel_data:
+                    # Mevcut veriyi geçmişin sonuna ekle (eğer yoksa)
+                    latest_data = current_channel_data[0]
+                    if not history or history[-1] != latest_data:
+                        history.append(latest_data)
+                        if len(history) > self.max_history_size:
+                            history.pop(0)
+            
+            # Geçmiş verileri combined_data'ya ekle
+            combined_data['data_history'] = self.data_history
+            
+            logger.debug(f"Birleştirilmiş veri oluşturuldu - {len(self.data_history)} kanal geçmişi")
+            return combined_data
+            
+        except Exception as e:
+            logger.error(f"Birleştirilmiş veri oluşturma hatası: {e}")
+            return None

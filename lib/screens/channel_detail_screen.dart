@@ -60,8 +60,10 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
           
           if (updatedVariableData.isNotEmpty) {
             _currentLatestData = updatedVariableData.first;
-            _currentAllData = updatedVariableData;
           }
+          
+          // Geçmiş verileri al
+          _currentAllData = channelData.getChannelHistory(widget.channel.id);
         });
       },
       onError: (error) {

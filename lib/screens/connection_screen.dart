@@ -151,7 +151,7 @@ class _ConnectionScreenState extends State<ConnectionScreen>
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Su Kalitesi İzleme Sistemi',
+                              'Sensör Ölçüm Sistemi',
                               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                                 color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.9),
                               ),

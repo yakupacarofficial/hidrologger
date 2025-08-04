@@ -3,12 +3,14 @@ class ChannelData {
   final Map<String, dynamic> constant;
   final Map<String, dynamic> variable;
   final Map<String, dynamic> alarm;
+  final Map<String, dynamic> rawData; // Raw JSON data
 
   ChannelData({
     required this.timestamp,
     required this.constant,
     required this.variable,
     required this.alarm,
+    required this.rawData,
   });
 
   factory ChannelData.fromJson(Map<String, dynamic> json) {
@@ -17,6 +19,7 @@ class ChannelData {
       constant: json['constant'] ?? {},
       variable: json['variable'] ?? {},
       alarm: json['alarm'] ?? {},
+      rawData: json, // Tüm JSON data'yı sakla
     );
   }
 
@@ -28,6 +31,25 @@ class ChannelData {
   List<VariableData> get variableData {
     final data = variable['data'] as List<dynamic>? ?? [];
     return data.map((item) => VariableData.fromJson(item)).toList();
+  }
+
+  // Geçmiş verileri al
+  Map<int, List<VariableData>> get dataHistory {
+    final history = rawData['data_history'] as Map<String, dynamic>? ?? {};
+    final result = <int, List<VariableData>>{};
+    
+    history.forEach((channelIdStr, historyList) {
+      final channelId = int.tryParse(channelIdStr) ?? 0;
+      final dataList = historyList as List<dynamic>? ?? [];
+      result[channelId] = dataList.map((item) => VariableData.fromJson(item)).toList();
+    });
+    
+    return result;
+  }
+
+  // Belirli bir kanalın geçmiş verilerini al
+  List<VariableData> getChannelHistory(int channelId) {
+    return dataHistory[channelId] ?? [];
   }
 
   // Constant verileri için getter'lar
