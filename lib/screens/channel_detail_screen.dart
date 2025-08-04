@@ -6,14 +6,12 @@ import '../services/websocket_service.dart';
 class ChannelDetailScreen extends StatefulWidget {
   final Channel channel;
   final VariableData? latestData;
-  final List<VariableData>? allData; // Tüm veri geçmişi için
   final WebSocketService webSocketService;
 
   const ChannelDetailScreen({
     super.key,
     required this.channel,
     this.latestData,
-    this.allData,
     required this.webSocketService,
   });
 
@@ -24,21 +22,27 @@ class ChannelDetailScreen extends StatefulWidget {
 class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
   Channel? _currentChannel;
   VariableData? _currentLatestData;
-  List<VariableData>? _currentAllData;
   StreamSubscription<ChannelData>? _dataSubscription;
+  final TextEditingController _logIntervalController = TextEditingController();
+  final TextEditingController _offsetController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _currentChannel = widget.channel;
     _currentLatestData = widget.latestData;
-    _currentAllData = widget.allData;
     _listenToDataUpdates();
+    
+    // Controller'ları mevcut değerlerle doldur
+    _logIntervalController.text = widget.channel.logInterval.toString();
+    _offsetController.text = widget.channel.offset.toString();
   }
 
   @override
   void dispose() {
     _dataSubscription?.cancel();
+    _logIntervalController.dispose();
+    _offsetController.dispose();
     super.dispose();
   }
 
@@ -61,9 +65,6 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
           if (updatedVariableData.isNotEmpty) {
             _currentLatestData = updatedVariableData.first;
           }
-          
-          // Geçmiş verileri al
-          _currentAllData = channelData.getChannelHistory(widget.channel.id);
         });
       },
       onError: (error) {
@@ -72,11 +73,130 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
     );
   }
 
+  void _showEditLogIntervalDialog() {
+    _logIntervalController.text = _currentChannel!.logInterval.toString();
+    
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Log Aralığını Düzenle'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Kanal: ${_currentChannel!.name}'),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _logIntervalController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Log Aralığı (saniye)',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('İptal'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final newValue = int.tryParse(_logIntervalController.text);
+                if (newValue != null && newValue > 0) {
+                  _updateChannelField('logInterval', newValue);
+                  Navigator.of(context).pop();
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Geçerli bir sayı giriniz'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+              child: const Text('Kaydet'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showEditOffsetDialog() {
+    _offsetController.text = _currentChannel!.offset.toString();
+    
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Offset Değerini Düzenle'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Kanal: ${_currentChannel!.name}'),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _offsetController,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                decoration: const InputDecoration(
+                  labelText: 'Offset Değeri',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('İptal'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final newValue = double.tryParse(_offsetController.text);
+                if (newValue != null) {
+                  _updateChannelField('offset', newValue);
+                  Navigator.of(context).pop();
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Geçerli bir sayı giriniz'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+              child: const Text('Kaydet'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _updateChannelField(String field, dynamic value) {
+    final message = {
+      'command': 'update_channel',
+      'channel_id': _currentChannel!.id,
+      'field': field,
+      'value': value,
+    };
+
+    widget.webSocketService.sendMessage(message);
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$field güncelleniyor...'),
+        backgroundColor: Colors.blue,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final channel = _currentChannel ?? widget.channel;
     final latestData = _currentLatestData ?? widget.latestData;
-    final allData = _currentAllData ?? widget.allData;
     
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
@@ -124,12 +244,6 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
               // Kanal Bilgileri
               _buildChannelInfoCard(context, channel),
               const SizedBox(height: 20),
-              
-              // Veri Geçmişi
-              if (allData != null && allData!.isNotEmpty) ...[
-                _buildDataHistoryCard(context, allData, channel),
-                const SizedBox(height: 20),
-              ],
             ],
           ),
         ),
@@ -534,8 +648,8 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
             _buildAsyncInfoRow(context, 'Alt Kategori', channel.subCategory),
             _buildAsyncInfoRow(context, 'Parametre', channel.parameter),
             _buildAsyncInfoRow(context, 'Ölçüm Birimi', channel.unit),
-            _buildInfoRow(context, 'Log Aralığı', '${channel.logInterval} saniye'),
-            _buildInfoRow(context, 'Offset Değeri', channel.offset.toString()),
+            _buildEditableInfoRow(context, 'Log Aralığı', '${channel.logInterval} saniye', _showEditLogIntervalDialog),
+            _buildEditableInfoRow(context, 'Offset Değeri', channel.offset.toString(), _showEditOffsetDialog),
           ],
         ),
       ),
@@ -568,6 +682,45 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
                 fontSize: 14,
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEditableInfoRow(BuildContext context, String label, String value, VoidCallback onEdit) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(
+              label,
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                color: Colors.grey[600],
+                fontSize: 14,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+              ),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.edit, size: 16),
+            onPressed: onEdit,
+            tooltip: 'Düzenle',
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
           ),
         ],
       ),
@@ -665,246 +818,4 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
       default: return 'Bilinmeyen';
     }
   }
-
-
-
-  Widget _buildDataHistoryCard(BuildContext context, List<VariableData> allData, Channel channel) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withOpacity(0.1),
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    Icons.history,
-                    color: Theme.of(context).colorScheme.secondary,
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  'Veri Geçmişi',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const Spacer(),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    '${allData!.length} kayıt',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              height: 300,
-              child: ListView.builder(
-                itemCount: allData!.length,
-                itemBuilder: (context, index) {
-                  final data = allData![index];
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.background,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.outline.withOpacity(0.1),
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        // Değer
-                        Expanded(
-                          flex: 2,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Değer',
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: Colors.grey[600],
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              FutureBuilder<String>(
-                                future: channel.unit,
-                                builder: (context, snapshot) {
-                                  return Text(
-                                    '${data.value.toStringAsFixed(2)} ${snapshot.data ?? ''}',
-                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                      color: Theme.of(context).colorScheme.primary,
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                        // Değer Tipi
-                        Expanded(
-                          flex: 2,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Tip',
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: Colors.grey[600],
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                data.valueTypeName,
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        // Kalite
-                        Expanded(
-                          flex: 2,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Kalite',
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: Colors.grey[600],
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  Container(
-                                    width: 8,
-                                    height: 8,
-                                    decoration: BoxDecoration(
-                                      color: _getQualityColor(data.quality),
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    data.quality,
-                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        // Zaman
-                        Expanded(
-                          flex: 2,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Zaman',
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: Colors.grey[600],
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                data.formattedTimestamp,
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        // Batarya
-                        Expanded(
-                          flex: 1,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Batarya',
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: Colors.grey[600],
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Icon(
-                                _getBatteryIcon(data.batteryPercentage),
-                                color: _getBatteryColor(data.batteryPercentage),
-                                size: 16,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  IconData _getBatteryIcon(int percentage) {
-    if (percentage >= 80) return Icons.battery_full;
-    if (percentage >= 60) return Icons.battery_6_bar;
-    if (percentage >= 40) return Icons.battery_4_bar;
-    if (percentage >= 20) return Icons.battery_2_bar;
-    return Icons.battery_alert;
-  }
-
-
-
-
-
-
-
-
 } 

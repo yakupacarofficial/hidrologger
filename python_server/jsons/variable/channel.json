@@ -8,8 +8,8 @@
       "channel_sub_category": 2,
       "channel_parameter": 2,
       "measurement_unit": 5,
-      "log_interval": 1000,
-      "offset": 1000
+      "log_interval": 1,
+      "offset": 1.0
     },
     {
       "id": 2,

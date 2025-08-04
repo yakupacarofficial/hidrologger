@@ -274,7 +274,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         final channel = filteredChannels[index];
         final data = variableData.where((d) => d.channelId == channel.id).toList();
         final latestData = data.isNotEmpty ? data.first : null;
-        final allData = data.isNotEmpty ? data : null;
 
         return Container(
           margin: const EdgeInsets.only(bottom: 12),

@@ -70,7 +70,7 @@ class WebSocketServer:
             logger.info(f"Client ayrıldı: {client_address}. Kalan client: {len(self.clients)}")
     
     async def handle_client_message(self, websocket, message):
-        """Client'tan gelen mesajları işle"""
+        """Client'tan gelen mesajları işle - DATA HISTORY KOMUTLARI KALDIRILDI"""
         try:
             client_address = websocket.remote_address
             logger.info(f"Client mesajı ({client_address}): {message}")
@@ -120,8 +120,6 @@ class WebSocketServer:
                             await self.send_error_to_client(websocket, f"Kanal güncelleme başarısız: {channel_id}")
                     else:
                         await self.send_error_to_client(websocket, "Geçersiz kanal güncelleme parametreleri")
-                        
-
                         
                 else:
                     await self.send_error_to_client(websocket, f"Bilinmeyen komut: {command}")
@@ -316,7 +314,7 @@ async def main():
         # Sunucuyu oluştur
         server = WebSocketServer()
         
-        # Sinyal işleyiciler    ini ayarla
+        # Sinyal işleyicilerini ayarla
         setup_signal_handlers(server)
         
         # Sunucuyu başlat
