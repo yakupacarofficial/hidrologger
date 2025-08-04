@@ -83,13 +83,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           IconButton(
             icon: const Icon(Icons.info_outline),
             onPressed: _currentData != null ? () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => ConstantDataScreen(
-                    channelData: _currentData!,
-                  ),
-                ),
-              );
+              Navigator.of(context).push(MaterialPageRoute(builder: (context) => const ConstantDataScreen()));
             } : null,
             tooltip: 'Constant Verileri',
           ),
@@ -350,12 +344,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: Text(
-                            channel.category,
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).colorScheme.secondary,
-                              fontWeight: FontWeight.w500,
-                            ),
+                          child: FutureBuilder<String>(
+                            future: channel.category,
+                            builder: (context, snapshot) {
+                              return Text(
+                                snapshot.data ?? 'Yükleniyor...',
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Theme.of(context).colorScheme.secondary,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              );
+                            },
                           ),
                         ),
                       ],
@@ -365,11 +364,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Row(
                         children: [
                           Expanded(
-                            child: DataItem(
-                              label: 'Mevcut Değer',
-                              value: '${latestData.value.toStringAsFixed(2)} ${channel.unit}',
-                              icon: Icons.show_chart,
-                              color: Colors.green,
+                            child: FutureBuilder<String>(
+                              future: channel.unit,
+                              builder: (context, snapshot) {
+                                return DataItem(
+                                  label: 'Mevcut Değer',
+                                  value: '${latestData.value.toStringAsFixed(2)} ${snapshot.data ?? ''}',
+                                  icon: Icons.show_chart,
+                                  color: Colors.green,
+                                );
+                              },
                             ),
                           ),
                           const SizedBox(width: 16),
@@ -533,7 +537,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     color: Theme.of(context).colorScheme.secondary,
                   ),
                   title: const Text('Mevcut Değer'),
-                  subtitle: Text('${latestData.value.toStringAsFixed(2)} ${channel.unit}'),
+                  subtitle: FutureBuilder<String>(
+                    future: channel.unit,
+                    builder: (context, snapshot) {
+                      return Text('${latestData.value.toStringAsFixed(2)} ${snapshot.data ?? ''}');
+                    },
+                  ),
                 ),
               ],
               
@@ -721,12 +730,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                         const SizedBox(width: 8),
                         Expanded(
-                          child: Text(
-                            'Mevcut değer: ${latestData.value.toStringAsFixed(2)} ${channel.unit}',
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.primary,
-                              fontWeight: FontWeight.w500,
-                            ),
+                          child: FutureBuilder<String>(
+                            future: channel.unit,
+                            builder: (context, snapshot) {
+                              return Text(
+                                'Mevcut değer: ${latestData.value.toStringAsFixed(2)} ${snapshot.data ?? ''}',
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              );
+                            },
                           ),
                         ),
                       ],

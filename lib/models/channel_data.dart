@@ -1,13 +1,13 @@
+import '../services/constant_data_service.dart';
+
 class ChannelData {
   final String timestamp;
-  final Map<String, dynamic> constant;
   final Map<String, dynamic> variable;
   final Map<String, dynamic> alarm;
   final Map<String, dynamic> rawData; // Raw JSON data
 
   ChannelData({
     required this.timestamp,
-    required this.constant,
     required this.variable,
     required this.alarm,
     required this.rawData,
@@ -16,7 +16,6 @@ class ChannelData {
   factory ChannelData.fromJson(Map<String, dynamic> json) {
     return ChannelData(
       timestamp: json['timestamp'] ?? '',
-      constant: json['constant'] ?? {},
       variable: json['variable'] ?? {},
       alarm: json['alarm'] ?? {},
       rawData: json, // Tüm JSON data'yı sakla
@@ -24,7 +23,7 @@ class ChannelData {
   }
 
   List<Channel> get channels {
-    final channelData = constant['channel'] as List<dynamic>? ?? [];
+    final channelData = variable['channel'] as List<dynamic>? ?? [];
     return channelData.map((channel) => Channel.fromJson(channel, this)).toList();
   }
 
@@ -50,47 +49,6 @@ class ChannelData {
   // Belirli bir kanalın geçmiş verilerini al
   List<VariableData> getChannelHistory(int channelId) {
     return dataHistory[channelId] ?? [];
-  }
-
-  // Constant verileri için getter'lar
-  Map<int, String> get channelCategories {
-    final categories = constant['channel_category'] as List<dynamic>? ?? [];
-    return Map.fromEntries(
-      categories.map((cat) => MapEntry(
-        cat['id'] as int,
-        cat['name'] as String,
-      )),
-    );
-  }
-
-  Map<int, String> get channelSubCategories {
-    final subCategories = constant['channel_sub_category'] as List<dynamic>? ?? [];
-    return Map.fromEntries(
-      subCategories.map((subCat) => MapEntry(
-        subCat['id'] as int,
-        subCat['name'] as String,
-      )),
-    );
-  }
-
-  Map<int, String> get channelParameters {
-    final parameters = constant['channel_parameter'] as List<dynamic>? ?? [];
-    return Map.fromEntries(
-      parameters.map((param) => MapEntry(
-        param['id'] as int,
-        param['name'] as String,
-      )),
-    );
-  }
-
-  Map<int, String> get measurementUnits {
-    final units = constant['measurement_unit'] as List<dynamic>? ?? [];
-    return Map.fromEntries(
-      units.map((unit) => MapEntry(
-        unit['id'] as int,
-        unit['description'] as String? ?? unit['name'] as String,
-      )),
-    );
   }
 
   int get channelCount => channels.length;
@@ -137,92 +95,25 @@ class Channel {
     );
   }
 
-  String get unit {
-    if (channelData != null) {
-      return channelData!.measurementUnits[measurementUnit] ?? 'Bilinmeyen';
-    }
-    // Fallback değerler
-    switch (measurementUnit) {
-      case 2: return 'm³';
-      case 3: return 'm³/h';
-      case 4: return 'cm';
-      case 5: return 'm';
-      case 7: return 'mm';
-      case 8: return 'bar';
-      case 9: return 'μS';
-      case 10: return '°C';
-      case 11: return 'mg/l';
-      case 12: return 'pH';
-      case 13: return 'NTU';
-      case 15: return '%';
-      case 19: return 'm³/sn';
-      default: return 'Bilinmeyen';
-    }
+  // Sabit verileri ConstantDataService'den alacak getter'lar
+  Future<String> get unit async {
+    final units = await ConstantDataService.getMeasurementUnits();
+    return units[measurementUnit] ?? 'Bilinmeyen';
   }
 
-  String get category {
-    if (channelData != null) {
-      return channelData!.channelCategories[channelCategory] ?? 'Bilinmeyen';
-    }
-    // Fallback değerler
-    switch (channelCategory) {
-      case 1: return 'Akarsu';
-      case 2: return 'Göl';
-      case 3: return 'Baraj';
-      case 4: return 'Kuyu';
-      case 5: return 'Sulama Kanalı';
-      case 6: return 'Meteoroloji İstasyonu';
-      case 7: return 'Su Kalitesi';
-      default: return 'Bilinmeyen';
-    }
+  Future<String> get category async {
+    final categories = await ConstantDataService.getChannelCategories();
+    return categories[channelCategory] ?? 'Bilinmeyen';
   }
 
-  String get subCategory {
-    if (channelData != null) {
-      return channelData!.channelSubCategories[channelSubCategory] ?? 'Bilinmeyen';
-    }
-    // Fallback değerler
-    switch (channelSubCategory) {
-      case 1: return 'Alt Kategori Yok';
-      case 2: return 'Ana Cebri Boru';
-      case 3: return 'Tarımsal Sulama';
-      case 4: return 'Sağ Sahil Sulama';
-      case 5: return 'Sol Sahil Sulama';
-      case 6: return 'Dereye Deşarj';
-      case 7: return 'İçme Suyu';
-      case 8: return 'Termik Santral';
-      default: return 'Bilinmeyen';
-    }
+  Future<String> get subCategory async {
+    final subCategories = await ConstantDataService.getChannelSubCategories();
+    return subCategories[channelSubCategory] ?? 'Bilinmeyen';
   }
 
-  String get parameter {
-    if (channelData != null) {
-      return channelData!.channelParameters[channelParameter] ?? 'Bilinmeyen';
-    }
-    // Fallback değerler
-    switch (channelParameter) {
-      case 1: return 'Bilinmeyen';
-      case 2: return 'Hava Nemi';
-      case 3: return 'Hava Basıncı';
-      case 4: return 'Hava Sıcaklığı';
-      case 5: return 'Doğrudan Radyasyon';
-      case 6: return 'Elektriksel İletkenlik';
-      case 7: return 'Buharlaşma';
-      case 8: return 'Buharlaşma';
-      case 9: return 'Global Radyasyon';
-      case 10: return 'Yaprak Nemi';
-      case 11: return 'pH';
-      case 12: return 'Yağış';
-      case 13: return 'Güneşlenme Süresi';
-      case 14: return 'Toprak Nemi';
-      case 15: return 'Kar Kalınlığı';
-      case 16: return 'Su Miktarı';
-      case 17: return 'Debi';
-      case 18: return 'Su Seviyesi';
-      case 19: return 'Su Hızı';
-      case 20: return 'Su Sıcaklığı';
-      default: return 'Bilinmeyen';
-    }
+  Future<String> get parameter async {
+    final parameters = await ConstantDataService.getChannelParameters();
+    return parameters[channelParameter] ?? 'Bilinmeyen';
   }
 }
 

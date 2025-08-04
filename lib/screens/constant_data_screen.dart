@@ -1,28 +1,23 @@
 import 'package:flutter/material.dart';
 import '../services/constant_data_service.dart';
-import '../models/channel_data.dart';
 
 class ConstantDataScreen extends StatefulWidget {
-  final ChannelData channelData;
-
-  const ConstantDataScreen({
-    super.key,
-    required this.channelData,
-  });
+  const ConstantDataScreen({super.key});
 
   @override
   State<ConstantDataScreen> createState() => _ConstantDataScreenState();
 }
 
-class _ConstantDataScreenState extends State<ConstantDataScreen>
-    with SingleTickerProviderStateMixin {
+class _ConstantDataScreenState extends State<ConstantDataScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final ConstantDataService _constantService = ConstantDataService();
+  Map<String, dynamic> _constantData = {};
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 7, vsync: this);
+    _tabController = TabController(length: 6, vsync: this);
+    _loadConstantData();
   }
 
   @override
@@ -31,48 +26,72 @@ class _ConstantDataScreenState extends State<ConstantDataScreen>
     super.dispose();
   }
 
+  Future<void> _loadConstantData() async {
+    try {
+      final data = await ConstantDataService.loadConstantData();
+      setState(() {
+        _constantData = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      print('Sabit veriler yüklenirken hata: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        title: const Text('Constant Verileri'),
+        title: const Text('Sabit Veriler'),
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
         elevation: 0,
         bottom: TabBar(
           controller: _tabController,
-          isScrollable: true,
           indicatorColor: Theme.of(context).colorScheme.onPrimary,
           labelColor: Theme.of(context).colorScheme.onPrimary,
           unselectedLabelColor: Theme.of(context).colorScheme.onPrimary.withOpacity(0.7),
+          isScrollable: true,
           tabs: const [
-            Tab(text: 'Kategoriler'),
-            Tab(text: 'Alt Kategoriler'),
-            Tab(text: 'Parametreler'),
-            Tab(text: 'Kanallar'),
-            Tab(text: 'Birimler'),
-            Tab(text: 'İstasyonlar'),
+            Tab(text: 'Kanal Kategorileri'),
+            Tab(text: 'Kanal Alt Kategorileri'),
+            Tab(text: 'Kanal Parametreleri'),
+            Tab(text: 'Ölçüm Birimleri'),
+            Tab(text: 'Tag Listesi'),
             Tab(text: 'Değer Tipleri'),
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildDataList('Kanal Kategorileri', _constantService.getChannelCategories(widget.channelData.constant)),
-          _buildDataList('Kanal Alt Kategorileri', _constantService.getChannelSubCategories(widget.channelData.constant)),
-          _buildDataList('Kanal Parametreleri', _constantService.getChannelParameters(widget.channelData.constant)),
-          _buildDataList('Kanallar', _constantService.getChannels(widget.channelData.constant)),
-          _buildDataList('Ölçüm Birimleri', _constantService.getMeasurementUnits(widget.channelData.constant)),
-          _buildDataList('İstasyonlar', _constantService.getStations(widget.channelData.constant)),
-          _buildDataList('Değer Tipleri', _constantService.getValueTypes(widget.channelData.constant)),
-        ],
-      ),
+      body: _isLoading
+          ? const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Sabit veriler yükleniyor...'),
+                ],
+              ),
+            )
+          : TabBarView(
+              controller: _tabController,
+              children: [
+                _buildDataList('Kanal Kategorileri', (_constantData['channel_category']?['channel_category'] as List<dynamic>?) ?? []),
+                _buildDataList('Kanal Alt Kategorileri', (_constantData['channel_sub_category']?['channel_sub_category'] as List<dynamic>?) ?? []),
+                _buildDataList('Kanal Parametreleri', (_constantData['channel_parameter']?['channel_parameter'] as List<dynamic>?) ?? []),
+                _buildDataList('Ölçüm Birimleri', (_constantData['measurement_unit']?['measurement_unit'] as List<dynamic>?) ?? []),
+                _buildDataList('Tag Listesi', (_constantData['tag_list']?['tag_list'] as List<dynamic>?) ?? []),
+                _buildDataList('Değer Tipleri', (_constantData['value_type']?['value_type'] as List<dynamic>?) ?? []),
+              ],
+            ),
     );
   }
 
-  Widget _buildDataList(String title, List<Map<String, dynamic>> dataList) {
+  Widget _buildDataList(String title, List<dynamic> dataList) {
     if (dataList.isEmpty) {
       return Center(
         child: Column(
@@ -106,7 +125,7 @@ class _ConstantDataScreenState extends State<ConstantDataScreen>
       padding: const EdgeInsets.all(16),
       itemCount: dataList.length,
       itemBuilder: (context, index) {
-        final item = dataList[index];
+        final item = dataList[index] as Map<String, dynamic>;
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           child: Card(
@@ -160,34 +179,6 @@ class _ConstantDataScreenState extends State<ConstantDataScreen>
                       ),
                     ],
                   ),
-                  // Ek alanları göster
-                  if (item.length > 3) ...[
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 4,
-                      children: item.entries
-                          .where((entry) => 
-                              entry.key != 'id' && 
-                              entry.key != 'name' && 
-                              entry.key != 'description')
-                          .map((entry) => Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              '${entry.key}: ${entry.value}',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context).colorScheme.secondary,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ))
-                          .toList(),
-                    ),
-                  ],
                 ],
               ),
             ),

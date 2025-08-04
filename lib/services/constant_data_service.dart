@@ -1,142 +1,121 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/services.dart';
 
 class ConstantDataService {
-  static final ConstantDataService _instance = ConstantDataService._internal();
-  factory ConstantDataService() => _instance;
-  ConstantDataService._internal();
-
-  Map<String, dynamic>? _constantData;
-
-  Future<Map<String, dynamic>> getConstantData() async {
-    if (_constantData != null) {
-      return _constantData!;
-    }
-
+  static const String _basePath = 'lib/jsons_flutter/constant';
+  
+  /// Sabit verileri okur
+  static Future<Map<String, dynamic>> loadConstantData() async {
     try {
-      // WebSocket'ten gelen veriyi kullanacağız
-      // Bu servis sadece constant verilerini organize etmek için
+      final Map<String, dynamic> constantData = {};
+      
+      // Tüm sabit JSON dosyalarını oku
+      final files = [
+        'channel_category.json',
+        'channel_parameter.json',
+        'channel_sub_category.json',
+        'measurement_unit.json',
+        'tag_list.json',
+        'value_type.json',
+      ];
+      
+      for (final file in files) {
+        final filePath = '$_basePath/$file';
+        final jsonString = await rootBundle.loadString(filePath);
+        final jsonData = json.decode(jsonString);
+        
+        // Dosya adından .json uzantısını kaldır
+        final key = file.replaceAll('.json', '');
+        constantData[key] = jsonData;
+      }
+      
+      return constantData;
+    } catch (e) {
+      print('Sabit veriler yüklenirken hata: $e');
       return {};
-    } catch (e) {
-      print('Constant data yüklenirken hata: $e');
-      return {};
     }
   }
-
-  List<Map<String, dynamic>> getChannelCategories(Map<String, dynamic> constantData) {
+  
+  /// Belirli bir sabit veriyi okur
+  static Future<Map<String, dynamic>?> loadSpecificConstantData(String fileName) async {
     try {
-      final categories = constantData['channel_category'] as List<dynamic>? ?? [];
-      return categories.map((item) => item as Map<String, dynamic>).toList();
+      final filePath = '$_basePath/$fileName';
+      final jsonString = await rootBundle.loadString(filePath);
+      return json.decode(jsonString);
     } catch (e) {
-      return [];
+      print('$fileName yüklenirken hata: $e');
+      return null;
     }
   }
-
-  List<Map<String, dynamic>> getChannelSubCategories(Map<String, dynamic> constantData) {
-    try {
-      final subCategories = constantData['channel_sub_category'] as List<dynamic>? ?? [];
-      return subCategories.map((item) => item as Map<String, dynamic>).toList();
-    } catch (e) {
-      return [];
-    }
-  }
-
-  List<Map<String, dynamic>> getChannelParameters(Map<String, dynamic> constantData) {
-    try {
-      final parameters = constantData['channel_parameter'] as List<dynamic>? ?? [];
-      return parameters.map((item) => item as Map<String, dynamic>).toList();
-    } catch (e) {
-      return [];
-    }
-  }
-
-  List<Map<String, dynamic>> getChannels(Map<String, dynamic> constantData) {
-    try {
-      final channels = constantData['channel'] as List<dynamic>? ?? [];
-      return channels.map((item) => item as Map<String, dynamic>).toList();
-    } catch (e) {
-      return [];
-    }
-  }
-
-  List<Map<String, dynamic>> getMeasurementUnits(Map<String, dynamic> constantData) {
-    try {
-      final units = constantData['measurement_unit'] as List<dynamic>? ?? [];
-      return units.map((item) => item as Map<String, dynamic>).toList();
-    } catch (e) {
-      return [];
-    }
-  }
-
-  List<Map<String, dynamic>> getStations(Map<String, dynamic> constantData) {
-    try {
-      final stations = constantData['station'] as List<dynamic>? ?? [];
-      return stations.map((item) => item as Map<String, dynamic>).toList();
-    } catch (e) {
-      return [];
-    }
-  }
-
-  List<Map<String, dynamic>> getValueTypes(Map<String, dynamic> constantData) {
-    try {
-      final valueTypes = constantData['value_type'] as List<dynamic>? ?? [];
-      return valueTypes.map((item) => item as Map<String, dynamic>).toList();
-    } catch (e) {
-      return [];
-    }
-  }
-
-  String getCategoryName(int id, Map<String, dynamic> constantData) {
-    final categories = getChannelCategories(constantData);
-    final category = categories.firstWhere(
-      (cat) => cat['id'] == id,
-      orElse: () => {'name': 'Bilinmeyen', 'description': 'Kategori bulunamadı'},
+  
+  /// Kanal kategorilerini döndürür
+  static Future<Map<int, String>> getChannelCategories() async {
+    final data = await loadSpecificConstantData('channel_category.json');
+    if (data == null || data['channel_category'] == null) return {};
+    
+    final categories = data['channel_category'] as List<dynamic>;
+    return Map.fromEntries(
+      categories.map((cat) => MapEntry(
+        cat['id'] as int,
+        cat['name'] as String,
+      )),
     );
-    return category['name'] ?? 'Bilinmeyen';
   }
-
-  String getSubCategoryName(int id, Map<String, dynamic> constantData) {
-    final subCategories = getChannelSubCategories(constantData);
-    final subCategory = subCategories.firstWhere(
-      (subCat) => subCat['id'] == id,
-      orElse: () => {'name': 'Bilinmeyen', 'description': 'Alt kategori bulunamadı'},
+  
+  /// Kanal parametrelerini döndürür
+  static Future<Map<int, String>> getChannelParameters() async {
+    final data = await loadSpecificConstantData('channel_parameter.json');
+    if (data == null || data['channel_parameter'] == null) return {};
+    
+    final parameters = data['channel_parameter'] as List<dynamic>;
+    return Map.fromEntries(
+      parameters.map((param) => MapEntry(
+        param['id'] as int,
+        param['name'] as String,
+      )),
     );
-    return subCategory['name'] ?? 'Bilinmeyen';
   }
-
-  String getParameterName(int id, Map<String, dynamic> constantData) {
-    final parameters = getChannelParameters(constantData);
-    final parameter = parameters.firstWhere(
-      (param) => param['id'] == id,
-      orElse: () => {'name': 'Bilinmeyen', 'description': 'Parametre bulunamadı'},
+  
+  /// Kanal alt kategorilerini döndürür
+  static Future<Map<int, String>> getChannelSubCategories() async {
+    final data = await loadSpecificConstantData('channel_sub_category.json');
+    if (data == null || data['channel_sub_category'] == null) return {};
+    
+    final subCategories = data['channel_sub_category'] as List<dynamic>;
+    return Map.fromEntries(
+      subCategories.map((subCat) => MapEntry(
+        subCat['id'] as int,
+        subCat['name'] as String,
+      )),
     );
-    return parameter['name'] ?? 'Bilinmeyen';
   }
-
-  String getUnitName(int id, Map<String, dynamic> constantData) {
-    final units = getMeasurementUnits(constantData);
-    final unit = units.firstWhere(
-      (unit) => unit['id'] == id,
-      orElse: () => {'name': 'Bilinmeyen', 'description': 'Birim bulunamadı'},
+  
+  /// Ölçüm birimlerini döndürür
+  static Future<Map<int, String>> getMeasurementUnits() async {
+    final data = await loadSpecificConstantData('measurement_unit.json');
+    if (data == null || data['measurement_unit'] == null) return {};
+    
+    final units = data['measurement_unit'] as List<dynamic>;
+    return Map.fromEntries(
+      units.map((unit) => MapEntry(
+        unit['id'] as int,
+        unit['description'] as String? ?? unit['name'] as String,
+      )),
     );
-    return unit['name'] ?? 'Bilinmeyen';
   }
-
-  String getStationName(int id, Map<String, dynamic> constantData) {
-    final stations = getStations(constantData);
-    final station = stations.firstWhere(
-      (station) => station['id'] == id,
-      orElse: () => {'name': 'Bilinmeyen', 'description': 'İstasyon bulunamadı'},
+  
+  /// Değer tiplerini döndürür
+  static Future<Map<int, String>> getValueTypes() async {
+    final data = await loadSpecificConstantData('value_type.json');
+    if (data == null || data['value_type'] == null) return {};
+    
+    final valueTypes = data['value_type'] as List<dynamic>;
+    return Map.fromEntries(
+      valueTypes.map((vt) => MapEntry(
+        vt['id'] as int,
+        vt['name'] as String,
+      )),
     );
-    return station['name'] ?? 'Bilinmeyen';
-  }
-
-  String getValueTypeName(int id, Map<String, dynamic> constantData) {
-    final valueTypes = getValueTypes(constantData);
-    final valueType = valueTypes.firstWhere(
-      (vt) => vt['id'] == id,
-      orElse: () => {'name': 'Bilinmeyen', 'description': 'Değer tipi bulunamadı'},
-    );
-    return valueType['name'] ?? 'Bilinmeyen';
   }
 } 

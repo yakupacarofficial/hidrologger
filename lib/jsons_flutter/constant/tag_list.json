@@ -1,0 +1,14 @@
+{
+    "tag": [
+      {
+        "type": "INSDATA"
+      },
+      {
+        "type": "RTC"
+      },
+      {
+        "type": "ALARM"
+      }
+    ]
+  }
+  

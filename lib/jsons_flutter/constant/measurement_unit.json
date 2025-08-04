@@ -1,0 +1,104 @@
+{
+    "measurement_unit": [
+      {
+        "id": 1,
+        "name": "NoUnit",
+        "description": ""
+      },
+      {
+        "id": 2,
+        "name": "CubicMe",
+        "description": "m³"
+      },
+      {
+        "id": 3,
+        "name": "CubicMeterPerHour",
+        "description": "m³/h"
+      },
+      {
+        "id": 4,
+        "name": "Centimeter",
+        "description": "cm"
+      },
+      {
+        "id": 5,
+        "name": "Meter",
+        "description": "m"
+      },
+      {
+        "id": 6,
+        "name": "CubicHectometer",
+        "description": "hm³"
+      },
+      {
+        "id": 7,
+        "name": "Milimeter",
+        "description": "mm"
+      },
+      {
+        "id": 8,
+        "name": "Bar",
+        "description": "bar"
+      },
+      {
+        "id": 9,
+        "name": "Microsiemen",
+        "description": "μS"
+      },
+      {
+        "id": 10,
+        "name": "DegreeCelsius",
+        "description": "C"
+      },
+      {
+        "id": 11,
+        "name": "MilligramPerLiter",
+        "description": "mg/l"
+      },
+      {
+        "id": 12,
+        "name": "PH",
+        "description": "pH"
+      },
+      {
+        "id": 13,
+        "name": "NTU",
+        "description": "NTU"
+      },
+      {
+        "id": 14,
+        "name": "InputOutput",
+        "description": "I/O"
+      },
+      {
+        "id": 15,
+        "name": "Percent",
+        "description": "%"
+      },
+      {
+        "id": 16,
+        "name": "LiterPerHou",
+        "description": "l/h"
+      },
+      {
+        "id": 17,
+        "name": "LiterPerSecond",
+        "description": "l/sn"
+      },
+      {
+        "id": 18,
+        "name": "LiterPerMinute",
+        "description": "l/dk"
+      },
+      {
+        "id": 19,
+        "name": "CubicMeterPerSecond",
+        "description": "m³/sn"
+      },
+      {
+        "id": 20,
+        "name": "MeterPerSecond",
+        "description": "m/sn"
+      }
+    ]
+  }           

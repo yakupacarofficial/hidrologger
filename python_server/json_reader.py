@@ -151,7 +151,7 @@ class JSONReader:
         return False
     
     def read_all_data(self) -> Optional[Dict[str, Any]]:
-        """Tüm JSON verilerini oku ve birleştir"""
+        """Tüm JSON verilerini oku ve birleştir - GÜNCELLENDİ"""
         try:
             # Dosya değişikliği kontrolü
             if not self._has_files_changed() and self.last_successful_data is not None:
@@ -160,16 +160,14 @@ class JSONReader:
             
             logger.info("JSON dosyaları okunuyor...")
             
-            # Tüm klasörlerden verileri oku
+            # Sadece alarm ve variable verilerini oku (constant verileri Flutter'da yerel olarak tutulacak)
             alarm_data = self._read_directory_files(self.alarm_path, "Alarm")
-            constant_data = self._read_directory_files(self.constant_path, "Constant")
             variable_data = self._read_directory_files(self.variable_path, "Variable")
             
-            # Verileri birleştir
+            # Verileri birleştir (constant verileri çıkarıldı)
             combined_data = {
                 "timestamp": datetime.now().isoformat(),
                 "alarm": alarm_data,
-                "constant": constant_data,
                 "variable": variable_data
             }
             
@@ -191,7 +189,7 @@ class JSONReader:
                 combined_data['data_history'] = self.data_history
                 
                 self.last_successful_data = combined_data
-                logger.info("JSON verileri başarıyla okundu ve birleştirildi (geçmiş veriler dahil)")
+                logger.info("JSON verileri başarıyla okundu ve birleştirildi (geçmiş veriler dahil, constant verileri çıkarıldı)")
                 return combined_data
             else:
                 logger.error("Veri doğrulama başarısız")
@@ -212,10 +210,10 @@ class JSONReader:
             return None
     
     def _validate_data(self, data: Dict[str, Any]) -> bool:
-        """Veri bütünlüğünü kontrol et"""
+        """Veri bütünlüğünü kontrol et - GÜNCELLENDİ"""
         try:
-            # Temel yapı kontrolü
-            required_keys = ["timestamp", "alarm", "constant", "variable"]
+            # Temel yapı kontrolü (constant çıkarıldı)
+            required_keys = ["timestamp", "alarm", "variable"]
             for key in required_keys:
                 if key not in data:
                     logger.error(f"Eksik anahtar: {key}")
@@ -226,9 +224,9 @@ class JSONReader:
                 logger.error("Timestamp boş")
                 return False
             
-            # En az bir veri kategorisinin dolu olması gerekiyor
+            # En az bir veri kategorisinin dolu olması gerekiyor (constant çıkarıldı)
             has_data = False
-            for category in ["alarm", "constant", "variable"]:
+            for category in ["alarm", "variable"]:
                 if data[category] and len(data[category]) > 0:
                     has_data = True
                     break

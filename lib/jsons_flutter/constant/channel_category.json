@@ -1,0 +1,39 @@
+{
+    "channel_category": [
+      {
+        "id": 1,
+        "name": "Akarsu",
+        "description": "Nehir, Dere"
+      },
+      {
+        "id": 2,
+        "name": "Gol",
+        "description": "Göl, Gölet"
+      },
+      {
+        "id": 3,
+        "name": "Baraj",
+        "description": ""
+      },
+      {
+        "id": 4,
+        "name": "Kuyu",
+        "description": "YAS Kuyusu, Yüzey Suyu Gözlemi"
+      },
+      {
+        "id": 5,
+        "name": "SulamaKanali",
+        "description": ""
+      },
+      {
+        "id": 6,
+        "name": "MeteorolojiIstasyonu",
+        "description": "Çok parametreli meteoroloji istasyonu, kar gözlem vs"
+      },
+      {
+        "id": 7,
+        "name": "SuKalitesi",
+        "description": ""
+      }
+    ]
+  }  

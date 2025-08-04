@@ -225,12 +225,17 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
                     color: Theme.of(context).colorScheme.onPrimary,
                   ),
                   const SizedBox(width: 6),
-                  Text(
-                    _currentChannel!.category,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  FutureBuilder<String>(
+                    future: _currentChannel!.category,
+                    builder: (context, snapshot) {
+                      return Text(
+                        snapshot.data ?? 'Yükleniyor...',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -351,12 +356,17 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
             ),
           ),
           const SizedBox(height: 4),
-          Text(
-            channel.unit,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-              fontWeight: FontWeight.w500,
-            ),
+          FutureBuilder<String>(
+            future: channel.unit,
+            builder: (context, snapshot) {
+              return Text(
+                snapshot.data ?? 'Yükleniyor...',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                  fontWeight: FontWeight.w500,
+                ),
+              );
+            },
           ),
           const SizedBox(height: 8),
           Text(
@@ -527,10 +537,10 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
             _buildInfoRow(context, 'Kanal ID', '#${channel.id}'),
             _buildInfoRow(context, 'Kanal Adı', channel.name, isEditable: true, fieldName: 'name'),
             _buildInfoRow(context, 'Açıklama', channel.description, isEditable: true, fieldName: 'description'),
-            _buildInfoRow(context, 'Ana Kategori', channel.category, isEditable: true, fieldName: 'channelCategory'),
-            _buildInfoRow(context, 'Alt Kategori', channel.subCategory, isEditable: true, fieldName: 'channelSubCategory'),
-            _buildInfoRow(context, 'Parametre', channel.parameter, isEditable: true, fieldName: 'channelParameter'),
-            _buildInfoRow(context, 'Ölçüm Birimi', channel.unit, isEditable: true, fieldName: 'measurementUnit'),
+            _buildAsyncInfoRow(context, 'Ana Kategori', channel.category, isEditable: true, fieldName: 'channelCategory'),
+            _buildAsyncInfoRow(context, 'Alt Kategori', channel.subCategory, isEditable: true, fieldName: 'channelSubCategory'),
+            _buildAsyncInfoRow(context, 'Parametre', channel.parameter, isEditable: true, fieldName: 'channelParameter'),
+            _buildAsyncInfoRow(context, 'Ölçüm Birimi', channel.unit, isEditable: true, fieldName: 'measurementUnit'),
             _buildInfoRow(context, 'Log Aralığı', '${channel.logInterval} saniye', isEditable: true, fieldName: 'logInterval'),
             _buildInfoRow(context, 'Offset Değeri', channel.offset.toString(), isEditable: true, fieldName: 'offset'),
           ],
@@ -600,6 +610,81 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
                       fontSize: 14,
                     ),
                   ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAsyncInfoRow(BuildContext context, String label, Future<String> valueFuture, {bool isEditable = false, String? fieldName}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(
+              label,
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                color: Colors.grey[600],
+                fontSize: 14,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: FutureBuilder<String>(
+              future: valueFuture,
+              builder: (context, snapshot) {
+                final value = snapshot.data ?? 'Yükleniyor...';
+                return isEditable
+                    ? GestureDetector(
+                        onTap: () {
+                          if (snapshot.hasData) {
+                            _showEditDialog(context, label, value, fieldName!);
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  value,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14,
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                                ),
+                              ),
+                              Icon(
+                                Icons.edit,
+                                size: 16,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    : Text(
+                        value,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      );
+              },
+            ),
           ),
         ],
       ),
@@ -755,12 +840,17 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
                                 ),
                               ),
                               const SizedBox(height: 4),
-                              Text(
-                                '${data.value.toStringAsFixed(2)} ${channel.unit}',
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
+                              FutureBuilder<String>(
+                                future: channel.unit,
+                                builder: (context, snapshot) {
+                                  return Text(
+                                    '${data.value.toStringAsFixed(2)} ${snapshot.data ?? ''}',
+                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: Theme.of(context).colorScheme.primary,
+                                    ),
+                                  );
+                                },
                               ),
                             ],
                           ),
@@ -1017,12 +1107,17 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
                         ),
                         const SizedBox(width: 8),
                         Expanded(
-                          child: Text(
-                            'Mevcut değer: ${latestData.value.toStringAsFixed(2)} ${channel.unit}',
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.primary,
-                              fontWeight: FontWeight.w500,
-                            ),
+                          child: FutureBuilder<String>(
+                            future: channel.unit,
+                            builder: (context, snapshot) {
+                              return Text(
+                                'Mevcut değer: ${latestData.value.toStringAsFixed(2)} ${snapshot.data ?? ''}',
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              );
+                            },
                           ),
                         ),
                       ],
