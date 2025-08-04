@@ -16,7 +16,7 @@ class _ConstantDataScreenState extends State<ConstantDataScreen> with SingleTick
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 6, vsync: this);
+    _tabController = TabController(length: 7, vsync: this); // Length changed
     _loadConstantData();
   }
 
@@ -63,6 +63,7 @@ class _ConstantDataScreenState extends State<ConstantDataScreen> with SingleTick
             Tab(text: 'Ölçüm Birimleri'),
             Tab(text: 'Tag Listesi'),
             Tab(text: 'Değer Tipleri'),
+            Tab(text: 'İstasyonlar'),
           ],
         ),
       ),
@@ -86,6 +87,7 @@ class _ConstantDataScreenState extends State<ConstantDataScreen> with SingleTick
                 _buildDataList('Ölçüm Birimleri', (_constantData['measurement_unit']?['measurement_unit'] as List<dynamic>?) ?? []),
                 _buildDataList('Tag Listesi', (_constantData['tag_list']?['tag_list'] as List<dynamic>?) ?? []),
                 _buildDataList('Değer Tipleri', (_constantData['value_type']?['value_type'] as List<dynamic>?) ?? []),
+                _buildDataList('İstasyonlar', (_constantData['station']?['station'] as List<dynamic>?) ?? []),
               ],
             ),
     );
@@ -126,6 +128,80 @@ class _ConstantDataScreenState extends State<ConstantDataScreen> with SingleTick
       itemCount: dataList.length,
       itemBuilder: (context, index) {
         final item = dataList[index] as Map<String, dynamic>;
+        
+        // İstasyonlar için özel detay gösterimi
+        if (title == 'İstasyonlar') {
+          return Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            child: Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Başlık satırı
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            'ID: ${item['id'] ?? 'N/A'}',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item['name'] ?? 'İsimsiz İstasyon',
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Kod: ${item['code'] ?? 'N/A'}',
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Theme.of(context).colorScheme.secondary,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    // Detay bilgileri
+                    _buildDetailRow('Güvenlik Kodu', item['security_code'] ?? 'N/A'),
+                    _buildDetailRow('Bölge', item['region']?.toString() ?? 'N/A'),
+                    _buildDetailRow('Havza', item['basin']?.toString() ?? 'N/A'),
+                    _buildDetailRow('Numara', item['no']?.toString() ?? 'N/A'),
+                    _buildDetailRow('Enlem', '${item['latitude']?.toString() ?? 'N/A'}°'),
+                    _buildDetailRow('Boylam', '${item['longitude']?.toString() ?? 'N/A'}°'),
+                    if (item['phone'] != null) _buildDetailRow('Telefon', item['phone']),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+        
+        // Diğer veriler için standart gösterim
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           child: Card(
@@ -185,6 +261,35 @@ class _ConstantDataScreenState extends State<ConstantDataScreen> with SingleTick
           ),
         );
       },
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 100,
+            child: Text(
+              '$label:',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                fontWeight: FontWeight.w500,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 } 

@@ -95,13 +95,6 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.add_alert, size: 20),
-            onPressed: () {
-              _showAlarmSettings(context);
-            },
-            tooltip: 'Alarm Ayarları',
-          ),
-          IconButton(
             icon: const Icon(Icons.info_outline, size: 20),
             onPressed: () {
               // TODO: Kanal hakkında detay bilgi göster
@@ -535,21 +528,21 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
             ),
             const SizedBox(height: 20),
             _buildInfoRow(context, 'Kanal ID', '#${channel.id}'),
-            _buildInfoRow(context, 'Kanal Adı', channel.name, isEditable: true, fieldName: 'name'),
-            _buildInfoRow(context, 'Açıklama', channel.description, isEditable: true, fieldName: 'description'),
-            _buildAsyncInfoRow(context, 'Ana Kategori', channel.category, isEditable: true, fieldName: 'channelCategory'),
-            _buildAsyncInfoRow(context, 'Alt Kategori', channel.subCategory, isEditable: true, fieldName: 'channelSubCategory'),
-            _buildAsyncInfoRow(context, 'Parametre', channel.parameter, isEditable: true, fieldName: 'channelParameter'),
-            _buildAsyncInfoRow(context, 'Ölçüm Birimi', channel.unit, isEditable: true, fieldName: 'measurementUnit'),
-            _buildInfoRow(context, 'Log Aralığı', '${channel.logInterval} saniye', isEditable: true, fieldName: 'logInterval'),
-            _buildInfoRow(context, 'Offset Değeri', channel.offset.toString(), isEditable: true, fieldName: 'offset'),
+            _buildInfoRow(context, 'Kanal Adı', channel.name),
+            _buildInfoRow(context, 'Açıklama', channel.description),
+            _buildAsyncInfoRow(context, 'Ana Kategori', channel.category),
+            _buildAsyncInfoRow(context, 'Alt Kategori', channel.subCategory),
+            _buildAsyncInfoRow(context, 'Parametre', channel.parameter),
+            _buildAsyncInfoRow(context, 'Ölçüm Birimi', channel.unit),
+            _buildInfoRow(context, 'Log Aralığı', '${channel.logInterval} saniye'),
+            _buildInfoRow(context, 'Offset Değeri', channel.offset.toString()),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildInfoRow(BuildContext context, String label, String value, {bool isEditable = false, String? fieldName}) {
+  Widget _buildInfoRow(BuildContext context, String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -568,55 +561,20 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
           ),
           Expanded(
             flex: 3,
-            child: isEditable
-                ? GestureDetector(
-                    onTap: () {
-                      _showEditDialog(context, label, value, fieldName!);
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              value,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                            ),
-                          ),
-                          Icon(
-                            Icons.edit,
-                            size: 16,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                : Text(
-                    value,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                    ),
-                  ),
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildAsyncInfoRow(BuildContext context, String label, Future<String> valueFuture, {bool isEditable = false, String? fieldName}) {
+  Widget _buildAsyncInfoRow(BuildContext context, String label, Future<String> valueFuture) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -639,50 +597,13 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
               future: valueFuture,
               builder: (context, snapshot) {
                 final value = snapshot.data ?? 'Yükleniyor...';
-                return isEditable
-                    ? GestureDetector(
-                        onTap: () {
-                          if (snapshot.hasData) {
-                            _showEditDialog(context, label, value, fieldName!);
-                          }
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  value,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 14,
-                                    color: Theme.of(context).colorScheme.primary,
-                                  ),
-                                ),
-                              ),
-                              Icon(
-                                Icons.edit,
-                                size: 16,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                    : Text(
-                        value,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
-                      );
+                return Text(
+                  value,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                );
               },
             ),
           ),
@@ -979,316 +900,11 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
     return Icons.battery_alert;
   }
 
-  void _showEditDialog(BuildContext context, String label, String currentValue, String fieldName) {
-    final controller = TextEditingController(text: currentValue);
-    
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('$label Düzenle'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: controller,
-                decoration: InputDecoration(
-                  labelText: label,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                autofocus: true,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('İptal'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final newValue = controller.text.trim();
-                if (newValue.isNotEmpty && newValue != currentValue) {
-                  _updateChannelField(fieldName, newValue);
-                }
-                Navigator.of(context).pop();
-              },
-              child: const Text('Kaydet'),
-            ),
-          ],
-        );
-      },
-    );
-  }
 
-  void _updateChannelField(String fieldName, String newValue) async {
-    final channel = _currentChannel ?? widget.channel;
-    // WebSocket üzerinden sunucuya güncelleme mesajı gönder
-    final updateMessage = {
-      'command': 'update_channel',
-      'channel_id': channel.id,
-      'field': fieldName,
-      'value': newValue,
-    };
-    
-    try {
-      final success = await widget.webSocketService.sendMessage(updateMessage);
-      if (success) {
-        print('Kanal güncelleme mesajı gönderildi: $updateMessage');
-      } else {
-        print('Kanal güncelleme hatası: ${widget.webSocketService.lastError}');
-      }
-    } catch (e) {
-      print('Kanal güncelleme exception: $e');
-    }
-  }
 
-  void _showAlarmSettings(BuildContext context) {
-    final channel = _currentChannel ?? widget.channel;
-    final latestData = _currentLatestData ?? widget.latestData;
-    
-    // Alarm verilerini hazırla
-    final alarmData = _prepareAlarmData(channel, latestData);
-    
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('${channel.name} - Alarm Ayarları'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Veri Gönderme Sıklığı (Düzenlenebilir)
-                ListTile(
-                  title: const Text('Veri Gönderme Sıklığı'),
-                  subtitle: Text('${alarmData['dataPostFrequency']} saniye'),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.edit),
-                    onPressed: () {
-                      Navigator.pop(context);
-                      _showDataPostFrequencyDialog(context, channel);
-                    },
-                  ),
-                ),
-                const Divider(),
-                
-                // Diğer alarm bilgileri (Salt okunur)
-                _buildAlarmInfoRow('İstasyon Kodu', alarmData['istCode'] ?? 'N/A'),
-                _buildAlarmInfoRow('Güvenlik Kodu', alarmData['securityCode'] ?? 'N/A'),
-                _buildAlarmInfoRow('Parametre ID', alarmData['parameter']?.toString() ?? 'N/A'),
-                const SizedBox(height: 16),
-                const Text(
-                  'Alarm Seviyeleri:',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                _buildAlarmInfoRow('Sarı Uyarı', '${alarmData['yellowAlert']?[0]} - ${alarmData['yellowAlert']?[1]} saniye'),
-                _buildAlarmInfoRow('Turuncu Uyarı', '${alarmData['orangeAlert']?[0]} - ${alarmData['orangeAlert']?[1]} saniye'),
-                _buildAlarmInfoRow('Kırmızı Uyarı', '${alarmData['redAlert']?[0]} - ${alarmData['redAlert']?[1]} saniye'),
-                
-                if (latestData != null) ...[
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.info,
-                          color: Theme.of(context).colorScheme.primary,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: FutureBuilder<String>(
-                            future: channel.unit,
-                            builder: (context, snapshot) {
-                              return Text(
-                                'Mevcut değer: ${latestData.value.toStringAsFixed(2)} ${snapshot.data ?? ''}',
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Kapat'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                _saveAlarmData(alarmData);
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('${channel.name} için alarm ayarları kaydedildi'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-              },
-              child: const Text('Kaydet'),
-            ),
-          ],
-        );
-      },
-    );
-  }
 
-  void _showDataPostFrequencyDialog(BuildContext context, Channel channel) {
-    final controller = TextEditingController(text: channel.logInterval.toString());
-    
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Veri Gönderme Sıklığı'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'Bu değer alarm ayarlarında kullanılacak ve kanalın veri gönderme sıklığını belirler.',
-                style: TextStyle(fontSize: 12),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: controller,
-                decoration: const InputDecoration(
-                  labelText: 'Saniye',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.number,
-                autofocus: true,
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('İptal'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final newValue = int.tryParse(controller.text.trim());
-                if (newValue != null && newValue > 0) {
-                  _updateChannelField('logInterval', newValue.toString());
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Veri gönderme sıklığı güncellendi'),
-                      backgroundColor: Colors.green,
-                    ),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Geçerli bir sayı girin'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                }
-              },
-              child: const Text('Kaydet'),
-            ),
-          ],
-        );
-      },
-    );
-  }
 
-  Widget _buildAlarmInfoRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 120,
-            child: Text(
-              '$label:',
-              style: const TextStyle(fontWeight: FontWeight.w500),
-            ),
-          ),
-          Expanded(
-            child: Text(value),
-          ),
-        ],
-      ),
-    );
-  }
 
-  Map<String, dynamic> _prepareAlarmData(Channel channel, VariableData? latestData) {
-    // Alarm verilerini hazırla
-    final alarmData = <String, dynamic>{};
-    
-    // Tüm verileri alarm.json'dan al
-    final alarmJson = widget.webSocketService.lastData?.rawData['alarm'] as Map<String, dynamic>?;
-    
-    // İstasyon kodunu alarm.json'dan al
-    alarmData['istCode'] = alarmJson?['istCode'] ?? '0606001';
-    
-    // Güvenlik kodunu alarm.json'dan al
-    alarmData['securityCode'] = alarmJson?['securityCode'] ?? '1234567890';
-    
-    // Parametre ID'sini seçilen kanalın ID'sinden al (alarm.json'daki parameter ile bağdaştır)
-    alarmData['parameter'] = channel.id;
-    
-    // Veri gönderme sıklığını alarm.json'dan al
-    final deviceSettings = alarmJson?['deviceSettings'] as Map<String, dynamic>?;
-    alarmData['dataPostFrequency'] = deviceSettings?['dataPostFrequency'] ?? 60;
-    
-    // Alarm seviyelerini alarm.json'dan al
-    alarmData['yellowAlert'] = deviceSettings?['yellowAlert'] ?? [50, 10];
-    alarmData['orangeAlert'] = deviceSettings?['orangeAlert'] ?? [55, 5];
-    alarmData['redAlert'] = deviceSettings?['redAlert'] ?? [70, 1];
-    
-    return alarmData;
-  }
 
-  void _saveAlarmData(Map<String, dynamic> alarmData) async {
-    // Alarm verilerini server'a gönder
-    final message = {
-      'command': 'save_alarm',
-      'data': alarmData
-    };
-    
-    try {
-      final success = await widget.webSocketService.sendMessage(message);
-      if (success) {
-        print('Alarm verileri kaydedildi: $alarmData');
-      } else {
-        print('Alarm kaydetme hatası: ${widget.webSocketService.lastError}');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Alarm kaydetme hatası: ${widget.webSocketService.lastError}'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } catch (e) {
-      print('Alarm kaydetme exception: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Alarm kaydetme hatası: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-  }
+
 } 

@@ -3,11 +3,11 @@
       {
         "id": 1,
         "channel": 1,
-        "value_type": 6,
+        "value_type": 2,
         "value_timestamp": 1722479940,
-        "value": 1000,
-        "battery_percentage": 1 ,
-        "signal_strength": 1
+        "value": 10,
+        "battery_percentage": 100 ,
+        "signal_strength": 100
       },
       {
         "id": 2,

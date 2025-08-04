@@ -18,6 +18,7 @@ class ConstantDataService {
         'measurement_unit.json',
         'tag_list.json',
         'value_type.json',
+        'station.json',
       ];
       
       for (final file in files) {
@@ -107,15 +108,34 @@ class ConstantDataService {
   
   /// Değer tiplerini döndürür
   static Future<Map<int, String>> getValueTypes() async {
-    final data = await loadSpecificConstantData('value_type.json');
-    if (data == null || data['value_type'] == null) return {};
-    
-    final valueTypes = data['value_type'] as List<dynamic>;
-    return Map.fromEntries(
-      valueTypes.map((vt) => MapEntry(
-        vt['id'] as int,
-        vt['name'] as String,
-      )),
-    );
+    try {
+      final jsonData = await loadSpecificConstantData('value_type.json');
+      final valueTypes = jsonData?['value_type'] as List<dynamic>? ?? [];
+      final Map<int, String> result = {};
+      for (final item in valueTypes) {
+        final map = item as Map<String, dynamic>;
+        result[map['id'] as int] = map['name'] as String;
+      }
+      return result;
+    } catch (e) {
+      print('Value type verileri yüklenirken hata: $e');
+      return {};
+    }
+  }
+
+  static Future<Map<int, String>> getStations() async {
+    try {
+      final jsonData = await loadSpecificConstantData('station.json');
+      final stations = jsonData?['station'] as List<dynamic>? ?? [];
+      final Map<int, String> result = {};
+      for (final item in stations) {
+        final map = item as Map<String, dynamic>;
+        result[map['id'] as int] = map['name'] as String;
+      }
+      return result;
+    } catch (e) {
+      print('Station verileri yüklenirken hata: $e');
+      return {};
+    }
   }
 } 

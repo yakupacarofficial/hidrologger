@@ -3,13 +3,11 @@ import '../services/constant_data_service.dart';
 class ChannelData {
   final String timestamp;
   final Map<String, dynamic> variable;
-  final Map<String, dynamic> alarm;
   final Map<String, dynamic> rawData; // Raw JSON data
 
   ChannelData({
     required this.timestamp,
     required this.variable,
-    required this.alarm,
     required this.rawData,
   });
 
@@ -17,7 +15,6 @@ class ChannelData {
     return ChannelData(
       timestamp: json['timestamp'] ?? '',
       variable: json['variable'] ?? {},
-      alarm: json['alarm'] ?? {},
       rawData: json, // Tüm JSON data'yı sakla
     );
   }
@@ -114,6 +111,11 @@ class Channel {
   Future<String> get parameter async {
     final parameters = await ConstantDataService.getChannelParameters();
     return parameters[channelParameter] ?? 'Bilinmeyen';
+  }
+
+  Future<String> get station async {
+    final stations = await ConstantDataService.getStations();
+    return stations[1] ?? 'Bilinmeyen'; // Varsayılan olarak ID 1'i kullan
   }
 }
 

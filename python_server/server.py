@@ -121,20 +121,7 @@ class WebSocketServer:
                     else:
                         await self.send_error_to_client(websocket, "Geçersiz kanal güncelleme parametreleri")
                         
-                elif command == 'save_alarm':
-                    logger.info(f"Alarm kaydetme istendi: {client_address}")
-                    alarm_data = msg_data.get('data', {})
-                    if alarm_data:
-                        success = self.json_reader.save_alarm_data(alarm_data)
-                        if success:
-                            updated_data = self.json_reader.read_all_data()
-                            await self.broadcast_data(updated_data)
-                            await self.send_to_client(websocket, {"type": "success", "message": "Alarm ayarları kaydedildi"})
-                            logger.info("Alarm ayarları başarıyla kaydedildi")
-                        else:
-                            await self.send_error_to_client(websocket, "Alarm ayarları kaydedilemedi")
-                    else:
-                        await self.send_error_to_client(websocket, "Alarm verisi bulunamadı")
+
                         
                 else:
                     await self.send_error_to_client(websocket, f"Bilinmeyen komut: {command}")
