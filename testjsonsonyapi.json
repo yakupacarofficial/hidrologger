@@ -1,0 +1,575 @@
+{
+    "timestamp": "2025-08-04T04:28:57.209107",
+    "alarm": {
+      "istCode": "TST0000001",
+      "securityCode": "1234567890",
+      "parameter": 18,
+      "deviceSettings": {
+        "dataPostFrequency": 60,
+        "yellowAlert": [50, 10],
+        "orangeAlert": [55, 5],
+        "redAlert": [70, 1]
+      }
+    },
+    "constant": {
+      "station": [
+        {
+          "id": 1,
+          "code": "0606001",
+          "security_code": "ReS5w+bH5aTvQ4v/VMKBtg==",
+          "name": "Test Station",
+          "region": 0,
+          "basin": 0,
+          "no": 0,
+          "latitude": 0.0,
+          "longitude": 0.0,
+          "phone": null
+        }
+      ],
+      "channel": [
+        {
+          "id": 1,
+          "name": "zaaa1123",
+          "description": "zazazaza",
+          "channel_category": 3,
+          "channel_sub_category": 4,
+          "channel_parameter": 1,
+          "measurement_unit": 2,
+          "log_interval": 150,
+          "offset": 255.0
+        },
+        {
+          "id": 2,
+          "name": "FAKO",
+          "description": "FAKO2",
+          "channel_category": 1,
+          "channel_sub_category": 2,
+          "channel_parameter": 7,
+          "measurement_unit": 2,
+          "log_interval": 120,
+          "offset": 5.0
+        },
+        {
+          "id": 3,
+          "name": "FAKO",
+          "description": "FAKO2",
+          "channel_category": 1,
+          "channel_sub_category": 2,
+          "channel_parameter": 7,
+          "measurement_unit": 2,
+          "log_interval": 120,
+          "offset": 5.0
+        },
+        {
+          "id": 4,
+          "name": "FAKO",
+          "description": "FAKO2",
+          "channel_category": 1,
+          "channel_sub_category": 2,
+          "channel_parameter": 7,
+          "measurement_unit": 2,
+          "log_interval": 120,
+          "offset": 5.0
+        }
+      ],
+      "channel_category": [
+        {
+          "id": 1,
+          "name": "Akarsu",
+          "description": "Nehir, Dere"
+        },
+        {
+          "id": 2,
+          "name": "Gol",
+          "description": "Göl, Gölet"
+        },
+        {
+          "id": 3,
+          "name": "Baraj",
+          "description": ""
+        },
+        {
+          "id": 4,
+          "name": "Kuyu",
+          "description": "YAS Kuyusu, Yüzey Suyu Gözlemi"
+        },
+        {
+          "id": 5,
+          "name": "SulamaKanali",
+          "description": ""
+        },
+        {
+          "id": 6,
+          "name": "MeteorolojiIstasyonu",
+          "description": "Çok parametreli meteoroloji istasyonu, kar gözlem vs"
+        },
+        {
+          "id": 7,
+          "name": "SuKalitesi",
+          "description": ""
+        }
+      ],
+      "measurement_unit": [
+        {
+          "id": 1,
+          "name": "NoUnit",
+          "description": ""
+        },
+        {
+          "id": 2,
+          "name": "CubicMe",
+          "description": "m³"
+        },
+        {
+          "id": 3,
+          "name": "CubicMeterPerHour",
+          "description": "m³/h"
+        },
+        {
+          "id": 4,
+          "name": "Centimeter",
+          "description": "cm"
+        },
+        {
+          "id": 5,
+          "name": "Meter",
+          "description": "m"
+        },
+        {
+          "id": 6,
+          "name": "CubicHectometer",
+          "description": "hm³"
+        },
+        {
+          "id": 7,
+          "name": "Milimeter",
+          "description": "mm"
+        },
+        {
+          "id": 8,
+          "name": "Bar",
+          "description": "bar"
+        },
+        {
+          "id": 9,
+          "name": "Microsiemen",
+          "description": "μS"
+        },
+        {
+          "id": 10,
+          "name": "DegreeCelsius",
+          "description": "C"
+        },
+        {
+          "id": 11,
+          "name": "MilligramPerLiter",
+          "description": "mg/l"
+        },
+        {
+          "id": 12,
+          "name": "PH",
+          "description": "pH"
+        },
+        {
+          "id": 13,
+          "name": "NTU",
+          "description": "NTU"
+        },
+        {
+          "id": 14,
+          "name": "InputOutput",
+          "description": "I/O"
+        },
+        {
+          "id": 15,
+          "name": "Percent",
+          "description": "%"
+        },
+        {
+          "id": 16,
+          "name": "LiterPerHou",
+          "description": "l/h"
+        },
+        {
+          "id": 17,
+          "name": "LiterPerSecond",
+          "description": "l/sn"
+        },
+        {
+          "id": 18,
+          "name": "LiterPerMinute",
+          "description": "l/dk"
+        },
+        {
+          "id": 19,
+          "name": "CubicMeterPerSecond",
+          "description": "m³/sn"
+        },
+        {
+          "id": 20,
+          "name": "MeterPerSecond",
+          "description": "m/sn"
+        }
+      ],
+      "tag_list": {
+        "tag": [
+          {
+            "type": "INSDATA"
+          },
+          {
+            "type": "RTC"
+          },
+          {
+            "type": "ALARM"
+          }
+        ]
+      },
+      "channel_sub_category": [
+        {
+          "id": 1,
+          "name": "NoSubCategory",
+          "description": null
+        },
+        {
+          "id": 2,
+          "name": "AnaCebriBoru",
+          "description": null
+        },
+        {
+          "id": 3,
+          "name": "TarimsalSulama",
+          "description": null
+        },
+        {
+          "id": 4,
+          "name": "SagSahilSulama",
+          "description": null
+        },
+        {
+          "id": 5,
+          "name": "SolSahilSulama",
+          "description": null
+        },
+        {
+          "id": 6,
+          "name": "DereyeDesarj",
+          "description": null
+        },
+        {
+          "id": 7,
+          "name": "IcmeSuyu",
+          "description": null
+        },
+        {
+          "id": 8,
+          "name": "TermikSantral",
+          "description": null
+        }
+      ],
+      "channel_parameter": [
+        {
+          "id": 1,
+          "name": "Unknown",
+          "description": "Bilinmeyen veya henüz tanımlanmamış ölçüm tipi"
+        },
+        {
+          "id": 2,
+          "name": "AH",
+          "description": "Hava Nemi (Air Humudity)"
+        },
+        {
+          "id": 3,
+          "name": "AP",
+          "description": "Hava Basıncı (Air Pressure)"
+        },
+        {
+          "id": 4,
+          "name": "AT",
+          "description": "Hava Sıcaklığı (Air Temperature)"
+        },
+        {
+          "id": 5,
+          "name": "DR",
+          "description": "Doğrudan Radyasyon (Direct Radiation)"
+        },
+        {
+          "id": 6,
+          "name": "EC",
+          "description": "Elektriksel İletkenlik (Tuzluluk) (Electrical Conductivity)"
+        },
+        {
+          "id": 7,
+          "name": "ETo",
+          "description": "Buharlaşma (Referans Ölçümlerden Hesaplanmış - Evapotranspiration From A Reference Surfaces)"
+        },
+        {
+          "id": 8,
+          "name": "EVO",
+          "description": "Buharlaşma (Normal Ölçülere Yapılan - Evapotranspiration)"
+        },
+        {
+          "id": 9,
+          "name": "GR",
+          "description": "Global Radyasyon (Global Radiation)"
+        },
+        {
+          "id": 10,
+          "name": "LW",
+          "description": "Yaprak Nemi (Leaf Wetness)"
+        },
+        {
+          "id": 11,
+          "name": "PH",
+          "description": "Potansiyel Hidrojen (Potential Hydrogen)"
+        },
+        {
+          "id": 12,
+          "name": "PR",
+          "description": "Yağış (Precipitation)"
+        },
+        {
+          "id": 13,
+          "name": "SD",
+          "description": "Güneşlenme Süresi (Sunshine Duration)"
+        },
+        {
+          "id": 14,
+          "name": "SM",
+          "description": "Toprak Nemi (Soil Moisture)"
+        },
+        {
+          "id": 15,
+          "name": "SWD",
+          "description": "Kar Kalınlığı (Snow Depth)"
+        },
+        {
+          "id": 16,
+          "name": "WAA",
+          "description": "Su Miktarı (Water Amount)"
+        },
+        {
+          "id": 17,
+          "name": "WAF",
+          "description": "Debi (Water Flow)"
+        },
+        {
+          "id": 18,
+          "name": "WAL",
+          "description": "Su Seviye (Water Level)"
+        },
+        {
+          "id": 19,
+          "name": "WAS",
+          "description": "Su Hızı (Water Speed)"
+        },
+        {
+          "id": 20,
+          "name": "WAT",
+          "description": "Su Sıcaklığı (Water Temperature)"
+        },
+        {
+          "id": 21,
+          "name": "WAV",
+          "description": "Baraj/Göl Kapasitesi (Water Volume)"
+        },
+        {
+          "id": 22,
+          "name": "WID",
+          "description": "Rüzgar Yönü (Wind Direction)"
+        },
+        {
+          "id": 23,
+          "name": "WIS",
+          "description": "Rüzgar Hızı (Wind Speed)"
+        },
+        {
+          "id": 24,
+          "name": "WFP",
+          "description": "Baraj/Göl Doluluk Oranı (Water Fullness Percentage)"
+        },
+        {
+          "id": 25,
+          "name": "SV",
+          "description": "Besleme Voltajı (Supply Voltage)"
+        },
+        {
+          "id": 26,
+          "name": "NH4",
+          "description": "Amonyum (Ammonium)"
+        },
+        {
+          "id": 27,
+          "name": "NO3",
+          "description": "Nitrat (Nitrate)"
+        },
+        {
+          "id": 28,
+          "name": "DO",
+          "description": "Çözünmüş Oksijen (Dissolved Oxygen)"
+        },
+        {
+          "id": 29,
+          "name": "COD",
+          "description": "Kimyasal Oksijen İhtiyacı (Chemical Oxygen Demand)"
+        },
+        {
+          "id": 30,
+          "name": "TOC",
+          "description": "Toplam Organik Karbon (Total Organic Carbon)"
+        },
+        {
+          "id": 31,
+          "name": "SS",
+          "description": "Askıda Katı Madde (Suspended Solids)"
+        },
+        {
+          "id": 32,
+          "name": "NTU",
+          "description": "Bulanıklık (Nephelometric Turbidity Unit)"
+        },
+        {
+          "id": 33,
+          "name": "PTCO",
+          "description": "Renk"
+        },
+        {
+          "id": 34,
+          "name": "CHL",
+          "description": "Klorofil (Chlorophyll)"
+        },
+        {
+          "id": 35,
+          "name": "OIL",
+          "description": "Yağ (Oil)"
+        }
+      ],
+      "value_type": [
+        {
+          "id": 1,
+          "name": "Unknown",
+          "description": "Bilinmeyen Değer Tipi"
+        },
+        {
+          "id": 2,
+          "name": "AVG",
+          "description": "Ortalama Değer (Gün sonunda o gün içerisinde bir parametre için ölçülen tüm değerlerin ortalamasını ifade eder.<br>Ör: 01.01.2022 00:00:00 - 01.01.2022 23:59:59 arasında ölçülen Su Sıcaklığı değerlerinin ortalaması)"
+        },
+        {
+          "id": 3,
+          "name": "INS",
+          "description": "Anlık Değer (Bir sensörden anlık olarak ölçüm yapılan değeri ifade eder.)"
+        },
+        {
+          "id": 4,
+          "name": "MAX",
+          "description": "Maksimum Değer (Gün sonunda o gün içerisinde bir parametre için ölçülen maksimum değeri ifade eder.<br>Ör: 01.01.2022 00:00:00 - 01.01.2022 23:59:59 arasında ölçülen Su Sıcaklığı değerlerinden en büyük olan değerdir. Ölçüm Zamanının (ValueTimestamp) saati 23:59:59 olmalıdır."
+        },
+        {
+          "id": 5,
+          "name": "MIN",
+          "description": "Minimum Değer (Gün sonunda o gün içerisinde bir parametre için ölçülen minimum değeri ifade eder.<br>Ör: 01.01.2022 00:00:00 - 01.01.2022 23:59:59 arasında ölçülen Su Sıcaklığı değerlerinden en küçük olan değer)"
+        },
+        {
+          "id": 6,
+          "name": "TOT24H",
+          "description": "Toplam Değer (Gün sonunda o gün içerisinde bir parametre için ölçülen toplam değeri ifade eder.<br>Ör: 01.01.2022 00:00:00 - 01.01.2022 23:59:59 arasında ölçülen Su Miktarı değerlerinden toplamıdır. Ölçüm Zamanının (ValueTimestamp) saati 23:59:59 olmalıdır."
+        },
+        {
+          "id": 7,
+          "name": "TOT1H",
+          "description": "Toplam Değer (Bir parametre için son 1 saatte ölçülen toplam değeri ifade eder.<br>Ör: 01.01.2022 15:00:00 - 01.01.2022 16:00:00 arasında ölçülen Su Miktarı değerlerinden toplamıdır. Ölçüm Zamanının (ValueTimestamp) saati bu örnekte 16:00:00 olmalıdır."
+        },
+        {
+          "id": 8,
+          "name": "ENDEX",
+          "description": "Endex Değeri (Bir parametre için o anlık endex değerini ifade eder.)<br>Ör: Bir debimetreden kurulduğu günden şimdiye kadarki geçen su miktarının toplamıdır."
+        }
+      ]
+    },
+    "variable": {
+      "data": [
+        {
+          "id": 1,
+          "channel": 1,
+          "value_type": 3,
+          "value_timestamp": 1722479940,
+          "value": 12222,
+          "battery_percentage": 1,
+          "signal_strength": 100
+        },
+        {
+          "id": 2,
+          "channel": 2,
+          "value_type": 3,
+          "value_timestamp": 1722479940,
+          "value": 12,
+          "battery_percentage": 50,
+          "signal_strength": 50
+        },
+        {
+          "id": 3,
+          "channel": 3,
+          "value_type": 3,
+          "value_timestamp": 1722479940,
+          "value": 52,
+          "battery_percentage": 50,
+          "signal_strength": 50
+        },
+        {
+          "id": 4,
+          "channel": 4,
+          "value_type": 3,
+          "value_timestamp": 1722479940,
+          "value": 52,
+          "battery_percentage": 50,
+          "signal_strength": 50
+        }
+      ]
+    },
+    "data_history": {
+      "1": [
+        {
+          "id": 1,
+          "channel": 1,
+          "value_type": 3,
+          "value_timestamp": 1722479940,
+          "value": 12222,
+          "battery_percentage": 1,
+          "signal_strength": 100
+        }
+      ],
+      "2": [
+        {
+          "id": 2,
+          "channel": 2,
+          "value_type": 3,
+          "value_timestamp": 1722479940,
+          "value": 12,
+          "battery_percentage": 50,
+          "signal_strength": 50
+        }
+      ],
+      "3": [
+        {
+          "id": 3,
+          "channel": 3,
+          "value_type": 3,
+          "value_timestamp": 1722479940,
+          "value": 52,
+          "battery_percentage": 50,
+          "signal_strength": 50
+        }
+      ],
+      "4": [
+        {
+          "id": 4,
+          "channel": 4,
+          "value_type": 3,
+          "value_timestamp": 1722479940,
+          "value": 52,
+          "battery_percentage": 50,
+          "signal_strength": 50
+        }
+      ]
+    }
+  }

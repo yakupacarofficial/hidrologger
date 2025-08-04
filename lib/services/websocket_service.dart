@@ -7,9 +7,11 @@ class WebSocketService {
   bool _isConnected = false;
   String _lastError = '';
   Stream<ChannelData>? _dataStream;
+  ChannelData? _lastData;
   
   bool get isConnected => _isConnected;
   String get lastError => _lastError;
+  ChannelData? get lastData => _lastData;
 
   Future<bool> connect(String ip, String port) async {
     try {
@@ -22,7 +24,8 @@ class WebSocketService {
       _dataStream = _channel!.stream.map((data) {
         try {
           final jsonData = jsonDecode(data);
-          return ChannelData.fromJson(jsonData);
+          _lastData = ChannelData.fromJson(jsonData);
+          return _lastData!;
         } catch (e) {
           throw Exception('JSON parse error: $e');
         }

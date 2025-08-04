@@ -95,6 +95,13 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
         ),
         actions: [
           IconButton(
+            icon: const Icon(Icons.add_alert, size: 20),
+            onPressed: () {
+              _showAlarmSettings(context);
+            },
+            tooltip: 'Alarm Ayarları',
+          ),
+          IconButton(
             icon: const Icon(Icons.info_outline, size: 20),
             onPressed: () {
               // TODO: Kanal hakkında detay bilgi göster
@@ -945,6 +952,248 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
       }
     } catch (e) {
       print('Kanal güncelleme exception: $e');
+    }
+  }
+
+  void _showAlarmSettings(BuildContext context) {
+    final channel = _currentChannel ?? widget.channel;
+    final latestData = _currentLatestData ?? widget.latestData;
+    
+    // Alarm verilerini hazırla
+    final alarmData = _prepareAlarmData(channel, latestData);
+    
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('${channel.name} - Alarm Ayarları'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Veri Gönderme Sıklığı (Düzenlenebilir)
+                ListTile(
+                  title: const Text('Veri Gönderme Sıklığı'),
+                  subtitle: Text('${alarmData['dataPostFrequency']} saniye'),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.edit),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _showDataPostFrequencyDialog(context, channel);
+                    },
+                  ),
+                ),
+                const Divider(),
+                
+                // Diğer alarm bilgileri (Salt okunur)
+                _buildAlarmInfoRow('İstasyon Kodu', alarmData['istCode'] ?? 'N/A'),
+                _buildAlarmInfoRow('Güvenlik Kodu', alarmData['securityCode'] ?? 'N/A'),
+                _buildAlarmInfoRow('Parametre ID', alarmData['parameter']?.toString() ?? 'N/A'),
+                const SizedBox(height: 16),
+                const Text(
+                  'Alarm Seviyeleri:',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                _buildAlarmInfoRow('Sarı Uyarı', '${alarmData['yellowAlert']?[0]} - ${alarmData['yellowAlert']?[1]} saniye'),
+                _buildAlarmInfoRow('Turuncu Uyarı', '${alarmData['orangeAlert']?[0]} - ${alarmData['orangeAlert']?[1]} saniye'),
+                _buildAlarmInfoRow('Kırmızı Uyarı', '${alarmData['redAlert']?[0]} - ${alarmData['redAlert']?[1]} saniye'),
+                
+                if (latestData != null) ...[
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.info,
+                          color: Theme.of(context).colorScheme.primary,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Mevcut değer: ${latestData.value.toStringAsFixed(2)} ${channel.unit}',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Kapat'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                _saveAlarmData(alarmData);
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('${channel.name} için alarm ayarları kaydedildi'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              },
+              child: const Text('Kaydet'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showDataPostFrequencyDialog(BuildContext context, Channel channel) {
+    final controller = TextEditingController(text: channel.logInterval.toString());
+    
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Veri Gönderme Sıklığı'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Bu değer alarm ayarlarında kullanılacak ve kanalın veri gönderme sıklığını belirler.',
+                style: TextStyle(fontSize: 12),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: controller,
+                decoration: const InputDecoration(
+                  labelText: 'Saniye',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+                autofocus: true,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('İptal'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final newValue = int.tryParse(controller.text.trim());
+                if (newValue != null && newValue > 0) {
+                  _updateChannelField('logInterval', newValue.toString());
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Veri gönderme sıklığı güncellendi'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Geçerli bir sayı girin'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+              child: const Text('Kaydet'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildAlarmInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 120,
+            child: Text(
+              '$label:',
+              style: const TextStyle(fontWeight: FontWeight.w500),
+            ),
+          ),
+          Expanded(
+            child: Text(value),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Map<String, dynamic> _prepareAlarmData(Channel channel, VariableData? latestData) {
+    // Alarm verilerini hazırla
+    final alarmData = <String, dynamic>{};
+    
+    // Tüm verileri alarm.json'dan al
+    final alarmJson = widget.webSocketService.lastData?.rawData['alarm'] as Map<String, dynamic>?;
+    
+    // İstasyon kodunu alarm.json'dan al
+    alarmData['istCode'] = alarmJson?['istCode'] ?? '0606001';
+    
+    // Güvenlik kodunu alarm.json'dan al
+    alarmData['securityCode'] = alarmJson?['securityCode'] ?? '1234567890';
+    
+    // Parametre ID'sini seçilen kanalın ID'sinden al (alarm.json'daki parameter ile bağdaştır)
+    alarmData['parameter'] = channel.id;
+    
+    // Veri gönderme sıklığını alarm.json'dan al
+    final deviceSettings = alarmJson?['deviceSettings'] as Map<String, dynamic>?;
+    alarmData['dataPostFrequency'] = deviceSettings?['dataPostFrequency'] ?? 60;
+    
+    // Alarm seviyelerini alarm.json'dan al
+    alarmData['yellowAlert'] = deviceSettings?['yellowAlert'] ?? [50, 10];
+    alarmData['orangeAlert'] = deviceSettings?['orangeAlert'] ?? [55, 5];
+    alarmData['redAlert'] = deviceSettings?['redAlert'] ?? [70, 1];
+    
+    return alarmData;
+  }
+
+  void _saveAlarmData(Map<String, dynamic> alarmData) async {
+    // Alarm verilerini server'a gönder
+    final message = {
+      'command': 'save_alarm',
+      'data': alarmData
+    };
+    
+    try {
+      final success = await widget.webSocketService.sendMessage(message);
+      if (success) {
+        print('Alarm verileri kaydedildi: $alarmData');
+      } else {
+        print('Alarm kaydetme hatası: ${widget.webSocketService.lastError}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Alarm kaydetme hatası: ${widget.webSocketService.lastError}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      print('Alarm kaydetme exception: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Alarm kaydetme hatası: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 } 

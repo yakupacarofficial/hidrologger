@@ -3,38 +3,11 @@
       {
         "id": 1,
         "channel": 1,
-        "value_type": 3,
+        "value_type": 1,
         "value_timestamp": 1722479940,
-        "value": 12222,
+        "value": 1,
         "battery_percentage": 1 ,
-        "signal_strength": 100
-      },
-      {
-        "id": 2,
-        "channel": 2,
-        "value_type": 3,
-        "value_timestamp": 1722479940,
-        "value": 12,
-        "battery_percentage": 50,
-        "signal_strength": 50
-      },
-      {
-        "id": 3,
-        "channel": 3,
-        "value_type": 3,
-        "value_timestamp": 1722479940,
-        "value": 52,
-        "battery_percentage": 50,
-        "signal_strength": 50
-      },
-      {
-        "id": 4,
-        "channel": 4,
-        "value_type": 3,
-        "value_timestamp": 1722479940,
-        "value": 52,
-        "battery_percentage": 50,
-        "signal_strength": 50
+        "signal_strength": 1
       }
     ]
   }  

@@ -2,47 +2,14 @@
   "channel": [
     {
       "id": 1,
-      "name": "zaaa1123",
-      "description": "zazazaza",
-      "channel_category": 3,
-      "channel_sub_category": 4,
-      "channel_parameter": 1,
-      "measurement_unit": 2,
-      "log_interval": 150,
-      "offset": 255.0
-    },
-    {
-      "id": 2,
-      "name": "FAKO",
-      "description": "FAKO2",
+      "name": "KANAL 1",
+      "description": "KANAL 1 AÇIKLAMASI",
       "channel_category": 1,
-      "channel_sub_category": 2,
-      "channel_parameter": 7,
+      "channel_sub_category": 1,
+      "channel_parameter": 2,
       "measurement_unit": 2,
-      "log_interval": 120,
-      "offset": 5.0
-    },
-    {
-      "id": 3,
-      "name": "FAKO",
-      "description": "FAKO2",
-      "channel_category": 1,
-      "channel_sub_category": 2,
-      "channel_parameter": 7,
-      "measurement_unit": 2,
-      "log_interval": 120,
-      "offset": 5.0
-    },
-    {
-      "id": 4,
-      "name": "FAKO",
-      "description": "FAKO2",
-      "channel_category": 1,
-      "channel_sub_category": 2,
-      "channel_parameter": 7,
-      "measurement_unit": 2,
-      "log_interval": 120,
-      "offset": 5.0
+      "log_interval": 100,
+      "offset": 20
     }
   ]
 }
