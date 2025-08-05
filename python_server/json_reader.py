@@ -17,6 +17,7 @@ class JSONReader:
         self.base_path = base_path
         self.constant_path = os.path.join(base_path, "constant")
         self.variable_path = os.path.join(base_path, "variable")
+        self.alarm_path = os.path.join(base_path, "alarm")
         
         # Dosya izleme için
         self.file_last_modified = {}
@@ -30,10 +31,11 @@ class JSONReader:
         logger.info("JSONReader başlatıldı")
         logger.info(f"Constant klasörü: {self.constant_path}")
         logger.info(f"Variable klasörü: {self.variable_path}")
+        logger.info(f"Alarm klasörü: {self.alarm_path}")
     
     def _initialize_file_tracking(self):
         """Tüm JSON dosyalarının son değiştirilme zamanlarını kaydet"""
-        for folder_path in [self.constant_path, self.variable_path]:
+        for folder_path in [self.constant_path, self.variable_path, self.alarm_path]:
             if os.path.exists(folder_path):
                 for filename in os.listdir(folder_path):
                     if filename.endswith('.json'):
@@ -131,7 +133,7 @@ class JSONReader:
                 continue
                 
         # Yeni dosyalar var mı kontrol et
-        for folder_path in [self.constant_path, self.variable_path]:
+        for folder_path in [self.constant_path, self.variable_path, self.alarm_path]:
             if os.path.exists(folder_path):
                 for filename in os.listdir(folder_path):
                     if filename.endswith('.json'):
@@ -144,7 +146,7 @@ class JSONReader:
         return False
     
     def read_all_data(self) -> Optional[Dict[str, Any]]:
-        """Tüm JSON verilerini oku ve birleştir - DATA HISTORY KALDIRILDI"""
+        """Tüm JSON verilerini oku ve birleştir - ALARM VERİLERİ EKLENDİ"""
         try:
             # Dosya değişikliği kontrolü
             if not self._has_files_changed() and self.last_successful_data is not None:
@@ -153,13 +155,15 @@ class JSONReader:
             
             logger.info("JSON dosyaları okunuyor...")
             
-            # Sadece variable verilerini oku (constant ve station verileri Flutter'da yerel olarak tutulacak)
+            # Variable ve alarm verilerini oku
             variable_data = self._read_directory_files(self.variable_path, "Variable")
+            alarm_data = self._read_directory_files(self.alarm_path, "Alarm")
             
-            # Verileri birleştir (constant ve station verileri çıkarıldı)
+            # Verileri birleştir
             combined_data = {
                 "timestamp": datetime.now().isoformat(),
-                "variable": variable_data
+                "variable": variable_data,
+                "alarm": alarm_data
             }
             
             # Veri boyutunu hesapla
@@ -169,7 +173,7 @@ class JSONReader:
             # Veri doğrulama
             if self._validate_data(combined_data):
                 self.last_successful_data = combined_data
-                logger.info("JSON verileri başarıyla okundu ve birleştirildi (data history kaldırıldı)")
+                logger.info("JSON verileri başarıyla okundu ve birleştirildi (alarm verileri dahil)")
                 return combined_data
             else:
                 logger.error("Veri doğrulama başarısız")
@@ -190,9 +194,9 @@ class JSONReader:
             return None
     
     def _validate_data(self, data: Dict[str, Any]) -> bool:
-        """Veri bütünlüğünü kontrol et - DATA HISTORY KALDIRILDI"""
+        """Veri bütünlüğünü kontrol et - ALARM VERİLERİ EKLENDİ"""
         try:
-            # Temel yapı kontrolü (constant ve station çıkarıldı)
+            # Temel yapı kontrolü
             required_keys = ["timestamp", "variable"]
             for key in required_keys:
                 if key not in data:
@@ -204,10 +208,10 @@ class JSONReader:
                 logger.error("Timestamp boş")
                 return False
             
-            # En az bir veri kategorisinin dolu olması gerekiyor (constant ve station çıkarıldı)
+            # En az bir veri kategorisinin dolu olması gerekiyor
             has_data = False
-            for category in ["variable"]:
-                if data[category] and len(data[category]) > 0:
+            for category in ["variable", "alarm"]:
+                if data.get(category) and len(data[category]) > 0:
                     has_data = True
                     break
             
@@ -223,7 +227,7 @@ class JSONReader:
             return False
     
     def get_data_summary(self) -> Dict[str, Any]:
-        """Veri özetini döndür - DATA HISTORY KALDIRILDI"""
+        """Veri özetini döndür - ALARM VERİLERİ EKLENDİ"""
         if self.last_successful_data is None:
             return {"status": "no_data"}
         
@@ -231,7 +235,8 @@ class JSONReader:
             return {
                 "timestamp": self.last_successful_data.get("timestamp"),
                 "categories": {
-                    "variable": len(self.last_successful_data.get("variable", {}))
+                    "variable": len(self.last_successful_data.get("variable", {})),
+                    "alarm": len(self.last_successful_data.get("alarm", {}))
                 }
             }
         except Exception as e:
@@ -336,3 +341,37 @@ class JSONReader:
             logger.error(f"Kanal güncelleme hatası: {e}")
             logger.error(traceback.format_exc())
             return False
+
+    def save_alarm_data(self, alarm_data: Dict[str, Any]) -> bool:
+        """Alarm verilerini kaydet"""
+        try:
+            logger.info("Alarm verileri kaydediliyor...")
+            
+            alarm_file_path = os.path.join(self.alarm_path, "alarm.json")
+            
+            # Dosyayı yaz
+            with open(alarm_file_path, 'w', encoding='utf-8') as file:
+                json.dump(alarm_data, file, indent=2, ensure_ascii=False)
+            
+            # Dosya değişiklik zamanını güncelle
+            self.file_last_modified[alarm_file_path] = os.path.getmtime(alarm_file_path)
+            
+            # Cache'i temizle
+            self.last_successful_data = None
+            
+            logger.info("Alarm verileri başarıyla kaydedildi")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Alarm verileri kaydetme hatası: {e}")
+            logger.error(traceback.format_exc())
+            return False
+
+    def get_alarm_data(self) -> Optional[Dict[str, Any]]:
+        """Alarm verilerini oku"""
+        try:
+            alarm_file_path = os.path.join(self.alarm_path, "alarm.json")
+            return self._read_json_file(alarm_file_path)
+        except Exception as e:
+            logger.error(f"Alarm verileri okuma hatası: {e}")
+            return None

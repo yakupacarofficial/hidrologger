@@ -1,20 +1,34 @@
 {
-  "istCode": "TEST00112321321",
-  "securityCode": "9876543210123123",
-  "parameter": 1,
-  "deviceSettings": {
-    "dataPostFrequency": 60,
-    "yellowAlert": [
-      1,
-      20
-    ],
-    "orangeAlert": [
-      60,
-      8
-    ],
-    "redAlert": [
-      80,
-      2
+  "parameter1": {
+    "channel_id": 1,
+    "dataPostFrequency": 6000,
+    "alarms": [
+      {
+        "min_value": 25,
+        "max_value": 50,
+        "color": "#FF0000"
+      },
+      {
+        "min_value": 50,
+        "max_value": 100,
+        "color": "#008000"
+      },
+      {
+        "min_value": 45,
+        "max_value": 57,
+        "color": "#00FFFF"
+      }
+    ]
+  },
+  "parameter2": {
+    "channel_id": 2,
+    "dataPostFrequency": 23123,
+    "alarms": [
+      {
+        "min_value": 12,
+        "max_value": 43,
+        "color": "#FFC0CB"
+      }
     ]
   }
 }

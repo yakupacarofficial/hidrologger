@@ -6,6 +6,7 @@ import '../widgets/data_item.dart';
 import '../widgets/connection_status_badge.dart';
 import 'channel_detail_screen.dart';
 import 'constant_data_screen.dart';
+import 'alarm_management_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   final WebSocketService webSocketService;
@@ -70,6 +71,101 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.dispose();
   }
 
+  void _showAlarmOptions(Channel channel) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.7,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                'Kanal: ${channel.name}',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.alarm_add, color: Colors.orange),
+              title: const Text('Alarm Ekle'),
+              subtitle: const Text('Bu kanal için yeni alarm ekle'),
+              onTap: () {
+                Navigator.pop(context);
+                _navigateToAlarmScreen(channel);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.info_outline, color: Colors.blue),
+              title: const Text('Kanal Detayları'),
+              subtitle: const Text('Kanal hakkında detaylı bilgi'),
+              onTap: () {
+                Navigator.pop(context);
+                _navigateToChannelDetail(channel);
+              },
+            ),
+            const Spacer(),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: SizedBox(
+                width: double.infinity,
+                child: TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('İptal'),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _navigateToAlarmScreen(Channel channel) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => AlarmManagementScreen(
+          channel: channel,
+          webSocketService: widget.webSocketService,
+        ),
+      ),
+    );
+  }
+
+  void _navigateToChannelDetail(Channel channel) {
+    final variableData = _currentData?.variableData
+        .where((data) => data.channelId == channel.id)
+        .toList();
+    final latestData = variableData?.isNotEmpty == true ? variableData!.first : null;
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => ChannelDetailScreen(
+          channel: channel,
+          latestData: latestData,
+          webSocketService: widget.webSocketService,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -86,6 +182,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Navigator.of(context).push(MaterialPageRoute(builder: (context) => const ConstantDataScreen()));
             } : null,
             tooltip: 'Constant Verileri',
+          ),
+          IconButton(
+            icon: const Icon(Icons.alarm),
+            onPressed: _currentData != null ? () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => AlarmManagementScreen(
+                    webSocketService: widget.webSocketService,
+                  ),
+                ),
+              );
+            } : null,
+            tooltip: 'Alarm Yönetimi',
           ),
           ConnectionStatusBadge(
             isConnected: _isConnected,
@@ -288,6 +397,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
               );
+            },
+            onLongPress: () {
+              _showAlarmOptions(channel);
             },
             child: Card(
               elevation: 4,

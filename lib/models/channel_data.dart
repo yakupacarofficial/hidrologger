@@ -3,16 +3,19 @@ import '../services/constant_data_service.dart';
 class ChannelData {
   final String timestamp;
   final Map<String, dynamic> variable;
+  final Map<String, dynamic> alarm;
 
   ChannelData({
     required this.timestamp,
     required this.variable,
+    required this.alarm,
   });
 
   factory ChannelData.fromJson(Map<String, dynamic> json) {
     return ChannelData(
       timestamp: json['timestamp'] ?? '',
       variable: json['variable'] ?? {},
+      alarm: json['alarm'] ?? {},
     );
   }
 
@@ -24,6 +27,26 @@ class ChannelData {
   List<VariableData> get variableData {
     final data = variable['data'] as List<dynamic>? ?? [];
     return data.map((item) => VariableData.fromJson(item)).toList();
+  }
+
+  // Alarm verilerini al
+  Map<String, AlarmParameter> get alarmParameters {
+    final alarmData = alarm as Map<String, dynamic>? ?? {};
+    final result = <String, AlarmParameter>{};
+    
+    alarmData.forEach((key, value) {
+      if (value is Map<String, dynamic>) {
+        result[key] = AlarmParameter.fromJson(value);
+      }
+    });
+    
+    return result;
+  }
+
+  // Belirli bir kanalın alarm verilerini al
+  AlarmParameter? getChannelAlarm(int channelId) {
+    final parameterKey = 'parameter$channelId';
+    return alarmParameters[parameterKey];
   }
 
   int get channelCount => channels.length;
@@ -148,5 +171,62 @@ class VariableData {
   String get formattedTimestamp {
     final dateTime = DateTime.fromMillisecondsSinceEpoch(valueTimestamp * 1000);
     return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}:${dateTime.second.toString().padLeft(2, '0')}';
+  }
+}
+
+class AlarmParameter {
+  final int channelId;
+  final int dataPostFrequency;
+  final List<Alarm> alarms;
+
+  AlarmParameter({
+    required this.channelId,
+    required this.dataPostFrequency,
+    required this.alarms,
+  });
+
+  factory AlarmParameter.fromJson(Map<String, dynamic> json) {
+    final alarmsList = json['alarms'] as List<dynamic>? ?? [];
+    return AlarmParameter(
+      channelId: json['channel_id'] ?? 0,
+      dataPostFrequency: json['dataPostFrequency'] ?? 1000,
+      alarms: alarmsList.map((item) => Alarm.fromJson(item)).toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'channel_id': channelId,
+      'dataPostFrequency': dataPostFrequency,
+      'alarms': alarms.map((alarm) => alarm.toJson()).toList(),
+    };
+  }
+}
+
+class Alarm {
+  final double minValue;
+  final double maxValue;
+  final String color;
+
+  Alarm({
+    required this.minValue,
+    required this.maxValue,
+    required this.color,
+  });
+
+  factory Alarm.fromJson(Map<String, dynamic> json) {
+    return Alarm(
+      minValue: (json['min_value'] ?? 0.0).toDouble(),
+      maxValue: (json['max_value'] ?? 0.0).toDouble(),
+      color: json['color'] ?? '#FF0000',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'min_value': minValue,
+      'max_value': maxValue,
+      'color': color,
+    };
   }
 } 
