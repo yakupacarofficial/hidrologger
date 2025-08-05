@@ -1,75 +1,206 @@
 import 'dart:convert';
-import 'package:web_socket_channel/web_socket_channel.dart';
+import 'dart:async';
+import 'package:http/http.dart' as http;
 import '../models/channel_data.dart';
 
-class WebSocketService {
-  WebSocketChannel? _channel;
-  bool _isConnected = false;
-  String _lastError = '';
-  Stream<ChannelData>? _dataStream;
-  ChannelData? _lastData;
+class RESTfulService {
+  static const Duration _pollingInterval = Duration(seconds: 2);
   
-  bool get isConnected => _isConnected;
-  String get lastError => _lastError;
+  final String _ip;
+  final String _port;
+  late final String _baseUrl;
+  
+  Timer? _pollingTimer;
+  ChannelData? _lastData;
+  final StreamController<ChannelData> _dataController = StreamController<ChannelData>.broadcast();
+  
+  RESTfulService({String? ip, String? port}) 
+    : _ip = ip ?? '192.168.10.68',
+      _port = port ?? '8765' {
+    _baseUrl = 'http://$_ip:$_port/api';
+    print('RESTfulService başlatıldı: $_baseUrl');
+  }
+  
+  Stream<ChannelData> get dataStream => _dataController.stream;
   ChannelData? get lastData => _lastData;
-
-  Future<bool> connect(String ip, String port) async {
+  
+  /// Sunucu bağlantısını test et
+  Future<bool> testConnection() async {
     try {
-      final uri = 'ws://$ip:$port';
-      _channel = WebSocketChannel.connect(Uri.parse(uri));
-      _isConnected = true;
-      _lastError = '';
+      print('Bağlantı testi başlatılıyor: $_baseUrl/health');
+      final response = await http.get(
+        Uri.parse('$_baseUrl/health'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(const Duration(seconds: 10));
       
-      // Stream'i oluştur
-      _dataStream = _channel!.stream.map((data) {
-        try {
-          final jsonData = jsonDecode(data);
-          _lastData = ChannelData.fromJson(jsonData);
-          return _lastData!;
-        } catch (e) {
-          throw Exception('JSON parse error: $e');
+      print('Sunucu yanıtı: ${response.statusCode} - ${response.body}');
+      
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final success = data['success'] == true;
+        print('Bağlantı testi sonucu: $success');
+        return success;
+      }
+      print('Bağlantı testi başarısız: HTTP ${response.statusCode}');
+      return false;
+    } catch (e) {
+      print('Bağlantı testi hatası: $e');
+      return false;
+    }
+  }
+  
+  /// Tüm verileri getir
+  Future<ChannelData?> fetchAllData() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/data'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(const Duration(seconds: 10));
+      
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['success'] == true) {
+          final channelData = ChannelData.fromJson(data['data']);
+          _lastData = channelData;
+          _dataController.add(channelData);
+          return channelData;
         }
-      }).asBroadcastStream(); // Broadcast stream yap
-      
-      return true;
+      }
+      return null;
     } catch (e) {
-      _lastError = e.toString();
-      _isConnected = false;
-      return false;
+      print('Veri getirme hatası: $e');
+      return null;
     }
   }
-
-  void disconnect() {
-    _channel?.sink.close();
-    _channel = null;
-    _dataStream = null;
-    _isConnected = false;
-  }
-
-  Stream<ChannelData> get dataStream {
-    if (_dataStream == null) {
-      return Stream.empty();
-    }
-    return _dataStream!;
-  }
-
-  void dispose() {
-    disconnect();
-  }
-
-  Future<bool> sendMessage(Map<String, dynamic> message) async {
-    if (_channel == null || !_isConnected) {
-      _lastError = 'WebSocket bağlantısı yok';
-      return false;
-    }
-    
+  
+  /// Sadece değişken verileri getir
+  Future<Map<String, dynamic>?> fetchVariableData() async {
     try {
-      final jsonMessage = jsonEncode(message);
-      _channel!.sink.add(jsonMessage);
-      return true;
+      final response = await http.get(
+        Uri.parse('$_baseUrl/data/variable'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(const Duration(seconds: 10));
+      
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['success'] == true) {
+          return data['data'];
+        }
+      }
+      return null;
     } catch (e) {
-      _lastError = 'Mesaj gönderme hatası: $e';
+      print('Değişken veri getirme hatası: $e');
+      return null;
+    }
+  }
+  
+  /// Alarm verilerini getir
+  Future<Map<String, dynamic>?> fetchAlarmData() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/data/alarm'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(const Duration(seconds: 10));
+      
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['success'] == true) {
+          return data['data'];
+        }
+      }
+      return null;
+    } catch (e) {
+      print('Alarm veri getirme hatası: $e');
+      return null;
+    }
+  }
+  
+  /// Alarm verilerini kaydet
+  Future<bool> saveAlarmData(Map<String, dynamic> alarmData) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$_baseUrl/data/alarm'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(alarmData),
+      ).timeout(const Duration(seconds: 10));
+      
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['success'] == true;
+      }
+      return false;
+    } catch (e) {
+      print('Alarm kaydetme hatası: $e');
       return false;
     }
+  }
+  
+  /// Kanal alanını güncelle
+  Future<bool> updateChannelField(int channelId, String field, dynamic value) async {
+    try {
+      final response = await http.put(
+        Uri.parse('$_baseUrl/channel/$channelId'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'field': field,
+          'value': value,
+        }),
+      ).timeout(const Duration(seconds: 10));
+      
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['success'] == true;
+      }
+      return false;
+    } catch (e) {
+      print('Kanal güncelleme hatası: $e');
+      return false;
+    }
+  }
+  
+  /// Sunucu bilgilerini getir
+  Future<Map<String, dynamic>?> getServerInfo() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/info'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(const Duration(seconds: 10));
+      
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['success'] == true) {
+          return data;
+        }
+      }
+      return null;
+    } catch (e) {
+      print('Sunucu bilgi getirme hatası: $e');
+      return null;
+    }
+  }
+  
+  /// Periyodik veri güncellemesini başlat
+  void startPolling() {
+    stopPolling(); // Önceki polling'i durdur
+    
+    _pollingTimer = Timer.periodic(_pollingInterval, (timer) async {
+      await fetchAllData();
+    });
+    
+    print('Periyodik veri güncellemesi başlatıldı (${_pollingInterval.inSeconds} saniye aralıkla)');
+  }
+  
+  /// Periyodik veri güncellemesini durdur
+  void stopPolling() {
+    _pollingTimer?.cancel();
+    _pollingTimer = null;
+    print('Periyodik veri güncellemesi durduruldu');
+  }
+  
+  /// Bağlantıyı kapat
+  void dispose() {
+    stopPolling();
+    _dataController.close();
+    print('RESTful servis kapatıldı');
   }
 } 

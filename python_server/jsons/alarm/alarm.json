@@ -2,12 +2,6 @@
   "parameter1": {
     "channel_id": 1,
     "dataPostFrequency": 10000,
-    "alarms": [
-      {
-        "min_value": 10,
-        "max_value": 15,
-        "color": "#0000FF"
-      }
-    ]
+    "alarms": []
   }
 }

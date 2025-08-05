@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import '../models/channel_data.dart';
-import '../services/websocket_service.dart';
+import '../services/restful_service.dart';
 
 class ChannelDetailScreen extends StatefulWidget {
   final Channel channel;
   final VariableData? latestData;
-  final WebSocketService webSocketService;
+  final RESTfulService restfulService;
 
   const ChannelDetailScreen({
     super.key,
     required this.channel,
     this.latestData,
-    required this.webSocketService,
+    required this.restfulService,
   });
 
   @override
@@ -47,7 +47,7 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
   }
 
   void _listenToDataUpdates() {
-    _dataSubscription = widget.webSocketService.dataStream.listen(
+    _dataSubscription = widget.restfulService.dataStream.listen(
       (channelData) {
         setState(() {
           // Güncel kanal verisini bul
@@ -175,22 +175,24 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
     );
   }
 
-  void _updateChannelField(String field, dynamic value) {
-    final message = {
-      'command': 'update_channel',
-      'channel_id': _currentChannel!.id,
-      'field': field,
-      'value': value,
-    };
-
-    widget.webSocketService.sendMessage(message);
+  void _updateChannelField(String field, dynamic value) async {
+    final success = await widget.restfulService.updateChannelField(_currentChannel!.id, field, value);
     
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$field güncelleniyor...'),
-        backgroundColor: Colors.blue,
-      ),
-    );
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('$field başarıyla güncellendi'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('$field güncellenirken hata oluştu'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override

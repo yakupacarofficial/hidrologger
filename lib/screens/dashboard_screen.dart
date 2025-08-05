@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/channel_data.dart';
-import '../services/websocket_service.dart';
+import '../services/restful_service.dart';
 import '../widgets/info_card.dart';
 import '../widgets/data_item.dart';
 import '../widgets/connection_status_badge.dart';
@@ -9,11 +9,11 @@ import 'constant_data_screen.dart';
 import 'alarm_management_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
-  final WebSocketService webSocketService;
+  final RESTfulService restfulService;
 
   const DashboardScreen({
     super.key,
-    required this.webSocketService,
+    required this.restfulService,
   });
 
   @override
@@ -34,39 +34,48 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   void _listenToData() {
-    widget.webSocketService.dataStream.listen(
+    // RESTful API'den veri al ve periyodik güncelleme başlat
+    widget.restfulService.startPolling();
+    
+    widget.restfulService.dataStream.listen(
       (data) {
-        setState(() {
-          _currentData = data;
-          _isConnected = true;
-          _connectionStatus = 'Bağlı';
-        });
+        if (mounted) {
+          setState(() {
+            _currentData = data;
+            _isConnected = true;
+            _connectionStatus = 'Bağlı';
+          });
+        }
       },
       onError: (error) {
-        setState(() {
-          _isConnected = false;
-          _connectionStatus = 'Bağlantı Hatası';
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Veri alma hatası: $error'),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        if (mounted) {
+          setState(() {
+            _isConnected = false;
+            _connectionStatus = 'Bağlantı Hatası';
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Veri alma hatası: $error'),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
       },
       onDone: () {
-        setState(() {
-          _isConnected = false;
-          _connectionStatus = 'Bağlantı Kesildi';
-        });
+        if (mounted) {
+          setState(() {
+            _isConnected = false;
+            _connectionStatus = 'Bağlantı Kesildi';
+          });
+        }
       },
     );
   }
 
   @override
   void dispose() {
-    widget.webSocketService.dispose();
+    widget.restfulService.dispose();
     _searchController.dispose();
     super.dispose();
   }
@@ -143,7 +152,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       MaterialPageRoute(
         builder: (context) => AlarmManagementScreen(
           channel: channel,
-          webSocketService: widget.webSocketService,
+          restfulService: widget.restfulService,
         ),
       ),
     );
@@ -160,7 +169,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         builder: (context) => ChannelDetailScreen(
           channel: channel,
           latestData: latestData,
-          webSocketService: widget.webSocketService,
+          restfulService: widget.restfulService,
         ),
       ),
     );
@@ -188,9 +197,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             onPressed: _currentData != null ? () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => AlarmManagementScreen(
-                    webSocketService: widget.webSocketService,
-                  ),
+                                  builder: (context) => AlarmManagementScreen(
+                  restfulService: widget.restfulService,
+                ),
                 ),
               );
             } : null,
@@ -393,7 +402,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   builder: (context) => ChannelDetailScreen(
                     channel: channel,
                     latestData: latestData,
-                    webSocketService: widget.webSocketService,
+                    restfulService: widget.restfulService,
                   ),
                 ),
               );
