@@ -16,7 +16,6 @@ class ConstantDataService {
         'channel_parameter.json',
         'channel_sub_category.json',
         'measurement_unit.json',
-        'tag_list.json',
         'value_type.json',
         'station.json',
       ];

@@ -16,7 +16,7 @@ class _ConstantDataScreenState extends State<ConstantDataScreen> with SingleTick
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 7, vsync: this); // Length changed
+    _tabController = TabController(length: 6, vsync: this); // Tag listesi kaldırıldı
     _loadConstantData();
   }
 
@@ -61,7 +61,6 @@ class _ConstantDataScreenState extends State<ConstantDataScreen> with SingleTick
             Tab(text: 'Kanal Alt Kategorileri'),
             Tab(text: 'Kanal Parametreleri'),
             Tab(text: 'Ölçüm Birimleri'),
-            Tab(text: 'Tag Listesi'),
             Tab(text: 'Değer Tipleri'),
             Tab(text: 'İstasyonlar'),
           ],
@@ -85,7 +84,6 @@ class _ConstantDataScreenState extends State<ConstantDataScreen> with SingleTick
                 _buildDataList('Kanal Alt Kategorileri', (_constantData['channel_sub_category']?['channel_sub_category'] as List<dynamic>?) ?? []),
                 _buildDataList('Kanal Parametreleri', (_constantData['channel_parameter']?['channel_parameter'] as List<dynamic>?) ?? []),
                 _buildDataList('Ölçüm Birimleri', (_constantData['measurement_unit']?['measurement_unit'] as List<dynamic>?) ?? []),
-                _buildDataList('Tag Listesi', (_constantData['tag_list']?['tag_list'] as List<dynamic>?) ?? []),
                 _buildDataList('Değer Tipleri', (_constantData['value_type']?['value_type'] as List<dynamic>?) ?? []),
                 _buildDataList('İstasyonlar', (_constantData['station']?['station'] as List<dynamic>?) ?? []),
               ],
