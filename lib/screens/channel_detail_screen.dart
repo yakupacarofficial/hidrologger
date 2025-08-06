@@ -68,7 +68,7 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
         });
       },
       onError: (error) {
-        print('Detay ekranı veri güncelleme hatası: $error');
+        // Detay ekranı veri güncelleme hatası
       },
     );
   }

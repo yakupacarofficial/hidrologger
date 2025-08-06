@@ -32,7 +32,7 @@ class ConstantDataService {
       
       return constantData;
     } catch (e) {
-      print('Sabit veriler yüklenirken hata: $e');
+              // Hata loglanabilir
       return {};
     }
   }
@@ -44,7 +44,7 @@ class ConstantDataService {
       final jsonString = await rootBundle.loadString(filePath);
       return json.decode(jsonString);
     } catch (e) {
-      print('$fileName yüklenirken hata: $e');
+              // Hata loglanabilir
       return null;
     }
   }
@@ -117,7 +117,7 @@ class ConstantDataService {
       }
       return result;
     } catch (e) {
-      print('Value type verileri yüklenirken hata: $e');
+              // Hata loglanabilir
       return {};
     }
   }
@@ -133,7 +133,7 @@ class ConstantDataService {
       }
       return result;
     } catch (e) {
-      print('Station verileri yüklenirken hata: $e');
+              // Hata loglanabilir
       return {};
     }
   }

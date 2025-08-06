@@ -81,8 +81,7 @@ class _ConnectionScreenState extends State<ConnectionScreen>
       final currentIP = await _getLocalIP();
       final subnet = _getSubnet(currentIP);
       
-      print('Ağ taraması başlatılıyor: $subnet.0/24');
-      print('Mevcut IP: $currentIP');
+      // Ağ taraması başlatılıyor
       
       // Farklı subnet'ler için test IP'leri - gerçek Android cihaz için optimize edildi
       final testIPs = [
@@ -104,10 +103,10 @@ class _ConnectionScreenState extends State<ConnectionScreen>
             setState(() {
               _availableIPs.add(ip);
             });
-            print('Sunucu bulundu: $ip');
+            // Sunucu bulundu
           }
         } catch (e) {
-          print('IP $ip kontrol edilirken hata: $e');
+                      // IP kontrol hatası
         }
       }
       
@@ -119,7 +118,7 @@ class _ConnectionScreenState extends State<ConnectionScreen>
       }
       
     } catch (e) {
-      print('Ağ tarama hatası: $e');
+      // Ağ tarama hatası
     } finally {
       setState(() {
         _isScanning = false;
@@ -134,7 +133,7 @@ class _ConnectionScreenState extends State<ConnectionScreen>
       // Şimdilik sabit IP'ler kullanıyoruz, gerçek uygulamada network_info_plus paketi kullanılabilir
       return '172.20.10.3'; // Mevcut IP
     } catch (e) {
-      print('IP alma hatası: $e');
+      // IP alma hatası
       return '192.168.1.100'; // Fallback
     }
   }
@@ -172,7 +171,7 @@ class _ConnectionScreenState extends State<ConnectionScreen>
       final ip = _ipController.text.trim();
       final port = _portController.text.trim();
       
-      print('Bağlantı deneniyor: $ip:$port');
+      // Bağlantı deneniyor
       
       // IP ve port'u RESTfulService'e geçir
       final restfulService = RESTfulService(ip: ip, port: port);
@@ -181,7 +180,7 @@ class _ConnectionScreenState extends State<ConnectionScreen>
       final isConnected = await restfulService.testConnection();
       
       if (isConnected) {
-        print('Bağlantı başarılı! Dashboard\'a yönlendiriliyor...');
+        // Bağlantı başarılı
         if (mounted) {
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
@@ -193,7 +192,7 @@ class _ConnectionScreenState extends State<ConnectionScreen>
         throw Exception('Sunucuya bağlanılamadı. IP: $ip, Port: $port');
       }
     } catch (e) {
-      print('Bağlantı hatası: $e');
+              // Bağlantı hatası
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

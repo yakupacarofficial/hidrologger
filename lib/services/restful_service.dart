@@ -15,7 +15,7 @@ class RESTfulService {
   /// Bağlantıyı test et
   Future<bool> testConnection() async {
     try {
-      print('Bağlantı testi başlatılıyor: $_baseUrl/health');
+      // Bağlantı testi başlatılıyor
       final response = await http.get(
         Uri.parse('$_baseUrl/health'),
         headers: {'Content-Type': 'application/json'},
@@ -27,7 +27,7 @@ class RESTfulService {
       }
       return false;
     } catch (e) {
-      print('Bağlantı testi hatası: $e');
+      // Bağlantı testi hatası
       return false;
     }
   }
@@ -63,7 +63,7 @@ class RESTfulService {
       }
       return null;
     } catch (e) {
-      print('Veri getirme hatası: $e');
+      // Veri getirme hatası
       return null;
     }
   }
@@ -84,7 +84,7 @@ class RESTfulService {
       }
       return null;
     } catch (e) {
-      print('Değişken veri getirme hatası: $e');
+      // Değişken veri getirme hatası
       return null;
     }
   }
@@ -105,7 +105,7 @@ class RESTfulService {
       }
       return null;
     } catch (e) {
-      print('Alarm veri getirme hatası: $e');
+      // Alarm veri getirme hatası
       return null;
     }
   }
@@ -125,7 +125,7 @@ class RESTfulService {
       }
       return false;
     } catch (e) {
-      print('Alarm kaydetme hatası: $e');
+      // Alarm kaydetme hatası
       return false;
     }
   }
@@ -148,7 +148,7 @@ class RESTfulService {
       }
       return false;
     } catch (e) {
-      print('Kanal güncelleme hatası: $e');
+      // Kanal güncelleme hatası
       return false;
     }
   }
@@ -169,7 +169,7 @@ class RESTfulService {
       }
       return null;
     } catch (e) {
-      print('Sunucu bilgi getirme hatası: $e');
+      // Sunucu bilgi getirme hatası
       return null;
     }
   }

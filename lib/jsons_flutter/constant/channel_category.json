@@ -7,33 +7,33 @@
       },
       {
         "id": 2,
-        "name": "Gol",
+        "name": "Göl",
         "description": "Göl, Gölet"
       },
       {
         "id": 3,
         "name": "Baraj",
-        "description": ""
+        "description": "Baraj"
       },
       {
         "id": 4,
         "name": "Kuyu",
-        "description": "YAS Kuyusu, Yüzey Suyu Gözlemi"
+        "description": "YAS kuyusu, Yüzey suyu gözlemi"
       },
       {
         "id": 5,
-        "name": "SulamaKanali",
-        "description": ""
+        "name": "Sulama Kanalı",
+        "description": "Sulama kanalı"
       },
       {
         "id": 6,
-        "name": "MeteorolojiIstasyonu",
+        "name": "Meteoroloji İstasyonu",
         "description": "Çok parametreli meteoroloji istasyonu, kar gözlem vs"
       },
       {
         "id": 7,
-        "name": "SuKalitesi",
-        "description": ""
+        "name": "Su Kalitesi",
+        "description": "Su kalitesi"
       }
     ]
   }  

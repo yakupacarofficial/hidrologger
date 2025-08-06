@@ -37,7 +37,7 @@ class _ConstantDataScreenState extends State<ConstantDataScreen> with SingleTick
       setState(() {
         _isLoading = false;
       });
-      print('Sabit veriler yüklenirken hata: $e');
+              // Sabit veriler yüklenirken hata
     }
   }
 

@@ -89,7 +89,7 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
         }
       },
       onError: (error) {
-        print('Alarm ekranı veri güncelleme hatası: $error');
+        // Alarm ekranı veri güncelleme hatası
       },
     );
   }

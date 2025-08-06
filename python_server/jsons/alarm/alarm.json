@@ -1,0 +1,20 @@
+{
+  "alarm": {
+    "channel_id": 0,
+    "dataPostFrequency": 1000,
+    "alarminfo": "",
+    "alarms": []
+  },
+  "parameter1": {
+    "channel_id": 1,
+    "dataPostFrequency": 1232,
+    "alarminfo": "sadsadasd",
+    "alarms": [
+      {
+        "min_value": 12,
+        "max_value": 15,
+        "color": "#FFC0CB"
+      }
+    ]
+  }
+}
