@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/restful_service.dart';
+import '../../services/restful_service.dart';
 import 'predefined_sensors_screen.dart';
 import 'new_sensor_screen.dart';
 

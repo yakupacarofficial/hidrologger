@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../models/sensor.dart';
-import '../models/protocol.dart';
-import '../services/restful_service.dart';
-import '../services/sensor_service.dart';
+import '../../models/sensor_wizard/sensor.dart';
+import '../../models/sensor_wizard/protocol.dart';
+import '../../services/restful_service.dart';
+import '../../services/sensor_wizard/sensor_service.dart';
 import 'channel_selection_screen.dart';
 
 class NewSensorScreen extends StatefulWidget {

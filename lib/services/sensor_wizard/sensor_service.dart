@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
-import '../models/sensor.dart';
-import '../models/protocol.dart';
+import '../../models/sensor_wizard/sensor.dart';
+import '../../models/sensor_wizard/protocol.dart';
 
 class SensorService {
   static final SensorService _instance = SensorService._internal();

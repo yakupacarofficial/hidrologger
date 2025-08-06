@@ -7,7 +7,7 @@ import '../widgets/connection_status_badge.dart';
 import 'channel_detail_screen.dart';
 import 'constant_data_screen.dart';
 import 'alarm_management_screen.dart';
-import 'sensor_wizard_screen.dart';
+import 'sensor_wizard/sensor_wizard_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   final RESTfulService restfulService;

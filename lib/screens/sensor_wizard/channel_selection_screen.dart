@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../models/sensor.dart';
-import '../models/channel_data.dart';
-import '../services/restful_service.dart';
-import '../services/constant_data_service.dart';
+import '../../models/sensor_wizard/sensor.dart';
+
+import '../../services/restful_service.dart';
+import '../../services/constant_data_service.dart';
 
 class ChannelSelectionScreen extends StatefulWidget {
   final RESTfulService restfulService;

@@ -9,6 +9,17 @@
       "channel_parameter": 3,
       "measurement_unit": 1,
       "log_interval": 1000,
+      "offset": 12.4
+    },
+    {
+      "id": 2,
+      "name": "ACAR SENSOR V1",
+      "description": "ACAR V1 SENSOR 2019",
+      "channel_category": 1,
+      "channel_sub_category": 1,
+      "channel_parameter": 8,
+      "measurement_unit": 1,
+      "log_interval": 1000,
       "offset": 12.5
     }
   ]
