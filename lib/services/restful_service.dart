@@ -43,7 +43,20 @@ class RESTfulService {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (data['success'] == true) {
-          final channelData = ChannelData.fromJson(data['data']);
+          // Boş veri durumunu handle et
+          final responseData = data['data'];
+          if (responseData == null) {
+            // Boş veri durumunda varsayılan ChannelData oluştur
+            final emptyChannelData = ChannelData(
+              timestamp: DateTime.now().toIso8601String(),
+              variable: {},
+              alarm: {},
+            );
+            _dataController.add(emptyChannelData);
+            return emptyChannelData;
+          }
+          
+          final channelData = ChannelData.fromJson(responseData);
           _dataController.add(channelData);
           return channelData;
         }

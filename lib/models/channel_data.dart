@@ -20,18 +20,30 @@ class ChannelData {
   }
 
   List<Channel> get channels {
-    final channelData = variable['channel'] as List<dynamic>? ?? [];
-    return channelData.map((channel) => Channel.fromJson(channel, this)).toList();
+    final channelData = variable['channel'];
+    if (channelData == null) return [];
+    if (channelData is List<dynamic>) {
+      return channelData.map((channel) => Channel.fromJson(channel, this)).toList();
+    }
+    return [];
   }
 
   List<VariableData> get variableData {
-    final data = variable['data'] as List<dynamic>? ?? [];
-    return data.map((item) => VariableData.fromJson(item)).toList();
+    final data = variable['data'];
+    if (data == null) return [];
+    if (data is List<dynamic>) {
+      return data.map((item) => VariableData.fromJson(item)).toList();
+    }
+    return [];
   }
 
   // Alarm verilerini al
   Map<String, AlarmParameter> get alarmParameters {
-    final alarmData = alarm as Map<String, dynamic>? ?? {};
+    final alarmData = alarm;
+    if (alarmData == null || alarmData is! Map<String, dynamic>) {
+      return {};
+    }
+    
     final result = <String, AlarmParameter>{};
     
     alarmData.forEach((key, value) {

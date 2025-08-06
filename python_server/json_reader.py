@@ -50,13 +50,13 @@ class JSONReader:
         try:
             if not os.path.exists(file_path):
                 logger.warning(f"Dosya bulunamadı: {file_path}")
-                return None
+                return {}
                 
             with open(file_path, 'r', encoding='utf-8') as file:
                 content = file.read().strip()
                 if not content:
                     logger.warning(f"Dosya boş: {file_path}")
-                    return None
+                    return {}
                     
                 data = json.loads(content)
                 logger.debug(f"Dosya başarıyla okundu: {file_path}")
@@ -64,10 +64,10 @@ class JSONReader:
                 
         except json.JSONDecodeError as e:
             logger.error(f"JSON parse hatası {file_path}: {e}")
-            return None
+            return {}
         except Exception as e:
             logger.error(f"Dosya okuma hatası {file_path}: {e}")
-            return None
+            return {}
     
     def _read_directory_files(self, directory_path: str, category_name: str) -> Dict[str, Any]:
         """Bir klasördeki tüm JSON dosyalarını oku"""
@@ -86,7 +86,8 @@ class JSONReader:
                 file_key = os.path.splitext(filename)[0]  # .json uzantısını kaldır
                 
                 data = self._read_json_file(file_path)
-                if data is not None:
+                # Boş dosyalar için boş dict döndürüyor, bu durumda da işleme devam et
+                if data is not None and data != {}:
                     # Çift başlık problemini önlemek için:
                     # 1. Dosya içeriği tek bir anahtar içeriyorsa ve bu anahtar dosya adıyla aynıysa
                     # 2. Veya dosya adı kategori adıyla aynıysa (örn: alarm.json -> alarm kategorisi)
@@ -99,6 +100,10 @@ class JSONReader:
                     else:
                         result[file_key] = data
                     logger.info(f"{category_name} verisi yüklendi: {file_key}")
+                elif data == {}:
+                    # Boş dosya durumu - boş dict ekle
+                    result[file_key] = {}
+                    logger.info(f"{category_name} boş dosya işlendi: {file_key}")
                 else:
                     logger.error(f"{category_name} verisi yüklenemedi: {file_key}")
                     
@@ -208,16 +213,10 @@ class JSONReader:
                 logger.error("Timestamp boş")
                 return False
             
-            # En az bir veri kategorisinin dolu olması gerekiyor
-            has_data = False
-            for category in ["variable", "alarm"]:
-                if data.get(category) and len(data[category]) > 0:
-                    has_data = True
-                    break
-            
-            if not has_data:
-                logger.error("Hiçbir kategoride veri bulunamadı")
-                return False
+            # Boş dosyalar da geçerli durumlar, bu yüzden her zaman True döndür
+            # Sadece timestamp'in var olması yeterli
+            logger.debug("Veri doğrulama başarılı (boş dosyalar dahil)")
+            return True
             
             logger.debug("Veri doğrulama başarılı")
             return True
