@@ -262,6 +262,116 @@ class JSONReader:
             logger.error(f"Belirli veri alma hatası: {e}")
             return None
 
+    def create_channel(self, channel_data: Dict[str, Any]) -> bool:
+        """Yeni kanal oluştur"""
+        try:
+            logger.info(f"Yeni kanal oluşturma: {channel_data}")
+            
+            # Gerekli alanları kontrol et
+            required_fields = ['id', 'name', 'description']
+            for field in required_fields:
+                if field not in channel_data:
+                    logger.error(f"Eksik alan: {field}")
+                    return False
+            
+            # Channel dosyasının yolunu belirle
+            channel_file_path = os.path.join(self.variable_path, "channel.json")
+            logger.info(f"Channel dosya yolu: {channel_file_path}")
+            
+            # Dosyayı oku veya yeni oluştur
+            if os.path.exists(channel_file_path):
+                logger.info("Mevcut channel.json dosyası okunuyor")
+                try:
+                    with open(channel_file_path, 'r', encoding='utf-8') as file:
+                        data = json.load(file)
+                    logger.info(f"Mevcut kanal sayısı: {len(data.get('channel', []))}")
+                except (json.JSONDecodeError, FileNotFoundError):
+                    logger.warning("Channel.json dosyası bozuk, yeni dosya oluşturuluyor")
+                    data = {"channel": []}
+            else:
+                logger.info("Yeni channel.json dosyası oluşturuluyor")
+                data = {"channel": []}
+            
+            # Kanal ID'sinin benzersiz olduğunu kontrol et
+            channels = data.get('channel', [])
+            existing_ids = [ch.get('id') for ch in channels if ch.get('id') is not None]
+            if channel_data.get('id') in existing_ids:
+                logger.error(f"Kanal ID {channel_data.get('id')} zaten mevcut")
+                return False
+            
+            # Yeni kanalı ekle
+            channels.append(channel_data)
+            data['channel'] = channels
+            
+            logger.info(f"Yeni kanal eklendi. Toplam kanal sayısı: {len(channels)}")
+            
+            # Dosyayı kaydet
+            with open(channel_file_path, 'w', encoding='utf-8') as file:
+                json.dump(data, file, indent=2, ensure_ascii=False)
+            
+            logger.info(f"Yeni kanal başarıyla oluşturuldu: ID={channel_data.get('id')}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Kanal oluşturma hatası: {e}")
+            import traceback
+            logger.error(f"Hata detayı: {traceback.format_exc()}")
+            return False
+
+    def delete_channel(self, channel_id: int) -> bool:
+        """Kanalı sil"""
+        try:
+            logger.info(f"Kanal silme: ID={channel_id}")
+            
+            # Channel dosyasının yolunu belirle
+            channel_file_path = os.path.join(self.variable_path, "channel.json")
+            
+            if not os.path.exists(channel_file_path):
+                logger.error(f"Channel dosyası bulunamadı: {channel_file_path}")
+                return False
+            
+            # Dosyayı oku
+            try:
+                with open(channel_file_path, 'r', encoding='utf-8') as file:
+                    data = json.load(file)
+            except (json.JSONDecodeError, FileNotFoundError):
+                logger.error("Channel.json dosyası okunamadı")
+                return False
+            
+            # Kanalı bul ve sil
+            channels = data.get('channel', [])
+            original_length = len(channels)
+            
+            # Silinecek kanalı bul
+            channel_to_delete = None
+            for ch in channels:
+                if ch.get('id') == channel_id:
+                    channel_to_delete = ch
+                    break
+            
+            if channel_to_delete is None:
+                logger.warning(f"Kanal bulunamadı: ID={channel_id}")
+                return False
+            
+            # Kanalı listeden çıkar
+            channels = [ch for ch in channels if ch.get('id') != channel_id]
+            data['channel'] = channels
+            
+            logger.info(f"Silinecek kanal: {channel_to_delete.get('name', 'Bilinmeyen')}")
+            
+            # Dosyayı kaydet
+            with open(channel_file_path, 'w', encoding='utf-8') as file:
+                json.dump(data, file, indent=2, ensure_ascii=False)
+            
+            logger.info(f"Kanal başarıyla silindi: ID={channel_id}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Kanal silme hatası: {e}")
+            import traceback
+            logger.error(f"Hata detayı: {traceback.format_exc()}")
+            return False
+
     def update_channel_field(self, channel_id: int, field: str, value: Any) -> bool:
         """Kanal bilgilerini güncelle"""
         try:

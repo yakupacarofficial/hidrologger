@@ -7,6 +7,7 @@ import '../widgets/connection_status_badge.dart';
 import 'channel_detail_screen.dart';
 import 'constant_data_screen.dart';
 import 'alarm_management_screen.dart';
+import 'sensor_wizard_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   final RESTfulService restfulService;
@@ -130,6 +131,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 _navigateToChannelDetail(channel);
               },
             ),
+            ListTile(
+              leading: const Icon(Icons.delete, color: Colors.red),
+              title: const Text('Kanalı Sil'),
+              subtitle: const Text('Bu kanalı kalıcı olarak sil'),
+              onTap: () {
+                Navigator.pop(context);
+                _showDeleteConfirmation(channel);
+              },
+            ),
             const Spacer(),
             Padding(
               padding: const EdgeInsets.all(16),
@@ -156,6 +166,73 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ),
     );
+  }
+
+  void _showDeleteConfirmation(Channel channel) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Kanalı Sil'),
+          content: Text(
+            '${channel.name} kanalını kalıcı olarak silmek istediğinizden emin misiniz?\n\nBu işlem geri alınamaz.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('İptal'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _deleteChannel(channel);
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.red,
+              ),
+              child: const Text('Sil'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _deleteChannel(Channel channel) async {
+    try {
+      final success = await widget.restfulService.deleteChannel(channel.id);
+      
+      if (success) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${channel.name} kanalı başarıyla silindi'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          // Verileri yenile
+          widget.restfulService.forceReload();
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${channel.name} kanalı silinirken hata oluştu'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Kanal silme hatası: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   void _navigateToChannelDetail(Channel channel) {
@@ -185,6 +262,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
         elevation: 0,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.sensors),
+            onPressed: _currentData != null ? () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => SensorWizardScreen(
+                    restfulService: widget.restfulService,
+                  ),
+                ),
+              );
+            } : null,
+            tooltip: 'Sensör Sihirbazı',
+          ),
           IconButton(
             icon: const Icon(Icons.info_outline),
             onPressed: _currentData != null ? () {

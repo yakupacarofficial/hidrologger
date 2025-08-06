@@ -64,6 +64,7 @@ flutter:
   assets:
     - lib/jsons_flutter/
     - lib/jsons_flutter/constant/
+    - lib/jsons_flutter/sensor_installation_wizard/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

@@ -130,6 +130,51 @@ class RESTfulService {
     }
   }
 
+  /// Yeni kanal oluştur
+  Future<bool> createChannel(Map<String, dynamic> channelData) async {
+    try {
+      print('Kanal oluşturma isteği gönderiliyor: $channelData');
+      final response = await http.post(
+        Uri.parse('$_baseUrl/channel'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(channelData),
+      ).timeout(const Duration(seconds: 10));
+
+      print('Kanal oluşturma yanıtı: ${response.statusCode} - ${response.body}');
+      
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['success'] == true;
+      }
+      return false;
+    } catch (e) {
+      print('Kanal oluşturma hatası: $e');
+      return false;
+    }
+  }
+
+  /// Kanalı sil
+  Future<bool> deleteChannel(int channelId) async {
+    try {
+      print('Kanal silme isteği gönderiliyor: $channelId');
+      final response = await http.delete(
+        Uri.parse('$_baseUrl/channel/$channelId'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(const Duration(seconds: 10));
+
+      print('Kanal silme yanıtı: ${response.statusCode} - ${response.body}');
+      
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['success'] == true;
+      }
+      return false;
+    } catch (e) {
+      print('Kanal silme hatası: $e');
+      return false;
+    }
+  }
+
   /// Kanal alanını güncelle
   Future<bool> updateChannelField(int channelId, String field, dynamic value) async {
     try {
@@ -196,6 +241,11 @@ class RESTfulService {
 
   /// Veri stream'ini al
   Stream<ChannelData> get dataStream => _dataController.stream;
+
+  /// Verileri zorla yenile
+  void forceReload() {
+    fetchAllData();
+  }
 
   /// Kaynakları temizle
   void dispose() {

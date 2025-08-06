@@ -126,6 +126,39 @@ class RESTfulServer:
                     "error": str(e)
                 }), 500
         
+        @self.app.route('/api/channel', methods=['POST'])
+        def create_channel():
+            """Yeni kanal oluştur"""
+            try:
+                logger.info("Yeni kanal oluşturma istendi")
+                channel_data = request.get_json()
+                
+                if channel_data is None:
+                    return jsonify({
+                        "success": False,
+                        "error": "Geçersiz JSON verisi"
+                    }), 400
+                
+                success = self.json_reader.create_channel(channel_data)
+                if success:
+                    logger.info("Yeni kanal başarıyla oluşturuldu")
+                    return jsonify({
+                        "success": True,
+                        "message": "Yeni kanal başarıyla oluşturuldu",
+                        "timestamp": datetime.now().isoformat()
+                    })
+                else:
+                    return jsonify({
+                        "success": False,
+                        "error": "Kanal oluşturma başarısız"
+                    }), 500
+            except Exception as e:
+                logger.error(f"Kanal oluşturma hatası: {e}")
+                return jsonify({
+                    "success": False,
+                    "error": str(e)
+                }), 500
+
         @self.app.route('/api/channel/<int:channel_id>', methods=['PUT'])
         def update_channel_field(channel_id):
             """Kanal alanını güncelle"""
@@ -157,6 +190,32 @@ class RESTfulServer:
                     }), 500
             except Exception as e:
                 logger.error(f"Kanal güncelleme hatası: {e}")
+                return jsonify({
+                    "success": False,
+                    "error": str(e)
+                }), 500
+
+        @self.app.route('/api/channel/<int:channel_id>', methods=['DELETE'])
+        def delete_channel(channel_id):
+            """Kanalı sil"""
+            try:
+                logger.info(f"Kanal {channel_id} silme istendi")
+                
+                success = self.json_reader.delete_channel(channel_id)
+                if success:
+                    logger.info(f"Kanal {channel_id} başarıyla silindi")
+                    return jsonify({
+                        "success": True,
+                        "message": f"Kanal {channel_id} başarıyla silindi",
+                        "timestamp": datetime.now().isoformat()
+                    })
+                else:
+                    return jsonify({
+                        "success": False,
+                        "error": "Kanal silme başarısız"
+                    }), 500
+            except Exception as e:
+                logger.error(f"Kanal silme hatası: {e}")
                 return jsonify({
                     "success": False,
                     "error": str(e)

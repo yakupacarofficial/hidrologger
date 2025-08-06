@@ -76,6 +76,15 @@ class ConstantDataService {
       )),
     );
   }
+
+  /// Kanal parametrelerini detaylı liste olarak döndürür
+  static Future<List<Map<String, dynamic>>> loadChannelParameters() async {
+    final data = await loadSpecificConstantData('channel_parameter.json');
+    if (data == null || data['channel_parameter'] == null) return [];
+    
+    final parameters = data['channel_parameter'] as List<dynamic>;
+    return parameters.map((param) => param as Map<String, dynamic>).toList();
+  }
   
   /// Kanal alt kategorilerini döndürür
   static Future<Map<int, String>> getChannelSubCategories() async {
