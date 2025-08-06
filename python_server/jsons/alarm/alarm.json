@@ -1,7 +1,7 @@
 {
-  "channel_id": 2,
-  "min_value": 45.2,
-  "max_value": 85.2,
-  "alarm_info": "BUHARLSASMA EVAP",
+  "channel_id": 1,
+  "min_value": 10.3,
+  "max_value": 50.2,
+  "alarm_info": "teestt",
   "data_post_frequency": 1000
 }

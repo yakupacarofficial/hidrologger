@@ -36,11 +36,20 @@ class _ChannelSelectionScreenState extends State<ChannelSelectionScreen> {
   bool _isLoading = false;
   bool _isSaving = false;
   final TextEditingController _searchController = TextEditingController();
+  
+  // Kategori ve value type seçimi için
+  List<Map<String, dynamic>> _categories = [];
+  List<Map<String, dynamic>> _subCategories = [];
+  List<Map<String, dynamic>> _valueTypes = [];
+  Map<String, dynamic>? _selectedCategory;
+  Map<String, dynamic>? _selectedSubCategory;
+  Map<String, dynamic>? _selectedValueType;
 
   @override
   void initState() {
     super.initState();
     _loadChannelParameters();
+    _loadCategoriesAndValueTypes();
     _calculateNextChannelId();
   }
 
@@ -74,6 +83,43 @@ class _ChannelSelectionScreenState extends State<ChannelSelectionScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Kanal parametreleri yüklenirken hata: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _loadCategoriesAndValueTypes() async {
+    try {
+      // Kategorileri yükle
+      final categories = await ConstantDataService.loadSpecificConstantData('channel_category.json');
+      if (categories != null && categories['channel_category'] != null) {
+        setState(() {
+          _categories = List<Map<String, dynamic>>.from(categories['channel_category']);
+        });
+      }
+      
+      // Alt kategorileri yükle
+      final subCategories = await ConstantDataService.loadSpecificConstantData('channel_sub_category.json');
+      if (subCategories != null && subCategories['channel_sub_category'] != null) {
+        setState(() {
+          _subCategories = List<Map<String, dynamic>>.from(subCategories['channel_sub_category']);
+        });
+      }
+      
+      // Value type'ları yükle
+      final valueTypes = await ConstantDataService.loadSpecificConstantData('value_type.json');
+      if (valueTypes != null && valueTypes['value_type'] != null) {
+        setState(() {
+          _valueTypes = List<Map<String, dynamic>>.from(valueTypes['value_type']);
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Kategori ve value type verileri yüklenirken hata: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -127,6 +173,10 @@ class _ChannelSelectionScreenState extends State<ChannelSelectionScreen> {
 
                     // Parametre Seçimi
                     _buildParameterSelection(),
+                    const SizedBox(height: 24),
+
+                    // Kategori Seçimi
+                    _buildCategorySelection(),
                     const SizedBox(height: 24),
 
                     // Offset Değeri
@@ -344,6 +394,111 @@ class _ChannelSelectionScreenState extends State<ChannelSelectionScreen> {
                 ),
               ),
             ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategorySelection() {
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Kategori ve Value Type Seçimi',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16),
+            
+            // Ana Kategori
+            DropdownButtonFormField<Map<String, dynamic>>(
+              value: _selectedCategory,
+              decoration: const InputDecoration(
+                labelText: 'Ana Kategori',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.category),
+              ),
+              items: _categories.map((category) {
+                return DropdownMenuItem<Map<String, dynamic>>(
+                  value: category,
+                  child: Text(category['name'] ?? 'Bilinmeyen'),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  _selectedCategory = value;
+                  _selectedSubCategory = null; // Alt kategoriyi sıfırla
+                });
+              },
+              validator: (value) {
+                if (value == null) {
+                  return 'Lütfen ana kategori seçin';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 12),
+            
+            // Alt Kategori
+            DropdownButtonFormField<Map<String, dynamic>>(
+              value: _selectedSubCategory,
+              decoration: const InputDecoration(
+                labelText: 'Alt Kategori',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.subdirectory_arrow_right),
+              ),
+              items: _subCategories.map((subCategory) {
+                return DropdownMenuItem<Map<String, dynamic>>(
+                  value: subCategory,
+                  child: Text(subCategory['name'] ?? 'Bilinmeyen'),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  _selectedSubCategory = value;
+                });
+              },
+              validator: (value) {
+                if (value == null) {
+                  return 'Lütfen alt kategori seçin';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 12),
+            
+            // Value Type
+            DropdownButtonFormField<Map<String, dynamic>>(
+              value: _selectedValueType,
+              decoration: const InputDecoration(
+                labelText: 'Value Type',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.data_usage),
+              ),
+              items: _valueTypes.map((valueType) {
+                return DropdownMenuItem<Map<String, dynamic>>(
+                  value: valueType,
+                  child: Text(valueType['name'] ?? 'Bilinmeyen'),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  _selectedValueType = value;
+                });
+              },
+              validator: (value) {
+                if (value == null) {
+                  return 'Lütfen value type seçin';
+                }
+                return null;
+              },
+            ),
           ],
         ),
       ),
@@ -602,10 +757,11 @@ class _ChannelSelectionScreenState extends State<ChannelSelectionScreen> {
         'id': _nextChannelId,
         'name': widget.selectedSensor.name,
         'description': widget.selectedSensor.description,
-        'channel_category': _selectedParameter!['category_id'] ?? 1,
-        'channel_sub_category': _selectedParameter!['sub_category_id'] ?? 1,
+        'channel_category': _selectedCategory?['id'] ?? _selectedParameter!['category_id'] ?? 1,
+        'channel_sub_category': _selectedSubCategory?['id'] ?? _selectedParameter!['sub_category_id'] ?? 1,
         'channel_parameter': _selectedParameter!['id'],
         'measurement_unit': _selectedParameter!['unit_id'] ?? 1,
+        'value_type': _selectedValueType?['id'] ?? 1,
         'log_interval': 1000, // Varsayılan değer
         'offset': double.parse(_offsetController.text),
       };

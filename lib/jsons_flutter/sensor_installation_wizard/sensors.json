@@ -4,7 +4,7 @@
       "id": 1,
       "name": "AKIM 3 Parametreli Sensör",
       "description": "Basınç, Sıcaklık ve EC parametrelerini ölçen çok fonksiyonlu sensör",
-      "type": "analog",
+      "type": "digital",
       "protocol": "4-20 mA",
       "parameters": [
         {
@@ -29,90 +29,6 @@
           "unit": "mS/cm",
           "min_value": 0,
           "max_value": 200,
-          "offset": 0.0
-        }
-      ]
-    },
-    {
-      "id": 2,
-      "name": "pH Sensörü",
-      "description": "Suyun pH değerini ölçen hassas sensör",
-      "type": "analog",
-      "protocol": "0-5V",
-      "parameters": [
-        {
-          "id": 4,
-          "name": "pH Değeri",
-          "unit": "pH",
-          "min_value": 0,
-          "max_value": 14,
-          "offset": 0.0
-        }
-      ]
-    },
-    {
-      "id": 3,
-      "name": "Çözünmüş Oksijen Sensörü",
-      "description": "Suda çözünmüş oksijen miktarını ölçen sensör",
-      "type": "analog",
-      "protocol": "4-20 mA",
-      "parameters": [
-        {
-          "id": 5,
-          "name": "Çözünmüş Oksijen",
-          "unit": "mg/L",
-          "min_value": 0,
-          "max_value": 20,
-          "offset": 0.0
-        }
-      ]
-    },
-    {
-      "id": 4,
-      "name": "Turbidite Sensörü",
-      "description": "Suyun bulanıklığını ölçen optik sensör",
-      "type": "analog",
-      "protocol": "0-10V",
-      "parameters": [
-        {
-          "id": 6,
-          "name": "Turbidite",
-          "unit": "NTU",
-          "min_value": 0,
-          "max_value": 4000,
-          "offset": 0.0
-        }
-      ]
-    },
-    {
-      "id": 5,
-      "name": "Seviye Sensörü",
-      "description": "Su seviyesini ölçen ultrasonik sensör",
-      "type": "digital",
-      "parameters": [
-        {
-          "id": 7,
-          "name": "Su Seviyesi",
-          "unit": "cm",
-          "min_value": 0,
-          "max_value": 500,
-          "offset": 0.0
-        }
-      ]
-    },
-    {
-      "id": 6,
-      "name": "Debi Sensörü",
-      "description": "Su akış hızını ölçen manyetik sensör",
-      "type": "analog",
-      "protocol": "4-20 mA",
-      "parameters": [
-        {
-          "id": 8,
-          "name": "Debi",
-          "unit": "L/dk",
-          "min_value": 0,
-          "max_value": 100,
           "offset": 0.0
         }
       ]

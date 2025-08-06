@@ -319,28 +319,28 @@ class JSONReader:
             return False
 
     def delete_channel(self, channel_id: int) -> bool:
-        """Kanalı sil"""
+        """Kanalı sil ve ilgili data'yı da sil"""
         try:
             logger.info(f"Kanal silme: ID={channel_id}")
             
             # Channel dosyasının yolunu belirle
             channel_file_path = os.path.join(self.variable_path, "channel.json")
+            data_file_path = os.path.join(self.variable_path, "data.json")
             
             if not os.path.exists(channel_file_path):
                 logger.error(f"Channel dosyası bulunamadı: {channel_file_path}")
                 return False
             
-            # Dosyayı oku
+            # Channel dosyasını oku
             try:
                 with open(channel_file_path, 'r', encoding='utf-8') as file:
-                    data = json.load(file)
+                    channel_data = json.load(file)
             except (json.JSONDecodeError, FileNotFoundError):
                 logger.error("Channel.json dosyası okunamadı")
                 return False
             
             # Kanalı bul ve sil
-            channels = data.get('channel', [])
-            original_length = len(channels)
+            channels = channel_data.get('channel', [])
             
             # Silinecek kanalı bul
             channel_to_delete = None
@@ -355,15 +355,40 @@ class JSONReader:
             
             # Kanalı listeden çıkar
             channels = [ch for ch in channels if ch.get('id') != channel_id]
-            data['channel'] = channels
+            channel_data['channel'] = channels
             
             logger.info(f"Silinecek kanal: {channel_to_delete.get('name', 'Bilinmeyen')}")
             
-            # Dosyayı kaydet
+            # Channel dosyasını kaydet
             with open(channel_file_path, 'w', encoding='utf-8') as file:
-                json.dump(data, file, indent=2, ensure_ascii=False)
+                json.dump(channel_data, file, indent=2, ensure_ascii=False)
             
-            logger.info(f"Kanal başarıyla silindi: ID={channel_id}")
+            # Data dosyasından da ilgili veriyi sil
+            if os.path.exists(data_file_path):
+                try:
+                    with open(data_file_path, 'r', encoding='utf-8') as file:
+                        data_content = json.load(file)
+                    
+                    # Data listesini al
+                    data_list = data_content.get('data', [])
+                    
+                    # Kanal ID'sine ait verileri filtrele
+                    original_data_count = len(data_list)
+                    data_list = [d for d in data_list if d.get('channel_id') != channel_id]
+                    
+                    data_content['data'] = data_list
+                    
+                    # Data dosyasını kaydet
+                    with open(data_file_path, 'w', encoding='utf-8') as file:
+                        json.dump(data_content, file, indent=2, ensure_ascii=False)
+                    
+                    deleted_data_count = original_data_count - len(data_list)
+                    logger.info(f"Data dosyasından {deleted_data_count} veri silindi")
+                    
+                except (json.JSONDecodeError, FileNotFoundError) as e:
+                    logger.warning(f"Data dosyası işlenirken hata: {e}")
+            
+            logger.info(f"Kanal ve ilgili veriler başarıyla silindi: ID={channel_id}")
             return True
             
         except Exception as e:
