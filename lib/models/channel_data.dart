@@ -177,11 +177,13 @@ class VariableData {
 class AlarmParameter {
   final int channelId;
   final int dataPostFrequency;
+  final String alarmInfo;
   final List<Alarm> alarms;
 
   AlarmParameter({
     required this.channelId,
     required this.dataPostFrequency,
+    required this.alarmInfo,
     required this.alarms,
   });
 
@@ -190,6 +192,7 @@ class AlarmParameter {
     return AlarmParameter(
       channelId: json['channel_id'] ?? 0,
       dataPostFrequency: json['dataPostFrequency'] ?? 1000,
+      alarmInfo: json['alarminfo'] ?? '',
       alarms: alarmsList.map((item) => Alarm.fromJson(item)).toList(),
     );
   }
@@ -198,6 +201,7 @@ class AlarmParameter {
     return {
       'channel_id': channelId,
       'dataPostFrequency': dataPostFrequency,
+      'alarminfo': alarmInfo,
       'alarms': alarms.map((alarm) => alarm.toJson()).toList(),
     };
   }

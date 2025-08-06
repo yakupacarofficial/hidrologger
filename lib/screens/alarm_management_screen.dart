@@ -27,6 +27,7 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
   final TextEditingController _dataPostFrequencyController = TextEditingController();
   final TextEditingController _minValueController = TextEditingController();
   final TextEditingController _maxValueController = TextEditingController();
+  final TextEditingController _alarmInfoController = TextEditingController();
   
   // Color picker
   String _selectedColor = '#FF0000';
@@ -60,6 +61,7 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
         if (currentAlarmData != null && mounted) {
           setState(() {
             _dataPostFrequencyController.text = currentAlarmData.dataPostFrequency.toString();
+            _alarmInfoController.text = currentAlarmData.alarmInfo;
           });
         }
       });
@@ -72,6 +74,7 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
     _dataPostFrequencyController.dispose();
     _minValueController.dispose();
     _maxValueController.dispose();
+    _alarmInfoController.dispose();
     super.dispose();
   }
 
@@ -118,6 +121,7 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
   void _addAlarm() {
     final minValue = double.tryParse(_minValueController.text);
     final maxValue = double.tryParse(_maxValueController.text);
+    final alarmInfo = _alarmInfoController.text.trim();
     
     if (minValue == null || maxValue == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -139,13 +143,23 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
       return;
     }
 
+    if (alarmInfo.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Alarm bilgisi giriniz'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     final newAlarm = Alarm(
       minValue: minValue,
       maxValue: maxValue,
       color: _selectedColor,
     );
 
-    _saveAlarmData(newAlarm);
+    _saveAlarmData(newAlarm, alarmInfo);
     
     // Form'u temizle
     _minValueController.clear();
@@ -153,7 +167,7 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
     _selectedColor = '#FF0000';
   }
 
-  void _saveAlarmData(Alarm newAlarm) async {
+  void _saveAlarmData(Alarm newAlarm, String alarmInfo) async {
     if (widget.channel == null) return;
     
     final channelId = widget.channel!.id;
@@ -171,6 +185,7 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
     final updatedAlarmParameter = AlarmParameter(
       channelId: channelId,
       dataPostFrequency: dataPostFrequency,
+      alarmInfo: alarmInfo,
       alarms: updatedAlarms,
     );
     
@@ -216,6 +231,7 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
     final updatedAlarmParameter = AlarmParameter(
       channelId: currentAlarmData.channelId,
       dataPostFrequency: currentAlarmData.dataPostFrequency,
+      alarmInfo: currentAlarmData.alarmInfo,
       alarms: updatedAlarms,
     );
     
@@ -240,6 +256,133 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
         ),
       );
     }
+  }
+
+  void _editAlarm(String parameterKey, int alarmIndex) async {
+    final currentAlarmData = _alarmParameters[parameterKey];
+    if (currentAlarmData == null || alarmIndex >= currentAlarmData.alarms.length) return;
+    
+    final alarm = currentAlarmData.alarms[alarmIndex];
+    
+    // Edit dialog'u göster
+    final result = await _showEditAlarmDialog(alarm);
+    if (result != null) {
+      final updatedAlarms = <Alarm>[...currentAlarmData.alarms];
+      updatedAlarms[alarmIndex] = result;
+      
+      final updatedAlarmParameter = AlarmParameter(
+        channelId: currentAlarmData.channelId,
+        dataPostFrequency: currentAlarmData.dataPostFrequency,
+        alarmInfo: currentAlarmData.alarmInfo,
+        alarms: updatedAlarms,
+      );
+      
+      final updatedAlarmData = Map<String, AlarmParameter>.from(_alarmParameters);
+      updatedAlarmData[parameterKey] = updatedAlarmParameter;
+      
+      // RESTful API'ye gönder
+      final success = await widget.restfulService.saveAlarmData(_convertToJson(updatedAlarmData));
+      
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Alarm güncellendi'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Alarm güncellenirken hata oluştu'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<Alarm?> _showEditAlarmDialog(Alarm alarm) async {
+    final minValueController = TextEditingController(text: alarm.minValue.toString());
+    final maxValueController = TextEditingController(text: alarm.maxValue.toString());
+    String selectedColor = alarm.color;
+    
+    return showDialog<Alarm>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Alarm Düzenle'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: minValueController,
+              decoration: const InputDecoration(
+                labelText: 'Minimum Değer',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: maxValueController,
+              decoration: const InputDecoration(
+                labelText: 'Maksimum Değer',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 16),
+            const Text('Renk Seçin:'),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              children: _availableColors.map((color) => GestureDetector(
+                onTap: () => selectedColor = color,
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Color(int.parse(color.replaceAll('#', '0xFF'))),
+                    border: Border.all(
+                      color: selectedColor == color ? Colors.black : Colors.grey,
+                      width: selectedColor == color ? 3 : 1,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              )).toList(),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('İptal'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final minValue = double.tryParse(minValueController.text);
+              final maxValue = double.tryParse(maxValueController.text);
+              
+              if (minValue != null && maxValue != null && minValue < maxValue) {
+                Navigator.of(context).pop(Alarm(
+                  minValue: minValue,
+                  maxValue: maxValue,
+                  color: selectedColor,
+                ));
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Geçerli değerler giriniz'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            },
+            child: const Text('Kaydet'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -391,6 +534,18 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
           ),
           const SizedBox(height: 16),
           
+          // Alarm Info
+          TextField(
+            controller: _alarmInfoController,
+            decoration: const InputDecoration(
+              labelText: 'Alarm Bilgisi',
+              border: OutlineInputBorder(),
+              hintText: 'Örn: Sıcaklık çok yüksek',
+            ),
+            maxLines: 2,
+          ),
+          const SizedBox(height: 16),
+          
           // Min/Max Values
           Row(
             children: [
@@ -532,6 +687,16 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
                       color: Colors.grey[600],
                     ),
                   ),
+                  if (alarmParameter.alarmInfo.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      'Alarm Bilgisi: ${alarmParameter.alarmInfo}',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.grey[600],
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 8),
                   
                   if (alarmParameter.alarms.isEmpty)
@@ -574,6 +739,10 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
                                 '${alarm.minValue} - ${alarm.maxValue}',
                                 style: const TextStyle(fontWeight: FontWeight.w600),
                               ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.edit, color: Colors.blue),
+                              onPressed: () => _editAlarm(parameterKey, index),
                             ),
                             IconButton(
                               icon: const Icon(Icons.delete, color: Colors.red),

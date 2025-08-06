@@ -2,11 +2,24 @@
   "parameter1": {
     "channel_id": 1,
     "dataPostFrequency": 1000,
+    "alarminfo": "ggfffd",
     "alarms": [
       {
-        "min_value": 5.0,
-        "max_value": 15.0,
-        "color": "#0000FF"
+        "min_value": 250.0,
+        "max_value": 500.0,
+        "color": "#FFA500"
+      }
+    ]
+  },
+  "parameter2": {
+    "channel_id": 2,
+    "dataPostFrequency": 5000,
+    "alarminfo": "llllll",
+    "alarms": [
+      {
+        "min_value": 25.0,
+        "max_value": 30.0,
+        "color": "#00FF00"
       }
     ]
   }
