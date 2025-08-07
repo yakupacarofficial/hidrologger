@@ -1,7 +1,14 @@
 {
-  "channel_id": 1,
-  "min_value": 12.3,
-  "max_value": 15.2,
-  "alarm_info": "test",
-  "data_post_frequency": 1000
+  "parameter1": {
+    "channel_id": 1,
+    "dataPostFrequency": 1000,
+    "alarminfo": "asdasdsadasdsadsadasdasasdasdsadasdsadsadasdasasdasdsadasdsadsadasdas",
+    "alarms": [
+      {
+        "min_value": 12.2,
+        "max_value": 15.2,
+        "color": "#0000FF"
+      }
+    ]
+  }
 }

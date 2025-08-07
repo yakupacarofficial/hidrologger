@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../models/sensor_wizard/sensor.dart';
-
+import '../../models/channel_data.dart';
 import '../../services/restful_service.dart';
 import '../../services/constant_data_service.dart';
 
@@ -36,6 +36,21 @@ class _ChannelSelectionScreenState extends State<ChannelSelectionScreen> {
   bool _isLoading = false;
   bool _isSaving = false;
   final TextEditingController _searchController = TextEditingController();
+  
+  // Color picker for alarm
+  String _selectedColor = '#FF0000';
+  final List<String> _availableColors = [
+    '#FF0000', // Kırmızı
+    '#00FF00', // Yeşil
+    '#0000FF', // Mavi
+    '#FFFF00', // Sarı
+    '#FF00FF', // Magenta
+    '#00FFFF', // Cyan
+    '#FFA500', // Turuncu
+    '#800080', // Mor
+    '#008000', // Koyu Yeşil
+    '#FFC0CB', // Pembe
+  ];
   
   // Kategori ve value type seçimi için
   List<Map<String, dynamic>> _categories = [];
@@ -615,6 +630,41 @@ class _ChannelSelectionScreenState extends State<ChannelSelectionScreen> {
               ),
               maxLines: 2,
             ),
+            const SizedBox(height: 16),
+            
+            // Color Picker
+            Text(
+              'Renk Seçin',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              children: _availableColors.map((color) {
+                final isSelected = color == _selectedColor;
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _selectedColor = color;
+                    });
+                  },
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Color(int.parse(color.replaceAll('#', '0xFF'))),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: isSelected ? Colors.black : Colors.grey,
+                        width: isSelected ? 3 : 1,
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
           ],
         ),
       ),
@@ -774,18 +824,36 @@ class _ChannelSelectionScreenState extends State<ChannelSelectionScreen> {
       if (success) {
         // Alarm ayarları varsa kaydet
         if (_minAlarmController.text.isNotEmpty || _maxAlarmController.text.isNotEmpty) {
+          // Alarm verilerini oluştur
+          final minValue = _minAlarmController.text.isNotEmpty 
+              ? double.parse(_minAlarmController.text) 
+              : 0.0;
+          final maxValue = _maxAlarmController.text.isNotEmpty 
+              ? double.parse(_maxAlarmController.text) 
+              : 100.0;
+          final alarmInfo = _alarmInfoController.text.isNotEmpty 
+              ? _alarmInfoController.text 
+              : 'Kanal $_nextChannelId alarmı';
+          
+          // Alarm nesnesi oluştur
+          final alarm = Alarm(
+            minValue: minValue,
+            maxValue: maxValue,
+            color: _selectedColor,
+          );
+          
+          // AlarmParameter oluştur
+          final alarmParameter = AlarmParameter(
+            channelId: _nextChannelId,
+            dataPostFrequency: 1000, // Varsayılan değer
+            alarmInfo: alarmInfo,
+            alarms: [alarm],
+          );
+          
+          // Alarm verilerini JSON formatına çevir
+          final parameterKey = 'parameter$_nextChannelId';
           final alarmData = {
-            'channel_id': _nextChannelId,
-            'min_value': _minAlarmController.text.isNotEmpty 
-                ? double.parse(_minAlarmController.text) 
-                : null,
-            'max_value': _maxAlarmController.text.isNotEmpty 
-                ? double.parse(_maxAlarmController.text) 
-                : null,
-            'alarm_info': _alarmInfoController.text.isNotEmpty 
-                ? _alarmInfoController.text 
-                : 'Kanal $_nextChannelId alarmı',
-            'data_post_frequency': 1000, // Varsayılan değer
+            parameterKey: alarmParameter.toJson(),
           };
 
           await widget.restfulService.saveAlarmData(alarmData);
