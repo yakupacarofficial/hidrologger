@@ -263,7 +263,7 @@ class JSONReader:
             return None
 
     def create_channel(self, channel_data: Dict[str, Any]) -> bool:
-        """Yeni kanal oluştur"""
+        """Yeni kanal oluştur ve data.json'a otomatik veri bloğu ekle"""
         try:
             logger.info(f"Yeni kanal oluşturma: {channel_data}")
             
@@ -276,7 +276,9 @@ class JSONReader:
             
             # Channel dosyasının yolunu belirle
             channel_file_path = os.path.join(self.variable_path, "channel.json")
+            data_file_path = os.path.join(self.variable_path, "data.json")
             logger.info(f"Channel dosya yolu: {channel_file_path}")
+            logger.info(f"Data dosya yolu: {data_file_path}")
             
             # Dosyayı oku veya yeni oluştur
             if os.path.exists(channel_file_path):
@@ -305,9 +307,12 @@ class JSONReader:
             
             logger.info(f"Yeni kanal eklendi. Toplam kanal sayısı: {len(channels)}")
             
-            # Dosyayı kaydet
+            # Channel dosyasını kaydet
             with open(channel_file_path, 'w', encoding='utf-8') as file:
                 json.dump(data, file, indent=2, ensure_ascii=False)
+            
+            # Data.json dosyasına yeni veri bloğu ekle
+            self._add_data_entry_for_channel(channel_data.get('id'))
             
             logger.info(f"Yeni kanal başarıyla oluşturuldu: ID={channel_data.get('id')}")
             return True
@@ -374,7 +379,7 @@ class JSONReader:
                     
                     # Kanal ID'sine ait verileri filtrele
                     original_data_count = len(data_list)
-                    data_list = [d for d in data_list if d.get('channel_id') != channel_id]
+                    data_list = [d for d in data_list if d.get('channel') != channel_id]
                     
                     data_content['data'] = data_list
                     
@@ -509,3 +514,65 @@ class JSONReader:
         except Exception as e:
             logger.error(f"Alarm verileri okuma hatası: {e}")
             return None
+
+    def _add_data_entry_for_channel(self, channel_id: int) -> bool:
+        """Yeni kanal için data.json dosyasına veri bloğu ekle"""
+        try:
+            logger.info(f"Kanal {channel_id} için data.json'a veri bloğu ekleniyor")
+            
+            data_file_path = os.path.join(self.variable_path, "data.json")
+            
+            # Mevcut data.json dosyasını oku
+            if os.path.exists(data_file_path):
+                try:
+                    with open(data_file_path, 'r', encoding='utf-8') as file:
+                        data_content = json.load(file)
+                except (json.JSONDecodeError, FileNotFoundError):
+                    logger.warning("Data.json dosyası bozuk, yeni dosya oluşturuluyor")
+                    data_content = {"data": []}
+            else:
+                logger.info("Yeni data.json dosyası oluşturuluyor")
+                data_content = {"data": []}
+            
+            # Mevcut veri listesini al
+            data_list = data_content.get('data', [])
+            
+            # Yeni veri bloğu için benzersiz ID bul
+            existing_ids = [item.get('id') for item in data_list if item.get('id') is not None]
+            new_data_id = max(existing_ids) + 1 if existing_ids else 1
+            
+            # Şu anki timestamp'i al
+            current_timestamp = int(time.time())
+            
+            # Yeni veri bloğu oluştur
+            new_data_entry = {
+                "id": new_data_id,
+                "channel": channel_id,
+                "value_type": 1,  # Varsayılan değer tipi
+                "value_timestamp": current_timestamp,
+                "value": 0,  # Varsayılan değer
+                "battery_percentage": 100,  # Varsayılan batarya
+                "signal_strength": 100  # Varsayılan sinyal gücü
+            }
+            
+            # Yeni veri bloğunu listeye ekle
+            data_list.append(new_data_entry)
+            data_content['data'] = data_list
+            
+            # Dosyayı kaydet
+            with open(data_file_path, 'w', encoding='utf-8') as file:
+                json.dump(data_content, file, indent=2, ensure_ascii=False)
+            
+            # Dosya değişiklik zamanını güncelle
+            self.file_last_modified[data_file_path] = os.path.getmtime(data_file_path)
+            
+            # Cache'i temizle
+            self.last_successful_data = None
+            
+            logger.info(f"Kanal {channel_id} için veri bloğu başarıyla eklendi: ID={new_data_id}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Data bloğu ekleme hatası: {e}")
+            logger.error(traceback.format_exc())
+            return False
