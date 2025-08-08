@@ -37,6 +37,9 @@ dependencies:
   
   # HTTP connection for RESTful API
   http: ^1.1.0
+  
+  # Color picker for channel wizard
+  flutter_colorpicker: ^1.0.3
 
 dev_dependencies:
   flutter_test:

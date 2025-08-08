@@ -1,13 +1,13 @@
 {
   "parameter1": {
     "channel_id": 1,
-    "alarminfo": "testteee",
+    "alarminfo": "Kanal 1 alarm ayarları",
     "alarms": [
       {
-        "min_value": 12.4,
-        "max_value": 15.2,
-        "color": "#0000FF",
-        "data_post_frequency": 2000
+        "min_value": 12,
+        "max_value": 15,
+        "color": "#FF0000",
+        "data_post_frequency": 1000
       }
     ]
   }

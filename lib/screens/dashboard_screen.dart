@@ -8,6 +8,7 @@ import 'channel_detail_screen.dart';
 import 'constant_data_screen.dart';
 import 'alarm_management_screen.dart';
 import 'sensor_wizard/sensor_wizard_screen.dart';
+import 'channel_wizard/channel_wizard_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   final RESTfulService restfulService;
@@ -262,6 +263,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
         elevation: 0,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.add_circle_outline),
+            onPressed: _currentData != null ? () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ChannelWizardScreen(
+                    restfulService: widget.restfulService,
+                  ),
+                ),
+              );
+            } : null,
+            tooltip: 'Kanal Ekle',
+          ),
           IconButton(
             icon: const Icon(Icons.sensors),
             onPressed: _currentData != null ? () {
