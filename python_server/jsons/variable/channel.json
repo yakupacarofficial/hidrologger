@@ -2,7 +2,7 @@
   "channel": [
     {
       "id": 1,
-      "name": "denemeeeee",
+      "name": "TEST1",
       "description": "denme açıklama kanal",
       "channel_category": 2,
       "channel_sub_category": 2,
@@ -11,6 +11,18 @@
       "value_type": 1,
       "log_interval": 1000,
       "offset": 25
+    },
+    {
+      "id": 2,
+      "name": "bok",
+      "description": "dkakaja",
+      "channel_category": 2,
+      "channel_sub_category": 1,
+      "channel_parameter": 1,
+      "measurement_unit": 15,
+      "value_type": 1,
+      "log_interval": 1000,
+      "offset": 8675.0
     }
   ]
 }

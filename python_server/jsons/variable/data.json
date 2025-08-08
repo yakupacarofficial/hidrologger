@@ -8,6 +8,15 @@
       "value": 100,
       "battery_percentage": 40,
       "signal_strength": 100
+    },
+    {
+      "id": 2,
+      "channel": 2,
+      "value_type": 3,
+      "value_timestamp": 1754647150,
+      "value": 0,
+      "battery_percentage": 100,
+      "signal_strength": 100
     }
   ]
 }
