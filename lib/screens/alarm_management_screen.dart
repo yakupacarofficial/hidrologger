@@ -24,10 +24,10 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
   StreamSubscription? _dataSubscription;
   
   // Form controllers
-  final TextEditingController _dataPostFrequencyController = TextEditingController();
   final TextEditingController _minValueController = TextEditingController();
   final TextEditingController _maxValueController = TextEditingController();
   final TextEditingController _alarmInfoController = TextEditingController();
+  final TextEditingController _dataPostFrequencyController = TextEditingController();
   
   // Color picker
   String _selectedColor = '#FF0000';
@@ -60,7 +60,6 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
         final currentAlarmData = _alarmParameters[parameterKey];
         if (currentAlarmData != null && mounted) {
           setState(() {
-            _dataPostFrequencyController.text = currentAlarmData.dataPostFrequency.toString();
             _alarmInfoController.text = currentAlarmData.alarmInfo;
           });
         }
@@ -108,6 +107,16 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
         });
         _alarmParameters = alarmParameters;
         _isLoading = false;
+        
+        // Debug: Alarm verilerini yazdır
+        print('Toplam alarm parametresi: ${_alarmParameters.length}');
+        _alarmParameters.forEach((key, value) {
+          print('Alarm Key: $key, Channel ID: ${value.channelId}, Alarm Count: ${value.alarms.length}');
+          for (int i = 0; i < value.alarms.length; i++) {
+            final alarm = value.alarms[i];
+            print('  Alarm $i - Min: ${alarm.minValue}, Max: ${alarm.maxValue}, MS: ${alarm.dataPostFrequency}');
+          }
+        });
       });
     } else {
       if (mounted) {
@@ -153,10 +162,13 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
       return;
     }
 
+    final dataPostFrequency = int.tryParse(_dataPostFrequencyController.text) ?? 1000;
+    
     final newAlarm = Alarm(
       minValue: minValue,
       maxValue: maxValue,
       color: _selectedColor,
+      dataPostFrequency: dataPostFrequency,
     );
 
     _saveAlarmData(newAlarm, alarmInfo);
@@ -164,6 +176,7 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
     // Form'u temizle
     _minValueController.clear();
     _maxValueController.clear();
+    _dataPostFrequencyController.clear();
     _selectedColor = '#FF0000';
   }
 
@@ -175,8 +188,6 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
     
     // Mevcut alarm verilerini al
     final currentAlarmData = _alarmParameters[parameterKey];
-    final dataPostFrequency = int.tryParse(_dataPostFrequencyController.text) ?? 
-                             (currentAlarmData?.dataPostFrequency ?? 1000);
     
     // Yeni alarm listesi oluştur
     final updatedAlarms = <Alarm>[...(currentAlarmData?.alarms ?? []), newAlarm];
@@ -184,7 +195,6 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
     // Yeni alarm parameter oluştur
     final updatedAlarmParameter = AlarmParameter(
       channelId: channelId,
-      dataPostFrequency: dataPostFrequency,
       alarmInfo: alarmInfo,
       alarms: updatedAlarms,
     );
@@ -230,7 +240,6 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
     
     final updatedAlarmParameter = AlarmParameter(
       channelId: currentAlarmData.channelId,
-      dataPostFrequency: currentAlarmData.dataPostFrequency,
       alarmInfo: currentAlarmData.alarmInfo,
       alarms: updatedAlarms,
     );
@@ -272,7 +281,6 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
       
       final updatedAlarmParameter = AlarmParameter(
         channelId: currentAlarmData.channelId,
-        dataPostFrequency: currentAlarmData.dataPostFrequency,
         alarmInfo: currentAlarmData.alarmInfo,
         alarms: updatedAlarms,
       );
@@ -304,6 +312,7 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
   Future<Alarm?> _showEditAlarmDialog(Alarm alarm) async {
     final minValueController = TextEditingController(text: alarm.minValue.toString());
     final maxValueController = TextEditingController(text: alarm.maxValue.toString());
+    final dataPostFrequencyController = TextEditingController(text: alarm.dataPostFrequency.toString());
     String selectedColor = alarm.color;
     
     return showDialog<Alarm>(
@@ -326,6 +335,15 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
               controller: maxValueController,
               decoration: const InputDecoration(
                 labelText: 'Maksimum Değer',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: dataPostFrequencyController,
+              decoration: const InputDecoration(
+                labelText: 'Veri Gönderme Sıklığı (ms)',
                 border: OutlineInputBorder(),
               ),
               keyboardType: TextInputType.number,
@@ -362,12 +380,14 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
             onPressed: () {
               final minValue = double.tryParse(minValueController.text);
               final maxValue = double.tryParse(maxValueController.text);
+              final dataPostFrequency = int.tryParse(dataPostFrequencyController.text) ?? 1000;
               
               if (minValue != null && maxValue != null && minValue < maxValue) {
                 Navigator.of(context).pop(Alarm(
                   minValue: minValue,
                   maxValue: maxValue,
                   color: selectedColor,
+                  dataPostFrequency: dataPostFrequency,
                 ));
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -494,7 +514,7 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
     
     // DataPostFrequency controller'ı güncelle
     if (_dataPostFrequencyController.text.isEmpty && currentAlarmData != null) {
-      _dataPostFrequencyController.text = currentAlarmData.dataPostFrequency.toString();
+      // Her alarmın kendi MS değeri var, genel MS değeri yok
     }
 
     return Container(
@@ -682,7 +702,7 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
                     ),
                   ),
                   Text(
-                    'Veri Gönderme Sıklığı: ${alarmParameter.dataPostFrequency} ms',
+                    'Alarm Sayısı: ${alarmParameter.alarms.length}',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Colors.grey[600],
                     ),
@@ -712,9 +732,12 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
                       final index = alarmEntry.key;
                       final alarm = alarmEntry.value;
                       
+                      // Debug: Alarm verilerini yazdır
+                      print('Alarm $index - Min: ${alarm.minValue}, Max: ${alarm.maxValue}, MS: ${alarm.dataPostFrequency}');
+                      
                       return Container(
                         margin: const EdgeInsets.only(bottom: 8),
-                        padding: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8),
                           color: Color(int.parse(alarm.color.replaceAll('#', '0xFF'))).withOpacity(0.1),
@@ -735,9 +758,22 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
                             ),
                             const SizedBox(width: 12),
                             Expanded(
-                              child: Text(
-                                '${alarm.minValue} - ${alarm.maxValue}',
-                                style: const TextStyle(fontWeight: FontWeight.w600),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '${alarm.minValue} - ${alarm.maxValue}',
+                                    style: const TextStyle(fontWeight: FontWeight.w600),
+                                  ),
+                                  Text(
+                                    'MS: ${alarm.dataPostFrequency}',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.blue[700],
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                             IconButton(

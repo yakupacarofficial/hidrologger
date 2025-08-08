@@ -27,6 +27,7 @@ class _ChannelSelectionScreenState extends State<ChannelSelectionScreen> {
   final _minAlarmController = TextEditingController();
   final _maxAlarmController = TextEditingController();
   final _alarmInfoController = TextEditingController();
+  final _dataPostFrequencyController = TextEditingController(text: '1000');
   
   // State variables
   List<Map<String, dynamic>> _channelParameters = [];
@@ -74,6 +75,7 @@ class _ChannelSelectionScreenState extends State<ChannelSelectionScreen> {
     _minAlarmController.dispose();
     _maxAlarmController.dispose();
     _alarmInfoController.dispose();
+    _dataPostFrequencyController.dispose();
     _searchController.dispose();
     super.dispose();
   }
@@ -630,6 +632,20 @@ class _ChannelSelectionScreenState extends State<ChannelSelectionScreen> {
               ),
               maxLines: 2,
             ),
+            const SizedBox(height: 12),
+            
+            // Data Post Frequency
+            TextFormField(
+              controller: _dataPostFrequencyController,
+              decoration: const InputDecoration(
+                labelText: 'Veri Gönderme Sıklığı (ms)',
+                hintText: '1000',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.timer),
+              ),
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*'))],
+            ),
             const SizedBox(height: 16),
             
             // Color Picker
@@ -836,16 +852,17 @@ class _ChannelSelectionScreenState extends State<ChannelSelectionScreen> {
               : 'Kanal $_nextChannelId alarmı';
           
           // Alarm nesnesi oluştur
+          final dataPostFrequency = int.tryParse(_dataPostFrequencyController.text) ?? 1000;
           final alarm = Alarm(
             minValue: minValue,
             maxValue: maxValue,
             color: _selectedColor,
+            dataPostFrequency: dataPostFrequency,
           );
           
           // AlarmParameter oluştur
           final alarmParameter = AlarmParameter(
             channelId: _nextChannelId,
-            dataPostFrequency: 1000, // Varsayılan değer
             alarmInfo: alarmInfo,
             alarms: [alarm],
           );

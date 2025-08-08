@@ -4,13 +4,13 @@
       "id": 1,
       "name": "AKIM 3 Parametreli Sensör",
       "description": "Basınç, Sıcaklık ve EC parametrelerini ölçen çok fonksiyonlu sensör",
-      "channel_category": 1,
-      "channel_sub_category": 1,
+      "channel_category": 2,
+      "channel_sub_category": 7,
       "channel_parameter": 3,
       "measurement_unit": 1,
-      "value_type": 1,
+      "value_type": 3,
       "log_interval": 1000,
-      "offset": 12.2
+      "offset": 12.4
     }
   ]
 }

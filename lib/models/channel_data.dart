@@ -188,13 +188,11 @@ class VariableData {
 
 class AlarmParameter {
   final int channelId;
-  final int dataPostFrequency;
   final String alarmInfo;
   final List<Alarm> alarms;
 
   AlarmParameter({
     required this.channelId,
-    required this.dataPostFrequency,
     required this.alarmInfo,
     required this.alarms,
   });
@@ -203,7 +201,6 @@ class AlarmParameter {
     final alarmsList = json['alarms'] as List<dynamic>? ?? [];
     return AlarmParameter(
       channelId: json['channel_id'] ?? 0,
-      dataPostFrequency: json['dataPostFrequency'] ?? 1000,
       alarmInfo: json['alarminfo'] ?? '',
       alarms: alarmsList.map((item) => Alarm.fromJson(item)).toList(),
     );
@@ -212,7 +209,6 @@ class AlarmParameter {
   Map<String, dynamic> toJson() {
     return {
       'channel_id': channelId,
-      'dataPostFrequency': dataPostFrequency,
       'alarminfo': alarmInfo,
       'alarms': alarms.map((alarm) => alarm.toJson()).toList(),
     };
@@ -223,11 +219,13 @@ class Alarm {
   final double minValue;
   final double maxValue;
   final String color;
+  final int dataPostFrequency;
 
   Alarm({
     required this.minValue,
     required this.maxValue,
     required this.color,
+    required this.dataPostFrequency,
   });
 
   factory Alarm.fromJson(Map<String, dynamic> json) {
@@ -235,6 +233,7 @@ class Alarm {
       minValue: (json['min_value'] ?? 0.0).toDouble(),
       maxValue: (json['max_value'] ?? 0.0).toDouble(),
       color: json['color'] ?? '#FF0000',
+      dataPostFrequency: json['data_post_frequency'] ?? 1000,
     );
   }
 
@@ -243,6 +242,7 @@ class Alarm {
       'min_value': minValue,
       'max_value': maxValue,
       'color': color,
+      'data_post_frequency': dataPostFrequency,
     };
   }
 } 

@@ -67,13 +67,19 @@
 {
   "parameter1": {
     "channel_id": 1,
-    "dataPostFrequency": 1000,
     "alarminfo": "Test Alarm",
     "alarms": [
       {
         "min_value": 10.0,
         "max_value": 50.0,
-        "color": "#FF0000"
+        "color": "#FF0000",
+        "data_post_frequency": 1000
+      },
+      {
+        "min_value": 60.0,
+        "max_value": 80.0,
+        "color": "#00FF00",
+        "data_post_frequency": 500
       }
     ]
   }
@@ -112,13 +118,19 @@
 {
   "parameter1": {
     "channel_id": 1,
-    "dataPostFrequency": 1000,
     "alarminfo": "Sıcaklık Alarmı",
     "alarms": [
       {
         "min_value": 10.0,
         "max_value": 20.0,
-        "color": "#FF0000"
+        "color": "#FF0000",
+        "data_post_frequency": 1000
+      },
+      {
+        "min_value": 30.0,
+        "max_value": 40.0,
+        "color": "#00FF00",
+        "data_post_frequency": 500
       }
     ]
   }
@@ -230,6 +242,7 @@
 4. **✅ Alarm Yapısı**: Flutter ve Server arasında aynı AlarmParameter class yapısı kullanılıyor
 5. **Value Type**: Her iki tarafta da integer değerler kullanılıyor
 6. **✅ Renk Seçici**: Sensör sihirbazında alarm ekleme ekranına renk seçici eklendi
+7. **✅ Her Alarm İçin Ayrı MS Değeri**: Her alarmın kendi data_post_frequency değeri var
 
 ### 🔧 Öneriler
 

@@ -4,17 +4,23 @@ import json
 def test_alarm_save():
     """Alarm kaydetme testi - Flutter formatında"""
     
-    # Flutter'dan gelen alarm verisi formatı
+    # Flutter'dan gelen alarm verisi formatı - Her alarmın kendi MS değeri var
     alarm_data = {
         "parameter1": {
             "channel_id": 1,
-            "dataPostFrequency": 1000,
             "alarminfo": "Test Alarm",
             "alarms": [
                 {
                     "min_value": 10.0,
                     "max_value": 50.0,
-                    "color": "#FF0000"
+                    "color": "#FF0000",
+                    "data_post_frequency": 1000
+                },
+                {
+                    "min_value": 60.0,
+                    "max_value": 80.0,
+                    "color": "#00FF00",
+                    "data_post_frequency": 500
                 }
             ]
         }
