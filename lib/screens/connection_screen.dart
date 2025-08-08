@@ -252,7 +252,7 @@ class _ConnectionScreenState extends State<ConnectionScreen>
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'HIDROLOGGER',
+                              'HIDROLINK',
                               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                                 color: Theme.of(context).colorScheme.onPrimary,
                                 fontWeight: FontWeight.bold,

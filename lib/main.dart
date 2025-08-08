@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'screens/connection_screen.dart';
 
 void main() {
-  runApp(const HidrologgerApp());
+  runApp(const HidrolinkApp());
 }
 
-class HidrologgerApp extends StatelessWidget {
-  const HidrologgerApp({super.key});
+class HidrolinkApp extends StatelessWidget {
+  const HidrolinkApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'HIDROLOGGER',
+              title: 'HIDROLINK',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(

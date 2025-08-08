@@ -11,12 +11,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hidrologger/main.dart';
 
 void main() {
-  testWidgets('Hidrologger app smoke test', (WidgetTester tester) async {
+  testWidgets('Hidrolink app smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const HidrologgerApp());
+    await tester.pumpWidget(const HidrolinkApp());
 
     // Verify that our app shows the connection screen
-    expect(find.text('HIDROLOGGER'), findsOneWidget);
+    expect(find.text('HIDROLINK'), findsOneWidget);
     expect(find.text('Su Kalitesi İzleme Sistemi'), findsOneWidget);
     expect(find.text('Bağlan'), findsOneWidget);
   });
