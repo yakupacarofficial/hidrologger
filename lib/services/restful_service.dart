@@ -110,6 +110,66 @@ class RESTfulService {
     }
   }
 
+  /// Belirli kanal için log verilerini getir
+  Future<Map<String, dynamic>?> fetchLogData(int channelId, {String? startDate, String? endDate}) async {
+    try {
+      final queryParams = <String, String>{};
+      if (startDate != null) queryParams['start_date'] = startDate;
+      if (endDate != null) queryParams['end_date'] = endDate;
+
+      final uri = Uri.parse('$_baseUrl/logs/$channelId').replace(queryParameters: queryParams);
+      
+      print('Log verisi isteniyor: $uri');
+      
+      final response = await http.get(
+        uri,
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(const Duration(seconds: 10));
+
+      print('Log verisi yanıtı: ${response.statusCode} - ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['success'] == true) {
+          return data['data'];
+        } else {
+          print('API başarısız: ${data['error']}');
+        }
+      } else {
+        print('HTTP hatası: ${response.statusCode}');
+      }
+      return null;
+    } catch (e) {
+      print('Log veri getirme hatası: $e');
+      return null;
+    }
+  }
+
+  /// Belirli kanal için log verisi kaydet
+  Future<bool> saveLogData(int channelId, double value, {String? timestamp}) async {
+    try {
+      final body = <String, dynamic>{
+        'value': value,
+      };
+      if (timestamp != null) body['timestamp'] = timestamp;
+
+      final response = await http.post(
+        Uri.parse('$_baseUrl/logs/$channelId'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(body),
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['success'] == true;
+      }
+      return false;
+    } catch (e) {
+      // Log veri kaydetme hatası
+      return false;
+    }
+  }
+
   /// Alarm verilerini kaydet
   Future<bool> saveAlarmData(Map<String, dynamic> alarmData) async {
     try {

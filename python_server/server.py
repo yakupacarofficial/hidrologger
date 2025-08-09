@@ -235,18 +235,93 @@ class RESTfulServer:
         def get_server_info():
             """Sunucu bilgilerini getir"""
             try:
-                data_summary = self.json_reader.get_data_summary()
                 return jsonify({
                     "success": True,
                     "server_info": {
-                        "name": "Hidrologger RESTful API",
+                        "name": "Hidrolink RESTful Server",
                         "version": "1.0.0",
+                        "status": "running",
                         "timestamp": datetime.now().isoformat()
-                    },
-                    "data_summary": data_summary
+                    }
                 })
             except Exception as e:
-                logger.error(f"Sunucu bilgi getirme hatası: {e}")
+                logger.error(f"Sunucu bilgisi getirme hatası: {e}")
+                return jsonify({
+                    "success": False,
+                    "error": str(e)
+                }), 500
+
+        @self.app.route('/api/logs/<int:channel_id>', methods=['GET'])
+        def get_logs(channel_id):
+            """Belirli kanal için log verilerini getir"""
+            try:
+                # Query parametrelerini al
+                start_date = request.args.get('start_date')
+                end_date = request.args.get('end_date')
+                
+                logger.info(f"Kanal {channel_id} için log verileri istendi - Başlangıç: {start_date}, Bitiş: {end_date}")
+                
+                log_data = self.json_reader.get_log_data(channel_id, start_date, end_date)
+                
+                if log_data is not None:
+                    logger.info(f"Kanal {channel_id} için {len(log_data.get('data', []))} log kaydı döndürüldü")
+                    return jsonify({
+                        "success": True,
+                        "data": log_data,
+                        "timestamp": datetime.now().isoformat()
+                    })
+                else:
+                    logger.warning(f"Kanal {channel_id} için log verisi bulunamadı")
+                    return jsonify({
+                        "success": False,
+                        "error": f"Kanal {channel_id} için log verisi bulunamadı"
+                    }), 404
+                    
+            except Exception as e:
+                logger.error(f"Log veri getirme hatası: {e}")
+                return jsonify({
+                    "success": False,
+                    "error": str(e)
+                }), 500
+
+        @self.app.route('/api/logs/<int:channel_id>', methods=['POST'])
+        def save_log(channel_id):
+            """Belirli kanal için log verisi kaydet"""
+            try:
+                logger.info(f"Kanal {channel_id} için log verisi kaydetme istendi")
+                
+                data = request.get_json()
+                if not data:
+                    return jsonify({
+                        "success": False,
+                        "error": "Veri bulunamadı"
+                    }), 400
+                
+                value = data.get('value')
+                timestamp = data.get('timestamp')
+                
+                if value is None:
+                    return jsonify({
+                        "success": False,
+                        "error": "Value değeri gerekli"
+                    }), 400
+                
+                success = self.json_reader.save_log_data(channel_id, value, timestamp)
+                
+                if success:
+                    return jsonify({
+                        "success": True,
+                        "message": f"Kanal {channel_id} için log verisi kaydedildi",
+                        "timestamp": datetime.now().isoformat()
+                    })
+                else:
+                    return jsonify({
+                        "success": False,
+                        "error": "Log verisi kaydedilemedi"
+                    }), 500
+                    
+            except Exception as e:
+                logger.error(f"Log veri kaydetme hatası: {e}")
                 return jsonify({
                     "success": False,
                     "error": str(e)

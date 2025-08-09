@@ -65,7 +65,9 @@ class _DateSelectionWidgetState extends State<DateSelectionWidget> {
         end = now;
         break;
       case 'Son 1 Ay':
-        start = DateTime(now.year, now.month - 1, now.day);
+        // Bir ay öncesini hesapla
+        final oneMonthAgo = DateTime(now.year, now.month - 1, now.day);
+        start = oneMonthAgo;
         end = now;
         break;
       case 'Custom':
@@ -79,6 +81,7 @@ class _DateSelectionWidgetState extends State<DateSelectionWidget> {
       if (end != null) _endDate = end;
     });
 
+    print('Tarih aralığı seçildi: $range - ${start?.toIso8601String()} - ${end?.toIso8601String()}');
     widget.onDateRangeChanged(range, start, end);
   }
 

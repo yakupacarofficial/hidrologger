@@ -57,11 +57,48 @@ class _LogScreenState extends State<LogScreen> {
     });
 
     try {
-      // TODO: Gerçek API çağrısı yapılacak
-      // Şimdilik mock data kullanıyoruz
-      await Future.delayed(const Duration(seconds: 1));
-      _logData = _generateMockData();
+      // Tarih formatını ISO 8601'e çevir
+      final startDateStr = _startDate.toIso8601String();
+      final endDateStr = _endDate.toIso8601String();
+      
+      print('Log verisi isteniyor: Kanal ${widget.channel.id}, Başlangıç: $startDateStr, Bitiş: $endDateStr');
+      
+      // Gerçek API çağrısı yap
+      final logData = await widget.restfulService.fetchLogData(
+        widget.channel.id,
+        startDate: startDateStr,
+        endDate: endDateStr,
+      );
+
+      if (logData != null) {
+        print('Log verisi alındı: $logData');
+        final List<Map<String, dynamic>> formattedData = [];
+        final dataList = logData['data'] as List<dynamic>? ?? [];
+        
+        for (var item in dataList) {
+          final timestamp = DateTime.tryParse(item['timestamp'] ?? '') ?? DateTime.now();
+          formattedData.add({
+            'id': item['id'] ?? 0,
+            'timestamp': timestamp,
+            'value': (item['value'] ?? 0.0).toDouble(),
+            'quality': 'good', // Varsayılan değer
+            'battery_percentage': 100, // Varsayılan değer
+            'signal_strength': 100, // Varsayılan değer
+          });
+        }
+        
+        setState(() {
+          _logData = formattedData;
+        });
+        
+        print('Formatlanmış log verisi: ${formattedData.length} kayıt');
+      } else {
+        print('API\'den veri gelmedi, mock data kullanılıyor');
+        // API'den veri gelmezse mock data kullan
+        _logData = _generateMockData();
+      }
     } catch (e) {
+      print('Log verisi yükleme hatası: $e');
       // Hata durumunda mock data kullan
       _logData = _generateMockData();
     } finally {

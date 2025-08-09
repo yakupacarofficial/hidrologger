@@ -1,10 +1,67 @@
 {
-  "log": {
-    "log_id": 1,
-    "channel_id": 1,
-    "alarmsetup_id": 1,
-    "timestamp": "2025-01-01 12:00:00",
-    "value": 100,
-    "reset_timestamp": "2025-01-01 12:00:00"
+  "logs": {
+    "channel_1": {
+      "channel_id": 1,
+      "channel_name": "TEST1",
+      "data": [
+        {
+          "id": 1,
+          "timestamp": "2024-01-15T10:00:00Z",
+          "value": 25.3
+        },
+        {
+          "id": 2,
+          "timestamp": "2024-01-15T10:15:00Z",
+          "value": 25.7
+        },
+        {
+          "id": 3,
+          "timestamp": "2024-01-15T10:30:00Z",
+          "value": 26.20
+        }
+      ]
+    },
+    "channel_2": {
+      "channel_id": 2,
+      "channel_name": "bok",
+      "data": [
+        {
+          "id": 1,
+          "timestamp": "2024-01-15T09:00:00Z",
+          "value": 0.0
+        },
+        {
+          "id": 2,
+          "timestamp": "2024-01-15T09:15:00Z",
+          "value": 0.1
+        },
+        {
+          "id": 3,
+          "timestamp": "2024-01-15T09:30:00Z",
+          "value": 0.2
+        }
+      ]
+    },
+    "channel_3": {
+      "channel_id": 3,
+      "channel_name": "asdsad",
+      "data": [
+        {
+          "id": 1,
+          "timestamp": "2024-01-15T08:00:00Z",
+          "value": 12.5
+        },
+        {
+          "id": 2,
+          "timestamp": "2024-01-15T08:15:00Z",
+          "value": 12.8
+        },
+        {
+          "id": 3,
+          "timestamp": "2024-01-15T08:30:00Z",
+          "value": 13.1
+        }
+      ]
+    }
   }
 }

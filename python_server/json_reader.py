@@ -18,6 +18,7 @@ class JSONReader:
         self.constant_path = os.path.join(base_path, "constant")
         self.variable_path = os.path.join(base_path, "variable")
         self.alarm_path = os.path.join(base_path, "alarm")
+        self.logsfile_path = os.path.join(base_path, "logsfile")
         
         # Dosya izleme için
         self.file_last_modified = {}
@@ -32,10 +33,11 @@ class JSONReader:
         logger.info(f"Constant klasörü: {self.constant_path}")
         logger.info(f"Variable klasörü: {self.variable_path}")
         logger.info(f"Alarm klasörü: {self.alarm_path}")
+        logger.info(f"Logsfile klasörü: {self.logsfile_path}")
     
     def _initialize_file_tracking(self):
         """Tüm JSON dosyalarının son değiştirilme zamanlarını kaydet"""
-        for folder_path in [self.constant_path, self.variable_path, self.alarm_path]:
+        for folder_path in [self.constant_path, self.variable_path, self.alarm_path, self.logsfile_path]:
             if os.path.exists(folder_path):
                 for filename in os.listdir(folder_path):
                     if filename.endswith('.json'):
@@ -576,3 +578,148 @@ class JSONReader:
             logger.error(f"Data bloğu ekleme hatası: {e}")
             logger.error(traceback.format_exc())
             return False
+
+    def save_log_data(self, channel_id: int, value: float, timestamp: Optional[str] = None) -> bool:
+        """Log verilerini kaydet"""
+        try:
+            logger.info(f"Kanal {channel_id} için log verisi kaydediliyor...")
+            
+            logs_file_path = os.path.join(self.logsfile_path, "logs.json")
+            
+            # Mevcut logs.json dosyasını oku
+            if os.path.exists(logs_file_path):
+                try:
+                    with open(logs_file_path, 'r', encoding='utf-8') as file:
+                        logs_content = json.load(file)
+                except (json.JSONDecodeError, FileNotFoundError):
+                    logger.warning("Logs.json dosyası bozuk, yeni dosya oluşturuluyor")
+                    logs_content = {"logs": {}}
+            else:
+                logger.info("Yeni logs.json dosyası oluşturuluyor")
+                logs_content = {"logs": {}}
+            
+            # Timestamp'i belirle
+            if timestamp is None:
+                timestamp = datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+            
+            # Kanal için log verilerini al
+            logs = logs_content.get('logs', {})
+            channel_key = f"channel_{channel_id}"
+            
+            if channel_key not in logs:
+                logs[channel_key] = {
+                    "channel_id": channel_id,
+                    "channel_name": self._get_channel_name(channel_id),
+                    "data": []
+                }
+            
+            # Yeni log kaydı için ID bul
+            existing_logs = logs[channel_key].get('data', [])
+            existing_ids = [log.get('id') for log in existing_logs if log.get('id') is not None]
+            new_log_id = max(existing_ids) + 1 if existing_ids else 1
+            
+            # Yeni log kaydı oluştur
+            new_log_entry = {
+                "id": new_log_id,
+                "timestamp": timestamp,
+                "value": value
+            }
+            
+            # Log kaydını listeye ekle
+            logs[channel_key]['data'].append(new_log_entry)
+            logs_content['logs'] = logs
+            
+            # Dosyayı kaydet
+            with open(logs_file_path, 'w', encoding='utf-8') as file:
+                json.dump(logs_content, file, indent=2, ensure_ascii=False)
+            
+            # Dosya değişiklik zamanını güncelle
+            self.file_last_modified[logs_file_path] = os.path.getmtime(logs_file_path)
+            
+            logger.info(f"Kanal {channel_id} için log verisi başarıyla kaydedildi: ID={new_log_id}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Log verisi kaydetme hatası: {e}")
+            logger.error(traceback.format_exc())
+            return False
+
+    def get_log_data(self, channel_id: int, start_date: Optional[str] = None, end_date: Optional[str] = None) -> Optional[Dict[str, Any]]:
+        """Belirli kanal için log verilerini getir"""
+        try:
+            logs_file_path = os.path.join(self.logsfile_path, "logs.json")
+            
+            if not os.path.exists(logs_file_path):
+                logger.warning("Logs.json dosyası bulunamadı")
+                return None
+            
+            logs_content = self._read_json_file(logs_file_path)
+            if not logs_content:
+                return None
+            
+            logs = logs_content.get('logs', {})
+            channel_key = f"channel_{channel_id}"
+            
+            if channel_key not in logs:
+                logger.info(f"Kanal {channel_id} için log verisi bulunamadı")
+                return None
+            
+            channel_logs = logs[channel_key].copy()
+            
+            # Tarih filtreleme
+            if start_date or end_date:
+                filtered_data = []
+                for log_entry in channel_logs.get('data', []):
+                    log_timestamp = log_entry.get('timestamp', '')
+                    
+                    try:
+                        # Timestamp'i datetime objesine çevir
+                        if log_timestamp:
+                            log_dt = datetime.fromisoformat(log_timestamp.replace('Z', '+00:00'))
+                            
+                            # Başlangıç tarihi kontrolü
+                            if start_date:
+                                start_dt = datetime.fromisoformat(start_date.replace('Z', '+00:00'))
+                                if log_dt < start_dt:
+                                    continue
+                            
+                            # Bitiş tarihi kontrolü
+                            if end_date:
+                                end_dt = datetime.fromisoformat(end_date.replace('Z', '+00:00'))
+                                if log_dt > end_dt:
+                                    continue
+                        
+                        filtered_data.append(log_entry)
+                        
+                    except Exception as e:
+                        logger.warning(f"Timestamp parse hatası: {log_timestamp} - {e}")
+                        # Parse edilemeyen timestamp'leri de dahil et
+                        filtered_data.append(log_entry)
+                
+                channel_logs['data'] = filtered_data
+                logger.info(f"Kanal {channel_id} için {len(filtered_data)} log kaydı filtrelendi")
+            
+            return channel_logs
+            
+        except Exception as e:
+            logger.error(f"Log verisi okuma hatası: {e}")
+            logger.error(traceback.format_exc())
+            return None
+
+    def _get_channel_name(self, channel_id: int) -> str:
+        """Kanal ID'sine göre kanal adını getir"""
+        try:
+            channel_file_path = os.path.join(self.variable_path, "channel.json")
+            if os.path.exists(channel_file_path):
+                channel_data = self._read_json_file(channel_file_path)
+                if channel_data:
+                    channels = channel_data.get('channel', [])
+                    for channel in channels:
+                        if channel.get('id') == channel_id:
+                            return channel.get('name', f'Kanal {channel_id}')
+            
+            return f'Kanal {channel_id}'
+            
+        except Exception as e:
+            logger.error(f"Kanal adı getirme hatası: {e}")
+            return f'Kanal {channel_id}'
