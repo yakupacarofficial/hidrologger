@@ -19,23 +19,22 @@ class Step3MeasurementSelection extends StatefulWidget {
 
 class _Step3MeasurementSelectionState extends State<Step3MeasurementSelection> {
   final List<String> _availableMeasurements = ['WAT', 'WAP', 'EC'];
-  final List<String> _selectedMeasurements = [];
+  String? _selectedMeasurement;
 
   @override
   void initState() {
     super.initState();
-    _selectedMeasurements.addAll(widget.wizardData.selectedMeasurements);
+    // Eğer daha önce seçim yapılmışsa, ilk seçimi al
+    if (widget.wizardData.selectedMeasurements.isNotEmpty) {
+      _selectedMeasurement = widget.wizardData.selectedMeasurements.first;
+    }
   }
 
-  void _toggleMeasurement(String measurement) {
+  void _selectMeasurement(String measurement) {
     setState(() {
-      if (_selectedMeasurements.contains(measurement)) {
-        _selectedMeasurements.remove(measurement);
-      } else {
-        _selectedMeasurements.add(measurement);
-      }
+      _selectedMeasurement = measurement;
     });
-    widget.wizardData.selectedMeasurements = List.from(_selectedMeasurements);
+    widget.wizardData.selectedMeasurements = [_selectedMeasurement!];
   }
 
   void _saveAndNext() {
@@ -44,7 +43,7 @@ class _Step3MeasurementSelectionState extends State<Step3MeasurementSelection> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('En az bir ölçüm seçin'),
+          content: Text('Lütfen bir ölçüm seçin'),
           backgroundColor: Colors.red,
         ),
       );
@@ -59,14 +58,14 @@ class _Step3MeasurementSelectionState extends State<Step3MeasurementSelection> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Ölçülecek Değerleri Seçin',
+            'Ölçülecek Değeri Seçin',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Hangi parametreleri ölçmek istiyorsunuz?',
+            'Hangi parametreyi ölçmek istiyorsunuz?',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Colors.grey[600],
             ),
@@ -76,14 +75,15 @@ class _Step3MeasurementSelectionState extends State<Step3MeasurementSelection> {
           // Ölçüm Seçenekleri
           ..._availableMeasurements.map((measurement) => Card(
             margin: const EdgeInsets.only(bottom: 8),
-            child: CheckboxListTile(
+            child: RadioListTile<String>(
               title: Text(
                 _getMeasurementTitle(measurement),
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               subtitle: Text(_getMeasurementDescription(measurement)),
-              value: _selectedMeasurements.contains(measurement),
-              onChanged: (value) => _toggleMeasurement(measurement),
+              value: measurement,
+              groupValue: _selectedMeasurement,
+              onChanged: (value) => _selectMeasurement(value!),
               secondary: Icon(_getMeasurementIcon(measurement), color: Colors.blue),
             ),
           )),

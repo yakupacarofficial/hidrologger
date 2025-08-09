@@ -23,6 +23,18 @@
       "value_type": 1,
       "log_interval": 1000,
       "offset": 8675.0
+    },
+    {
+      "id": 3,
+      "name": "asdsad",
+      "description": "123213",
+      "channel_category": 3,
+      "channel_sub_category": 3,
+      "channel_parameter": 1,
+      "measurement_unit": 5,
+      "value_type": 1,
+      "log_interval": 1000,
+      "offset": 12
     }
   ]
 }
