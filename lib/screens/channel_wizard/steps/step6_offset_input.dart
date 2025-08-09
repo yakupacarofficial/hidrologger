@@ -106,7 +106,7 @@ class _Step6OffsetInputState extends State<Step6OffsetInput> {
               prefixIcon: Icon(Icons.add_circle_outline),
               suffixText: 'Birim',
             ),
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Offset değeri girin';
