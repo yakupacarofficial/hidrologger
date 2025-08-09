@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import '../models/channel_data.dart';
 import '../services/restful_service.dart';
+import 'logs/log_screen.dart';
 
 class ChannelDetailScreen extends StatefulWidget {
   final Channel channel;
@@ -245,6 +246,10 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
               
               // Kanal Bilgileri
               _buildChannelInfoCard(context, channel),
+              const SizedBox(height: 20),
+              
+              // LOG KAYITLARI Butonu
+              _buildLogRecordsButton(context),
               const SizedBox(height: 20),
             ],
           ),
@@ -819,5 +824,41 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
       case 8: return 'Endex';
       default: return 'Bilinmeyen';
     }
+  }
+
+  Widget _buildLogRecordsButton(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => LogScreen(
+                channel: widget.channel,
+                restfulService: widget.restfulService,
+              ),
+            ),
+          );
+        },
+        icon: const Icon(Icons.history, size: 20),
+        label: const Text(
+          'LOG KAYITLARI',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          foregroundColor: Theme.of(context).colorScheme.onPrimary,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          elevation: 4,
+        ),
+      ),
+    );
   }
 } 
