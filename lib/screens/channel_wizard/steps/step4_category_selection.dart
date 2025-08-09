@@ -57,7 +57,7 @@ class _Step4CategorySelectionState extends State<Step4CategorySelection> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -89,7 +89,7 @@ class _Step4CategorySelectionState extends State<Step4CategorySelection> {
             ),
           )),
           
-          const Spacer(),
+          const SizedBox(height: 32),
           
           // Navigasyon Butonları
           Row(

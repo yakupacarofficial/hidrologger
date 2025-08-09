@@ -48,7 +48,7 @@ class _Step5UnitSelectionState extends State<Step5UnitSelection> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -68,47 +68,45 @@ class _Step5UnitSelectionState extends State<Step5UnitSelection> {
           ),
           const SizedBox(height: 24),
           
-          Expanded(
-            child: ListView(
-              children: widget.wizardData.selectedMeasurements.map((measurement) {
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 16),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _getMeasurementTitle(measurement),
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: _getUnitsForMeasurement(measurement).map((unit) {
-                            final isSelected = _selectedUnits[measurement] == unit;
-                            return ChoiceChip(
-                              label: Text(unit),
-                              selected: isSelected,
-                              onSelected: (selected) {
-                                if (selected) {
-                                  _selectUnit(measurement, unit);
-                                }
-                              },
-                            );
-                          }).toList(),
-                        ),
-                      ],
+          ...widget.wizardData.selectedMeasurements.map((measurement) {
+            return Card(
+              margin: const EdgeInsets.only(bottom: 16),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _getMeasurementTitle(measurement),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: _getUnitsForMeasurement(measurement).map((unit) {
+                        final isSelected = _selectedUnits[measurement] == unit;
+                        return ChoiceChip(
+                          label: Text(unit),
+                          selected: isSelected,
+                          onSelected: (selected) {
+                            if (selected) {
+                              _selectUnit(measurement, unit);
+                            }
+                          },
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
+          
+          const SizedBox(height: 32),
           
           // Navigasyon Butonları
           Row(

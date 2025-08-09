@@ -101,7 +101,7 @@ class _Step8SummaryState extends State<Step8Summary> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -121,67 +121,61 @@ class _Step8SummaryState extends State<Step8Summary> {
           ),
           const SizedBox(height: 24),
           
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  // Temel Bilgiler
-                  _buildSummaryCard(
-                    'Temel Bilgiler',
-                    [
-                      'Kanal Adı: ${widget.wizardData.channelName}',
-                      'Açıklama: ${widget.wizardData.channelDescription}',
-                      'Renk: ${widget.wizardData.channelColor}',
-                    ],
-                    Icons.info,
-                    Colors.blue,
-                  ),
-                  
-                  // Sensör Bilgileri
-                  _buildSummaryCard(
-                    'Sensör Bilgileri',
-                    [
-                      'Sensör: ${widget.wizardData.selectedSensor}',
-                      'Kategori: ${widget.wizardData.selectedCategory}',
-                    ],
-                    Icons.sensors,
-                    Colors.green,
-                  ),
-                  
-                  // Ölçüm Bilgileri
-                  _buildSummaryCard(
-                    'Ölçüm Bilgileri',
-                    widget.wizardData.selectedMeasurements.map((measurement) {
-                      final unit = widget.wizardData.selectedUnits[measurement] ?? '';
-                      return '${_getMeasurementTitle(measurement)}: $unit';
-                    }).toList(),
-                    Icons.analytics,
-                    Colors.orange,
-                  ),
-                  
-                  // Offset
-                  _buildSummaryCard(
-                    'Offset Değeri',
-                    ['Offset: ${widget.wizardData.offsetValue}'],
-                    Icons.add_circle_outline,
-                    Colors.purple,
-                  ),
-                  
-                  // Alarm Ayarları
-                  _buildSummaryCard(
-                    'Alarm Ayarları',
-                    widget.wizardData.alarmSettings.entries.map((entry) {
-                      final measurement = entry.key;
-                      final settings = entry.value;
-                      return '${_getMeasurementTitle(measurement)}: ${settings['min']} - ${settings['max']}';
-                    }).toList(),
-                    Icons.alarm,
-                    Colors.red,
-                  ),
-                ],
-              ),
-            ),
+          // Temel Bilgiler
+          _buildSummaryCard(
+            'Temel Bilgiler',
+            [
+              'Kanal Adı: ${widget.wizardData.channelName}',
+              'Açıklama: ${widget.wizardData.channelDescription}',
+              'Renk: ${widget.wizardData.channelColor}',
+            ],
+            Icons.info,
+            Colors.blue,
           ),
+          
+          // Sensör Bilgileri
+          _buildSummaryCard(
+            'Sensör Bilgileri',
+            [
+              'Sensör: ${widget.wizardData.selectedSensor}',
+              'Kategori: ${widget.wizardData.selectedCategory}',
+            ],
+            Icons.sensors,
+            Colors.green,
+          ),
+          
+          // Ölçüm Bilgileri
+          _buildSummaryCard(
+            'Ölçüm Bilgileri',
+            widget.wizardData.selectedMeasurements.map((measurement) {
+              final unit = widget.wizardData.selectedUnits[measurement] ?? '';
+              return '${_getMeasurementTitle(measurement)}: $unit';
+            }).toList(),
+            Icons.analytics,
+            Colors.orange,
+          ),
+          
+          // Offset
+          _buildSummaryCard(
+            'Offset Değeri',
+            ['Offset: ${widget.wizardData.offsetValue}'],
+            Icons.add_circle_outline,
+            Colors.purple,
+          ),
+          
+          // Alarm Ayarları
+          _buildSummaryCard(
+            'Alarm Ayarları',
+            widget.wizardData.alarmSettings.entries.map((entry) {
+              final measurement = entry.key;
+              final settings = entry.value;
+              return '${_getMeasurementTitle(measurement)}: ${settings['min']} - ${settings['max']}';
+            }).toList(),
+            Icons.alarm,
+            Colors.red,
+          ),
+          
+          const SizedBox(height: 32),
           
           // Navigasyon Butonları
           Row(

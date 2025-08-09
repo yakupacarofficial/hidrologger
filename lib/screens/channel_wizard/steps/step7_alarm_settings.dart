@@ -75,7 +75,7 @@ class _Step7AlarmSettingsState extends State<Step7AlarmSettings> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -95,107 +95,105 @@ class _Step7AlarmSettingsState extends State<Step7AlarmSettings> {
           ),
           const SizedBox(height: 24),
           
-          Expanded(
-            child: ListView(
-              children: widget.wizardData.selectedMeasurements.map((measurement) {
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 16),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+          ...widget.wizardData.selectedMeasurements.map((measurement) {
+            return Card(
+              margin: const EdgeInsets.only(bottom: 16),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _getMeasurementTitle(measurement),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    // Minimum Alarm
+                    Text(
+                      'Minimum Alarm',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
                       children: [
-                        Text(
-                          _getMeasurementTitle(measurement),
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                        Expanded(
+                          child: TextFormField(
+                            controller: _controllers[measurement]!['min']!,
+                            decoration: InputDecoration(
+                              labelText: 'Min Değer',
+                              border: const OutlineInputBorder(),
+                              suffixText: widget.wizardData.selectedUnits[measurement] ?? '',
+                            ),
+                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
                           ),
                         ),
-                        const SizedBox(height: 16),
-                        
-                        // Minimum Alarm
-                        Text(
-                          'Minimum Alarm',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.red,
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: TextFormField(
+                            controller: _controllers[measurement]!['minReset']!,
+                            decoration: InputDecoration(
+                              labelText: 'Reset Değeri',
+                              border: const OutlineInputBorder(),
+                              suffixText: widget.wizardData.selectedUnits[measurement] ?? '',
+                            ),
+                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextFormField(
-                                controller: _controllers[measurement]!['min']!,
-                                decoration: InputDecoration(
-                                  labelText: 'Min Değer',
-                                  border: const OutlineInputBorder(),
-                                  suffixText: widget.wizardData.selectedUnits[measurement] ?? '',
-                                ),
-                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: TextFormField(
-                                controller: _controllers[measurement]!['minReset']!,
-                                decoration: InputDecoration(
-                                  labelText: 'Reset Değeri',
-                                  border: const OutlineInputBorder(),
-                                  suffixText: widget.wizardData.selectedUnits[measurement] ?? '',
-                                ),
-                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                              ),
-                            ),
-                          ],
-                        ),
-                        
-                        const SizedBox(height: 16),
-                        
-                        // Maksimum Alarm
-                        Text(
-                          'Maksimum Alarm',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.orange,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextFormField(
-                                controller: _controllers[measurement]!['max']!,
-                                decoration: InputDecoration(
-                                  labelText: 'Max Değer',
-                                  border: const OutlineInputBorder(),
-                                  suffixText: widget.wizardData.selectedUnits[measurement] ?? '',
-                                ),
-                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: TextFormField(
-                                controller: _controllers[measurement]!['maxReset']!,
-                                decoration: InputDecoration(
-                                  labelText: 'Reset Değeri',
-                                  border: const OutlineInputBorder(),
-                                  suffixText: widget.wizardData.selectedUnits[measurement] ?? '',
-                                ),
-                                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                              ),
-                            ),
-                          ],
                         ),
                       ],
                     ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
+                    
+                    const SizedBox(height: 16),
+                    
+                    // Maksimum Alarm
+                    Text(
+                      'Maksimum Alarm',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.orange,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: _controllers[measurement]!['max']!,
+                            decoration: InputDecoration(
+                              labelText: 'Max Değer',
+                              border: const OutlineInputBorder(),
+                              suffixText: widget.wizardData.selectedUnits[measurement] ?? '',
+                            ),
+                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: TextFormField(
+                            controller: _controllers[measurement]!['maxReset']!,
+                            decoration: InputDecoration(
+                              labelText: 'Reset Değeri',
+                              border: const OutlineInputBorder(),
+                              suffixText: widget.wizardData.selectedUnits[measurement] ?? '',
+                            ),
+                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
+          
+          const SizedBox(height: 32),
           
           // Navigasyon Butonları
           Row(

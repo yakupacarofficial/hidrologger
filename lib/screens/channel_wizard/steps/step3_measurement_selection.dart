@@ -52,7 +52,7 @@ class _Step3MeasurementSelectionState extends State<Step3MeasurementSelection> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,7 +88,7 @@ class _Step3MeasurementSelectionState extends State<Step3MeasurementSelection> {
             ),
           )),
           
-          const Spacer(),
+          const SizedBox(height: 32),
           
           // Navigasyon Butonları
           Row(

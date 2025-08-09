@@ -100,7 +100,7 @@ class _Step1BasicInfoState extends State<Step1BasicInfo> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -186,7 +186,7 @@ class _Step1BasicInfoState extends State<Step1BasicInfo> {
             ),
           ),
           
-          const Spacer(),
+          const SizedBox(height: 32),
           
           // İleri Butonu
           SizedBox(

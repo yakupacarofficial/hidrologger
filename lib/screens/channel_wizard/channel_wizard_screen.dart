@@ -98,6 +98,7 @@ class _ChannelWizardScreenState extends State<ChannelWizardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: const Text('Kanal Ekleme Sihirbazı'),
         backgroundColor: Theme.of(context).colorScheme.primary,
@@ -108,36 +109,40 @@ class _ChannelWizardScreenState extends State<ChannelWizardScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: Column(
-        children: [
-          // Progress Bar
-          Container(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                LinearProgressIndicator(
-                  value: (_currentStep + 1) / _steps.length,
-                  backgroundColor: Colors.grey[300],
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    Theme.of(context).colorScheme.primary,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Progress Bar
+            Container(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  LinearProgressIndicator(
+                    value: (_currentStep + 1) / _steps.length,
+                    backgroundColor: Colors.grey[300],
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Theme.of(context).colorScheme.primary,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Adım ${_currentStep + 1} / ${_steps.length}',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey[600],
+                  const SizedBox(height: 8),
+                  Text(
+                    'Adım ${_currentStep + 1} / ${_steps.length}',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.grey[600],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          
-          // Step Content
-          Expanded(
-            child: _steps[_currentStep],
-          ),
-        ],
+            
+            // Step Content
+            Expanded(
+              child: SingleChildScrollView(
+                child: _steps[_currentStep],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -41,7 +41,7 @@ class _Step2SensorSelectionState extends State<Step2SensorSelection> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -120,7 +120,7 @@ class _Step2SensorSelectionState extends State<Step2SensorSelection> {
             ),
           ),
           
-          const Spacer(),
+          const SizedBox(height: 32),
           
           // Navigasyon Butonları
           Row(
