@@ -81,6 +81,8 @@ class _LogScreenState extends State<LogScreen> {
             'id': item['id'] ?? 0,
             'timestamp': timestamp,
             'value': (item['value'] ?? 0.0).toDouble(),
+            'min_value': (item['min_value'] ?? 0.0).toDouble(),
+            'max_value': (item['max_value'] ?? 0.0).toDouble(),
             'quality': 'good', // Varsayılan değer
             'battery_percentage': 100, // Varsayılan değer
             'signal_strength': 100, // Varsayılan değer
@@ -118,6 +120,8 @@ class _LogScreenState extends State<LogScreen> {
         'id': i + 1,
         'timestamp': timestamp,
         'value': 20 + (i * 0.5) + (i % 3 == 0 ? 2 : 0),
+        'min_value': 18.0 + (i * 0.3),
+        'max_value': 22.0 + (i * 0.4),
         'quality': i % 5 == 0 ? 'uncertain' : (i % 7 == 0 ? 'bad' : 'good'),
         'battery_percentage': 100 - (i * 2),
         'signal_strength': 100 - (i * 1.5),

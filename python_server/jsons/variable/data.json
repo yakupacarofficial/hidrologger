@@ -5,9 +5,9 @@
       "channel": 1,
       "value_type": 1,
       "value_timestamp": 1754856103,
-      "value": 13,
+      "value": 25.8,
       "min_value": 15.2,
-      "max_value": 16,
+      "max_value": 25.8,
       "battery_percentage": 100,
       "signal_strength": 100
     }

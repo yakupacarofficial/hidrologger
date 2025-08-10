@@ -24,6 +24,13 @@
           "value": 13,
           "min_value": 15.2,
           "max_value": 16
+        },
+        {
+          "id": 4,
+          "timestamp": "2025-08-10T23:01:43Z",
+          "value": 25.8,
+          "min_value": 15.2,
+          "max_value": 25.8
         }
       ]
     }
