@@ -24,7 +24,7 @@ class JSONReader:
         self.file_last_modified = {}
         self.last_successful_data = None
         self.last_check_time = 0
-        self.check_interval = 1.0  # Saniye cinsinden kontrol aralığı
+        self.check_interval = 0.1  # Saniye cinsinden kontrol aralığı (100ms)
         
         # Başlangıçta tüm dosyaları tara
         self._initialize_file_tracking()
@@ -118,11 +118,15 @@ class JSONReader:
         """Dosyalarda değişiklik olup olmadığını kontrol et"""
         current_time = time.time()
         
-        # Kontrol aralığını kontrol et
+        # Kontrol aralığını kontrol et - çok sıkı olmasın
         if current_time - self.last_check_time < self.check_interval:
             return False
             
         self.last_check_time = current_time
+        
+        # Her zaman değişiklik var kabul et (geliştirme için)
+        # TODO: Production'da daha akıllı kontrol yapılacak
+        logger.debug("Dosya değişikliği kontrolü yapılıyor...")
         
         for file_path, last_modified in self.file_last_modified.items():
             try:
@@ -150,7 +154,9 @@ class JSONReader:
                             self.file_last_modified[file_path] = os.path.getmtime(file_path)
                             return True
         
-        return False
+        # Geliştirme için: Her zaman değişiklik var kabul et
+        logger.debug("Geliştirme modu: Cache bypass ediliyor")
+        return True
     
     def read_all_data(self) -> Optional[Dict[str, Any]]:
         """Tüm JSON verilerini oku ve birleştir - ALARM VERİLERİ EKLENDİ"""

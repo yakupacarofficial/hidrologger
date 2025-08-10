@@ -2,35 +2,14 @@
   "logs": {
     "channel_1": {
       "channel_id": 1,
-      "channel_name": "KANAL-TEST-V1",
+      "channel_name": "TEST-KANAL-1-BASINÇ",
       "data": [
         {
           "id": 1,
-          "timestamp": "2025-08-10T23:01:43Z",
-          "value": 0,
-          "min_value": 12.4,
-          "max_value": 13
-        },
-        {
-          "id": 2,
-          "timestamp": "2025-08-10T23:01:43Z",
-          "value": 0,
-          "min_value": 15.2,
-          "max_value": 16
-        },
-        {
-          "id": 3,
-          "timestamp": "2025-08-10T23:01:43Z",
-          "value": 13,
-          "min_value": 15.2,
-          "max_value": 16
-        },
-        {
-          "id": 4,
-          "timestamp": "2025-08-10T23:01:43Z",
-          "value": 25.8,
-          "min_value": 15.2,
-          "max_value": 25.8
+          "timestamp": "2025-08-10T23:35:17Z",
+          "value": 12,
+          "min_value": 11.3,
+          "max_value": 12
         }
       ]
     }

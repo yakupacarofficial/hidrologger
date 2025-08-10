@@ -2,15 +2,15 @@
   "channel": [
     {
       "id": 1,
-      "name": "KANAL-TEST-V1",
-      "description": "KANAL TEST ACIKALAMSI",
+      "name": "TEST-KANAL-1-BASINÇ",
+      "description": "BASINÇ ÖLÇEN KANAL",
       "channel_category": 1,
       "channel_sub_category": 1,
       "channel_parameter": 1,
-      "measurement_unit": 1,
+      "measurement_unit": 2,
       "value_type": 1,
       "log_interval": 1000,
-      "offset": 15.5
+      "offset": 12.4
     }
   ]
 }

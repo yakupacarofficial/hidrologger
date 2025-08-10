@@ -43,6 +43,9 @@ dependencies:
   
   # Internationalization and date formatting
   intl: ^0.19.0
+  
+  # Network information for WiFi IP address
+  network_info_plus: ^4.1.0
 
 dev_dependencies:
   flutter_test:

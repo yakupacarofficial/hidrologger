@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/channel_data.dart';
 import '../services/restful_service.dart';
+import '../services/station_service.dart';
 import '../widgets/info_card.dart';
 import '../widgets/data_item.dart';
 import '../widgets/connection_status_badge.dart';
@@ -28,11 +29,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool _isConnected = false;
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
+  
+  // Station ve WiFi bilgileri
+  final StationService _stationService = StationService();
+  Map<String, dynamic>? _stationInfo;
+  String? _wifiIPAddress;
 
   @override
   void initState() {
     super.initState();
     _listenToData();
+    _loadStationAndWiFiInfo();
   }
 
   void _listenToData() {
@@ -73,6 +80,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
         }
       },
     );
+  }
+  
+  void _loadStationAndWiFiInfo() async {
+    try {
+      // Station bilgilerini yükle
+      final stationInfo = await _stationService.getStationInfo();
+      final wifiIP = await _stationService.getWiFiIPAddress();
+      
+      if (mounted) {
+        setState(() {
+          _stationInfo = stationInfo;
+          _wifiIPAddress = wifiIP;
+        });
+      }
+    } catch (e) {
+      print('Station ve WiFi bilgileri yüklenemedi: $e');
+    }
   }
 
   @override
@@ -348,6 +372,41 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         : '--',
                     icon: Icons.access_time,
                     color: Colors.orange,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          // Station ve WiFi Bilgi Kartları
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: InfoCard(
+                    title: 'Station',
+                    value: _stationInfo?['name'] ?? '--',
+                    icon: Icons.location_on,
+                    color: Colors.purple,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: InfoCard(
+                    title: 'Station Kodu',
+                    value: _stationInfo?['code'] ?? '--',
+                    icon: Icons.qr_code,
+                    color: Colors.indigo,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: InfoCard(
+                    title: 'WiFi IP',
+                    value: _wifiIPAddress ?? '--',
+                    icon: Icons.wifi,
+                    color: Colors.teal,
                   ),
                 ),
               ],
