@@ -4,10 +4,10 @@
       "id": 1,
       "channel": 1,
       "value_type": 1,
-      "value_timestamp": 1754852597,
-      "value": 30.8,
-      "min_value": 1,
-      "max_value": 2,
+      "value_timestamp": 1754856103,
+      "value": 13,
+      "min_value": 15.2,
+      "max_value": 16,
       "battery_percentage": 100,
       "signal_strength": 100
     }

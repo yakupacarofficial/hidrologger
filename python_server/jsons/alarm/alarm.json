@@ -5,7 +5,7 @@
     "alarms": [
       {
         "min_value": 12.4,
-        "max_value": 16.2,
+        "max_value": 15.2,
         "color": "#FF0000",
         "data_post_frequency": 1000
       }

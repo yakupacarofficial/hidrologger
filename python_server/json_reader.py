@@ -620,11 +620,29 @@ class JSONReader:
             existing_ids = [log.get('id') for log in existing_logs if log.get('id') is not None]
             new_log_id = max(existing_ids) + 1 if existing_ids else 1
             
+            # Data.json'dan min/max değerleri al
+            min_value = 0
+            max_value = 0
+            data_file_path = os.path.join(self.variable_path, "data.json")
+            if os.path.exists(data_file_path):
+                try:
+                    data_content = self._read_json_file(data_file_path)
+                    if data_content and 'data' in data_content:
+                        for data_entry in data_content['data']:
+                            if data_entry.get('channel') == channel_id:
+                                min_value = data_entry.get('min_value', 0)
+                                max_value = data_entry.get('max_value', 0)
+                                break
+                except Exception as e:
+                    logger.warning(f"Data.json'dan min/max değerleri alınamadı: {e}")
+            
             # Yeni log kaydı oluştur
             new_log_entry = {
                 "id": new_log_id,
                 "timestamp": timestamp,
-                "value": value
+                "value": value,
+                "min_value": min_value,
+                "max_value": max_value
             }
             
             # Log kaydını listeye ekle
@@ -848,11 +866,16 @@ class JSONReader:
                 else:
                     timestamp = datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
                 
-                # Duplicate kontrolü - aynı value ve timestamp'e sahip kayıt var mı?
+                # Duplicate kontrolü - aynı value, timestamp, min_value ve max_value'ya sahip kayıt var mı?
                 is_duplicate = False
+                min_value = data_entry.get('min_value', 0)
+                max_value = data_entry.get('max_value', 0)
+                
                 for existing_log in existing_logs:
                     if (existing_log.get('value') == value and 
-                        existing_log.get('timestamp') == timestamp):
+                        existing_log.get('timestamp') == timestamp and
+                        existing_log.get('min_value') == min_value and
+                        existing_log.get('max_value') == max_value):
                         is_duplicate = True
                         break
                 
@@ -863,14 +886,23 @@ class JSONReader:
                 # Son log kaydını kontrol et
                 last_log = existing_logs[-1] if existing_logs else None
                 
-                # Eğer son log kaydı yoksa veya değer değişmişse yeni kayıt ekle
+                # Eğer son log kaydı yoksa veya değer/min/max değişmişse yeni kayıt ekle
                 should_add = False
+                min_value = data_entry.get('min_value', 0)
+                max_value = data_entry.get('max_value', 0)
+                
                 if last_log is None:
                     should_add = True
                     logger.info(f"Kanal {channel_id} için ilk log kaydı ekleniyor: {value}")
                 elif last_log.get('value') != value:
                     should_add = True
                     logger.info(f"Kanal {channel_id} için değer değişikliği tespit edildi: {last_log.get('value')} -> {value}")
+                elif last_log.get('min_value') != min_value:
+                    should_add = True
+                    logger.info(f"Kanal {channel_id} için min_value değişikliği tespit edildi: {last_log.get('min_value')} -> {min_value}")
+                elif last_log.get('max_value') != max_value:
+                    should_add = True
+                    logger.info(f"Kanal {channel_id} için max_value değişikliği tespit edildi: {last_log.get('max_value')} -> {max_value}")
                 elif last_log.get('timestamp') != timestamp:
                     # Aynı değer ama farklı timestamp varsa da ekle
                     should_add = True
@@ -885,7 +917,9 @@ class JSONReader:
                     new_log_entry = {
                         "id": new_log_id,
                         "timestamp": timestamp,
-                        "value": value
+                        "value": value,
+                        "min_value": data_entry.get('min_value', 0),
+                        "max_value": data_entry.get('max_value', 0)
                     }
                     
                     # Log kaydını listeye ekle

@@ -2,15 +2,15 @@
   "channel": [
     {
       "id": 1,
-      "name": "test-kanal-1",
-      "description": "testkanal1acıklama",
+      "name": "KANAL-TEST-V1",
+      "description": "KANAL TEST ACIKALAMSI",
       "channel_category": 1,
       "channel_sub_category": 1,
       "channel_parameter": 1,
       "measurement_unit": 1,
       "value_type": 1,
       "log_interval": 1000,
-      "offset": 12.2
+      "offset": 15.5
     }
   ]
 }
