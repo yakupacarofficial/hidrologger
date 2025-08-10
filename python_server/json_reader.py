@@ -723,3 +723,223 @@ class JSONReader:
         except Exception as e:
             logger.error(f"Kanal adı getirme hatası: {e}")
             return f'Kanal {channel_id}'
+
+    def check_alarms(self) -> List[Dict[str, Any]]:
+        """Alarm durumlarını kontrol et ve log verilerini kaydet"""
+        try:
+            logger.info("Alarm durumları kontrol ediliyor...")
+            
+            # Alarm verilerini oku
+            alarm_data = self.get_alarm_data()
+            if not alarm_data:
+                logger.info("Alarm verisi bulunamadı")
+                return []
+            
+            # Data verilerini oku
+            data_file_path = os.path.join(self.variable_path, "data.json")
+            if not os.path.exists(data_file_path):
+                logger.warning("Data.json dosyası bulunamadı")
+                return []
+            
+            data_content = self._read_json_file(data_file_path)
+            if not data_content:
+                logger.warning("Data.json dosyası okunamadı")
+                return []
+            
+            active_alarms = []
+            data_entries = data_content.get('data', [])
+            
+            for data_entry in data_entries:
+                channel_id = data_entry.get('channel')
+                value = data_entry.get('value', 0)
+                
+                if channel_id is None:
+                    continue
+                
+                # Log verisini kaydet
+                self.save_log_data(channel_id, value)
+                
+                # Alarm kontrolü
+                channel_alarms = alarm_data.get(f'parameter1', {}).get(str(channel_id), {}).get('alarms', [])
+                
+                for alarm in channel_alarms:
+                    min_value = alarm.get('min_value', 0)
+                    max_value = alarm.get('max_value', 0)
+                    color = alarm.get('color', '#FF0000')
+                    
+                    # Değer alarm aralığında mı kontrol et
+                    if min_value <= value <= max_value:
+                        alarm_info = {
+                            'channel_id': channel_id,
+                            'channel_name': self._get_channel_name(channel_id),
+                            'value': value,
+                            'min_value': min_value,
+                            'max_value': max_value,
+                            'color': color,
+                            'timestamp': datetime.now().isoformat()
+                        }
+                        active_alarms.append(alarm_info)
+                        logger.info(f"Alarm tetiklendi: Kanal {channel_id}, Değer: {value}, Aralık: {min_value}-{max_value}")
+            
+            return active_alarms
+            
+        except Exception as e:
+            logger.error(f"Alarm kontrol hatası: {e}")
+            logger.error(traceback.format_exc())
+            return []
+
+    def auto_save_logs_from_data(self) -> bool:
+        """Data.json dosyasındaki verileri otomatik olarak log verilerine kaydet"""
+        try:
+            logger.info("Data.json dosyasından log verileri otomatik olarak kaydediliyor...")
+            
+            # Data verilerini oku
+            data_file_path = os.path.join(self.variable_path, "data.json")
+            if not os.path.exists(data_file_path):
+                logger.warning("Data.json dosyası bulunamadı")
+                return False
+            
+            data_content = self._read_json_file(data_file_path)
+            if not data_content:
+                logger.warning("Data.json dosyası okunamadı")
+                return False
+            
+            # Mevcut log verilerini oku
+            logs_file_path = os.path.join(self.logsfile_path, "logs.json")
+            if os.path.exists(logs_file_path):
+                try:
+                    with open(logs_file_path, 'r', encoding='utf-8') as file:
+                        logs_content = json.load(file)
+                except (json.JSONDecodeError, FileNotFoundError):
+                    logs_content = {"logs": {}}
+            else:
+                logs_content = {"logs": {}}
+            
+            data_entries = data_content.get('data', [])
+            saved_count = 0
+            
+            for data_entry in data_entries:
+                channel_id = data_entry.get('channel')
+                value = data_entry.get('value', 0)
+                value_timestamp = data_entry.get('value_timestamp', 0)
+                
+                if channel_id is None:
+                    continue
+                
+                # Kanal için mevcut log verilerini kontrol et
+                channel_key = f"channel_{channel_id}"
+                logs = logs_content.get('logs', {})
+                
+                if channel_key not in logs:
+                    logs[channel_key] = {
+                        "channel_id": channel_id,
+                        "channel_name": self._get_channel_name(channel_id),
+                        "data": []
+                    }
+                
+                existing_logs = logs[channel_key].get('data', [])
+                
+                # Timestamp'i belirle
+                if value_timestamp:
+                    # Unix timestamp'i ISO formatına çevir
+                    timestamp = datetime.fromtimestamp(value_timestamp).strftime("%Y-%m-%dT%H:%M:%SZ")
+                else:
+                    timestamp = datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+                
+                # Duplicate kontrolü - aynı value ve timestamp'e sahip kayıt var mı?
+                is_duplicate = False
+                for existing_log in existing_logs:
+                    if (existing_log.get('value') == value and 
+                        existing_log.get('timestamp') == timestamp):
+                        is_duplicate = True
+                        break
+                
+                if is_duplicate:
+                    logger.debug(f"Kanal {channel_id} için duplicate kayıt tespit edildi: {value} - {timestamp}")
+                    continue
+                
+                # Son log kaydını kontrol et
+                last_log = existing_logs[-1] if existing_logs else None
+                
+                # Eğer son log kaydı yoksa veya değer değişmişse yeni kayıt ekle
+                should_add = False
+                if last_log is None:
+                    should_add = True
+                    logger.info(f"Kanal {channel_id} için ilk log kaydı ekleniyor: {value}")
+                elif last_log.get('value') != value:
+                    should_add = True
+                    logger.info(f"Kanal {channel_id} için değer değişikliği tespit edildi: {last_log.get('value')} -> {value}")
+                elif last_log.get('timestamp') != timestamp:
+                    # Aynı değer ama farklı timestamp varsa da ekle
+                    should_add = True
+                    logger.info(f"Kanal {channel_id} için timestamp değişikliği tespit edildi: {timestamp}")
+                
+                if should_add:
+                    # Yeni log kaydı için ID bul
+                    existing_ids = [log.get('id') for log in existing_logs if log.get('id') is not None]
+                    new_log_id = max(existing_ids) + 1 if existing_ids else 1
+                    
+                    # Yeni log kaydı oluştur
+                    new_log_entry = {
+                        "id": new_log_id,
+                        "timestamp": timestamp,
+                        "value": value
+                    }
+                    
+                    # Log kaydını listeye ekle
+                    logs[channel_key]['data'].append(new_log_entry)
+                    saved_count += 1
+                    logger.info(f"Kanal {channel_id} için yeni log verisi kaydedildi: {value}")
+            
+            # Değişiklik varsa dosyayı kaydet
+            if saved_count > 0:
+                logs_content['logs'] = logs
+                with open(logs_file_path, 'w', encoding='utf-8') as file:
+                    json.dump(logs_content, file, indent=2, ensure_ascii=False)
+                
+                # Dosya değişiklik zamanını güncelle
+                self.file_last_modified[logs_file_path] = os.path.getmtime(logs_file_path)
+                logger.info(f"Toplam {saved_count} yeni log verisi kaydedildi")
+            else:
+                logger.info("Yeni log verisi bulunamadı, mevcut veriler güncel")
+            
+            return saved_count > 0
+            
+        except Exception as e:
+            logger.error(f"Otomatik log kaydetme hatası: {e}")
+            logger.error(traceback.format_exc())
+            return False
+
+    def check_data_changes(self) -> bool:
+        """Data.json dosyasındaki değişiklikleri kontrol et ve log verilerini otomatik olarak kaydet"""
+        try:
+            data_file_path = os.path.join(self.variable_path, "data.json")
+            
+            if not os.path.exists(data_file_path):
+                return False
+            
+            # Dosyanın son değiştirilme zamanını kontrol et
+            current_mtime = os.path.getmtime(data_file_path)
+            last_mtime = self.file_last_modified.get(data_file_path, 0)
+            
+            if current_mtime > last_mtime:
+                logger.info("Data.json dosyasında değişiklik tespit edildi, log verileri otomatik olarak kaydediliyor...")
+                
+                # Log verilerini otomatik olarak kaydet
+                success = self.auto_save_logs_from_data()
+                
+                # Dosya değişiklik zamanını güncelle
+                self.file_last_modified[data_file_path] = current_mtime
+                
+                if success:
+                    logger.info("Log verileri başarıyla otomatik olarak kaydedildi")
+                else:
+                    logger.warning("Log verileri otomatik olarak kaydedilemedi")
+                
+                return True
+            
+            return False
+            
+        except Exception as e:
+            logger.error(f"Data değişiklik kontrolü hatası: {e}")
+            return False

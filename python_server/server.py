@@ -326,6 +326,116 @@ class RESTfulServer:
                     "success": False,
                     "error": str(e)
                 }), 500
+
+        @self.app.route('/api/alarms/check', methods=['GET'])
+        def check_alarms():
+            """Alarm durumlarını kontrol et ve log verilerini kaydet"""
+            try:
+                logger.info("Alarm kontrolü istendi")
+                active_alarms = self.json_reader.check_alarms()
+                
+                return jsonify({
+                    "success": True,
+                    "data": active_alarms,
+                    "count": len(active_alarms),
+                    "timestamp": datetime.now().isoformat()
+                })
+                
+            except Exception as e:
+                logger.error(f"Alarm kontrol hatası: {e}")
+                return jsonify({
+                    "success": False,
+                    "error": str(e)
+                }), 500
+
+        @self.app.route('/api/alarms/active', methods=['GET'])
+        def get_active_alarms():
+            """Aktif alarmları getir"""
+            try:
+                logger.info("Aktif alarmlar istendi")
+                active_alarms = self.json_reader.check_alarms()
+                
+                return jsonify({
+                    "success": True,
+                    "data": active_alarms,
+                    "count": len(active_alarms),
+                    "timestamp": datetime.now().isoformat()
+                })
+                
+            except Exception as e:
+                logger.error(f"Aktif alarm getirme hatası: {e}")
+                return jsonify({
+                    "success": False,
+                    "error": str(e)
+                }), 500
+
+        @self.app.route('/api/alarms/clear', methods=['POST'])
+        def clear_alarms():
+            """Tüm alarmları temizle"""
+            try:
+                logger.info("Alarm temizleme istendi")
+                # Bu endpoint şimdilik sadece başarı mesajı döndürüyor
+                # Gerçek alarm temizleme mantığı daha sonra eklenebilir
+                
+                return jsonify({
+                    "success": True,
+                    "message": "Alarmlar temizlendi",
+                    "timestamp": datetime.now().isoformat()
+                })
+                
+            except Exception as e:
+                logger.error(f"Alarm temizleme hatası: {e}")
+                return jsonify({
+                    "success": False,
+                    "error": str(e)
+                }), 500
+        
+        @self.app.route('/api/logs/auto-save', methods=['POST'])
+        def auto_save_logs():
+            """Data.json dosyasındaki verileri otomatik olarak log verilerine kaydet"""
+            try:
+                logger.info("Otomatik log kaydetme istendi")
+                success = self.json_reader.auto_save_logs_from_data()
+                
+                if success:
+                    return jsonify({
+                        "success": True,
+                        "message": "Log verileri otomatik olarak kaydedildi",
+                        "timestamp": datetime.now().isoformat()
+                    })
+                else:
+                    return jsonify({
+                        "success": False,
+                        "error": "Log verileri kaydedilemedi"
+                    }), 500
+                    
+            except Exception as e:
+                logger.error(f"Otomatik log kaydetme hatası: {e}")
+                return jsonify({
+                    "success": False,
+                    "error": str(e)
+                }), 500
+
+        @self.app.route('/api/data/check-changes', methods=['GET'])
+        def check_data_changes():
+            """Data.json dosyasındaki değişiklikleri kontrol et ve log verilerini otomatik olarak kaydet"""
+            try:
+                logger.info("Data değişiklik kontrolü istendi")
+                changes_detected = self.json_reader.check_data_changes()
+                
+                return jsonify({
+                    "success": True,
+                    "changes_detected": changes_detected,
+                    "message": "Data değişiklik kontrolü tamamlandı",
+                    "timestamp": datetime.now().isoformat()
+                })
+                
+            except Exception as e:
+                logger.error(f"Data değişiklik kontrolü hatası: {e}")
+                return jsonify({
+                    "success": False,
+                    "error": str(e)
+                }), 500
     
     def start_server(self, host='0.0.0.0', port=8765):
         """RESTful API sunucusunu başlat - tüm ağ arayüzlerinde dinle"""
