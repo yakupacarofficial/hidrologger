@@ -553,6 +553,8 @@ class JSONReader:
                 "value_type": 1,  # Varsayılan değer tipi
                 "value_timestamp": current_timestamp,
                 "value": 0,  # Varsayılan değer
+                "min_value": 0,  # Varsayılan min değer
+                "max_value": 0,  # Varsayılan max değer
                 "battery_percentage": 100,  # Varsayılan batarya
                 "signal_strength": 100  # Varsayılan sinyal gücü
             }
@@ -942,4 +944,31 @@ class JSONReader:
             
         except Exception as e:
             logger.error(f"Data değişiklik kontrolü hatası: {e}")
+            return False
+
+    def save_variable_data(self, variable_data: Dict[str, Any]) -> bool:
+        """Variable data'yı güncellenmiş min/max değerleriyle kaydet"""
+        try:
+            logger.info("Variable data güncellenmiş min/max değerleriyle kaydediliyor")
+            
+            # Data.json dosyasını oku
+            data_file_path = os.path.join(self.variable_path, "data.json")
+            current_data = self._read_json_file(data_file_path)
+            
+            if not current_data:
+                current_data = {"data": []}
+            
+            # Güncellenmiş veriyi kaydet
+            current_data["data"] = variable_data.get("data", [])
+            
+            # Dosyaya kaydet
+            with open(data_file_path, 'w', encoding='utf-8') as file:
+                json.dump(current_data, file, indent=2, ensure_ascii=False)
+            
+            logger.info("Variable data başarıyla güncellendi")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Variable data kaydetme hatası: {e}")
+            logger.error(traceback.format_exc())
             return False

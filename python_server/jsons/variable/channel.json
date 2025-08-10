@@ -2,27 +2,15 @@
   "channel": [
     {
       "id": 1,
-      "name": "TEST-KANAL-EKLEME-SIHIRBAZI-1",
-      "description": "KANAL EKLEME SIHIRBAZIYLA EKLENDI - 1",
+      "name": "test-kanal-1",
+      "description": "testkanal1acıklama",
       "channel_category": 1,
       "channel_sub_category": 1,
       "channel_parameter": 1,
       "measurement_unit": 1,
       "value_type": 1,
       "log_interval": 1000,
-      "offset": 1.1
-    },
-    {
-      "id": 2,
-      "name": "a",
-      "description": "a",
-      "channel_category": 3,
-      "channel_sub_category": 3,
-      "channel_parameter": 1,
-      "measurement_unit": 8,
-      "value_type": 1,
-      "log_interval": 1000,
-      "offset": 0.0
+      "offset": 12.2
     }
   ]
 }
