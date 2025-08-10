@@ -1,0 +1,20 @@
+{
+  "logs": {
+    "channel_1": {
+      "channel_id": 1,
+      "channel_name": "test-kanal-1",
+      "data": [
+        {
+          "id": 1,
+          "timestamp": "2025-08-10T22:03:17Z",
+          "value": 25.5
+        },
+        {
+          "id": 2,
+          "timestamp": "2025-08-10T22:03:17Z",
+          "value": 30.8
+        }
+      ]
+    }
+  }
+}

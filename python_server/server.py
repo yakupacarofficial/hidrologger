@@ -1,6 +1,8 @@
 import asyncio
 import json
 import logging
+import threading
+import time
 from datetime import datetime
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -26,6 +28,10 @@ class RESTfulServer:
                 "expose_headers": ["Content-Type", "Authorization"]
             }
         })
+        
+        # Background monitoring thread'i için flag
+        self.monitoring_active = False
+        self.monitoring_thread = None
         
         # API endpoint'lerini tanımla
         self.setup_routes()
@@ -476,12 +482,119 @@ class RESTfulServer:
                     "success": False,
                     "error": str(e)
                 }), 500
-    
+
+        @self.app.route('/api/monitoring/start', methods=['POST'])
+        def start_monitoring():
+            """Background monitoring thread'ini başlat"""
+            try:
+                if not self.monitoring_active:
+                    self.start_background_monitoring()
+                    return jsonify({
+                        "success": True,
+                        "message": "Background monitoring başlatıldı",
+                        "timestamp": datetime.now().isoformat()
+                    })
+                else:
+                    return jsonify({
+                        "success": False,
+                        "message": "Monitoring zaten aktif",
+                        "timestamp": datetime.now().isoformat()
+                    })
+            except Exception as e:
+                logger.error(f"Monitoring başlatma hatası: {e}")
+                return jsonify({
+                    "success": False,
+                    "error": str(e)
+                }), 500
+
+        @self.app.route('/api/monitoring/stop', methods=['POST'])
+        def stop_monitoring():
+            """Background monitoring thread'ini durdur"""
+            try:
+                if self.monitoring_active:
+                    self.stop_background_monitoring()
+                    return jsonify({
+                        "success": True,
+                        "message": "Background monitoring durduruldu",
+                        "timestamp": datetime.now().isoformat()
+                    })
+                else:
+                    return jsonify({
+                        "success": False,
+                        "message": "Monitoring zaten durmuş",
+                        "timestamp": datetime.now().isoformat()
+                    })
+            except Exception as e:
+                logger.error(f"Monitoring durdurma hatası: {e}")
+                return jsonify({
+                    "success": False,
+                    "error": str(e)
+                }), 500
+
+        @self.app.route('/api/monitoring/status', methods=['GET'])
+        def get_monitoring_status():
+            """Monitoring durumunu getir"""
+            try:
+                return jsonify({
+                    "success": True,
+                    "monitoring_active": self.monitoring_active,
+                    "message": "Monitoring durumu alındı",
+                    "timestamp": datetime.now().isoformat()
+                })
+            except Exception as e:
+                logger.error(f"Monitoring durum hatası: {e}")
+                return jsonify({
+                    "success": False,
+                    "error": str(e)
+                }), 500
+
+    def start_background_monitoring(self):
+        """Background monitoring thread'ini başlat"""
+        if not self.monitoring_active:
+            self.monitoring_active = True
+            self.monitoring_thread = threading.Thread(target=self._monitoring_loop, daemon=True)
+            self.monitoring_thread.start()
+            logger.info("Background monitoring thread başlatıldı")
+
+    def stop_background_monitoring(self):
+        """Background monitoring thread'ini durdur"""
+        self.monitoring_active = False
+        if self.monitoring_thread:
+            self.monitoring_thread.join(timeout=1)
+            self.monitoring_thread = None
+        logger.info("Background monitoring thread durduruldu")
+
+    def _monitoring_loop(self):
+        """Sürekli olarak data.json dosyasını izle ve değişiklikleri logs.json'a kaydet"""
+        logger.info("Background monitoring loop başladı")
+        check_interval = 2  # 2 saniyede bir kontrol et
+        
+        while self.monitoring_active:
+            try:
+                # Data.json dosyasındaki değişiklikleri kontrol et
+                changes_detected = self.json_reader.check_data_changes()
+                
+                if changes_detected:
+                    logger.info("Data değişikliği tespit edildi ve logs.json'a kaydedildi")
+                
+                # Belirtilen süre kadar bekle
+                time.sleep(check_interval)
+                
+            except Exception as e:
+                logger.error(f"Monitoring loop hatası: {e}")
+                time.sleep(check_interval)
+        
+        logger.info("Background monitoring loop durdu")
+     
     def start_server(self, host='0.0.0.0', port=8765):
         """RESTful API sunucusunu başlat - tüm ağ arayüzlerinde dinle"""
         logger.info(f"RESTful API sunucusu başlatılıyor: {host}:{port}")
         logger.info("Sunucu tüm ağ arayüzlerinde dinliyor (0.0.0.0)")
         logger.info("Aynı WiFi ağındaki tüm cihazlar erişebilir")
+        
+        # Background monitoring'i otomatik olarak başlat
+        logger.info("Background monitoring otomatik olarak başlatılıyor...")
+        self.start_background_monitoring()
         
         try:
             self.app.run(
