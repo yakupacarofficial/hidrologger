@@ -135,6 +135,8 @@ class Channel {
 class VariableData {
   final int channelId;
   final double value;
+  final double minValue;
+  final double maxValue;
   final int valueTimestamp;
   final int batteryPercentage;
   final int signalStrength;
@@ -143,6 +145,8 @@ class VariableData {
   VariableData({
     required this.channelId,
     required this.value,
+    required this.minValue,
+    required this.maxValue,
     required this.valueTimestamp,
     required this.batteryPercentage,
     required this.signalStrength,
@@ -153,6 +157,8 @@ class VariableData {
     return VariableData(
       channelId: json['channel'] ?? 0, // 'channel' alanını kullan
       value: (json['value'] ?? 0.0).toDouble(),
+      minValue: (json['min_value'] ?? 0.0).toDouble(),
+      maxValue: (json['max_value'] ?? 0.0).toDouble(),
       valueTimestamp: json['value_timestamp'] ?? 0,
       batteryPercentage: json['battery_percentage'] ?? 0,
       signalStrength: json['signal_strength'] ?? 0,

@@ -611,6 +611,38 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Row(
                         children: [
                           Expanded(
+                            child: FutureBuilder<String>(
+                              future: channel.unit,
+                              builder: (context, snapshot) {
+                                return DataItem(
+                                  label: 'Min Değer',
+                                  value: '${latestData.minValue.toStringAsFixed(2)} ${snapshot.data ?? ''}',
+                                  icon: Icons.trending_down,
+                                  color: Colors.red,
+                                );
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: FutureBuilder<String>(
+                              future: channel.unit,
+                              builder: (context, snapshot) {
+                                return DataItem(
+                                  label: 'Max Değer',
+                                  value: '${latestData.maxValue.toStringAsFixed(2)} ${snapshot.data ?? ''}',
+                                  icon: Icons.trending_up,
+                                  color: Colors.orange,
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Expanded(
                             child: DataItem(
                               label: 'Değer Tipi',
                               value: latestData.valueTypeName,

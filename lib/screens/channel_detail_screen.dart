@@ -489,6 +489,90 @@ class _ChannelDetailScreenState extends State<ChannelDetailScreen> {
               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
             ),
           ),
+          const SizedBox(height: 24),
+          // Min/Max Değerler
+          Row(
+            children: [
+              Expanded(
+                child: _buildMinMaxCard(
+                  context,
+                  'Min Değer',
+                  '${latestData.minValue.toStringAsFixed(2)}',
+                  channel,
+                  Icons.trending_down,
+                  Colors.red,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildMinMaxCard(
+                  context,
+                  'Max Değer',
+                  '${latestData.maxValue.toStringAsFixed(2)}',
+                  channel,
+                  Icons.trending_up,
+                  Colors.orange,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMinMaxCard(
+    BuildContext context,
+    String title,
+    String value,
+    Channel channel,
+    IconData icon,
+    Color color,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: color.withOpacity(0.3),
+        ),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, size: 24, color: color),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 4),
+          FutureBuilder<String>(
+            future: channel.unit,
+            builder: (context, snapshot) {
+              return Text(
+                snapshot.data ?? 'Yükleniyor...',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: color.withOpacity(0.7),
+                  fontWeight: FontWeight.w500,
+                ),
+                textAlign: TextAlign.center,
+              );
+            },
+          ),
+          const SizedBox(height: 4),
+          Text(
+            title,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: color.withOpacity(0.8),
+              fontWeight: FontWeight.w500,
+            ),
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );

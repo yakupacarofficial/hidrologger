@@ -5,7 +5,9 @@
       "channel": 1,
       "value_type": 1,
       "value_timestamp": 1754742970,
-      "value": 150,
+      "value": 555,
+      "min_value": 333,
+      "max_value": 444,
       "battery_percentage": 100,
       "signal_strength": 100
     },
@@ -15,6 +17,8 @@
       "value_type": 1,
       "value_timestamp": 1754742970,
       "value": 32.5,
+      "min_value": 0,
+      "max_value": 32.5,
       "battery_percentage": 95,
       "signal_strength": 98
     },
@@ -24,6 +28,8 @@
       "value_type": 1,
       "value_timestamp": 1754742970,
       "value": 25.7,
+      "min_value": 25.7,
+      "max_value": 30.2,
       "battery_percentage": 90,
       "signal_strength": 95
     },
@@ -33,6 +39,8 @@
       "value_type": 1,
       "value_timestamp": 1754744489,
       "value": 0,
+      "min_value": 0,
+      "max_value": 32.5,
       "battery_percentage": 100,
       "signal_strength": 100
     },
@@ -42,6 +50,8 @@
       "value_type": 1,
       "value_timestamp": 1754745000,
       "value": 30.2,
+      "min_value": 25.7,
+      "max_value": 30.2,
       "battery_percentage": 92,
       "signal_strength": 97
     }
