@@ -104,14 +104,16 @@ class _LogScreenState extends State<LogScreen> {
         
         print('Formatlanmış log verisi: ${formattedData.length} kayıt');
       } else {
-        print('API\'den veri gelmedi veya başarısız, mock data kullanılıyor');
-        // API'den veri gelmezse mock data kullan
-        _logData = _generateMockData();
+        print('API\'den veri gelmedi veya başarısız');
+        setState(() {
+          _logData = [];
+        });
       }
     } catch (e) {
       print('Log verisi yükleme hatası: $e');
-      // Hata durumunda mock data kullan
-      _logData = _generateMockData();
+      setState(() {
+        _logData = [];
+      });
     } finally {
       setState(() {
         _isLoading = false;
@@ -119,26 +121,7 @@ class _LogScreenState extends State<LogScreen> {
     }
   }
 
-  List<Map<String, dynamic>> _generateMockData() {
-    final List<Map<String, dynamic>> data = [];
-    final now = DateTime.now();
-    
-    for (int i = 0; i < 20; i++) {
-      final timestamp = now.subtract(Duration(hours: i));
-      data.add({
-        'id': i + 1,
-        'timestamp': timestamp,
-        'value': 20 + (i * 0.5) + (i % 3 == 0 ? 2 : 0),
-        'min_value': 18.0 + (i * 0.3),
-        'max_value': 22.0 + (i * 0.4),
-        'quality': i % 5 == 0 ? 'uncertain' : (i % 7 == 0 ? 'bad' : 'good'),
-        'battery_percentage': 100 - (i * 2),
-        'signal_strength': 100 - (i * 1.5),
-      });
-    }
-    
-    return data.reversed.toList();
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -174,10 +157,32 @@ class _LogScreenState extends State<LogScreen> {
               child: _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : _logData.isEmpty
-                      ? const Center(
-                          child: Text(
-                            'Seçilen tarih aralığında log verisi bulunamadı.',
-                            style: TextStyle(fontSize: 16),
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.inbox_outlined,
+                                size: 64,
+                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Seçilen tarih aralığında log verisi bulunamadı',
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Farklı bir tarih aralığı seçin veya daha sonra tekrar deneyin',
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
                           ),
                         )
                       : SingleChildScrollView(
