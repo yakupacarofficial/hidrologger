@@ -22,16 +22,17 @@ class DataItem extends StatelessWidget {
         Row(
           children: [
             Icon(icon, color: color, size: 16),
-            const SizedBox(width: 4),
+            const SizedBox(width: 6),
             Text(
               label,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 3),
         Text(
           value,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(

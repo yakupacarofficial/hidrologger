@@ -343,7 +343,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: [
           // Üst Bilgi Kartları
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
             child: Row(
               children: [
                 Expanded(
@@ -354,7 +354,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     color: Colors.blue,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
                 Expanded(
                   child: InfoCard(
                     title: 'Veri Sayısı',
@@ -363,7 +363,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     color: Colors.green,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
                 Expanded(
                   child: InfoCard(
                     title: 'Son Güncelleme',
@@ -380,7 +380,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           
           // Station ve WiFi Bilgi Kartları
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
             child: Row(
               children: [
                 Expanded(
@@ -391,7 +391,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     color: Colors.purple,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
                 Expanded(
                   child: InfoCard(
                     title: 'Station Kodu',
@@ -400,7 +400,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     color: Colors.indigo,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
                 Expanded(
                   child: InfoCard(
                     title: 'WiFi IP',
@@ -415,7 +415,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           
           // Arama Kutusu
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
@@ -433,11 +433,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       )
                     : null,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(16),
                 ),
                 filled: true,
                 fillColor: Theme.of(context).colorScheme.surface,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               ),
               onChanged: (value) {
                 setState(() {
@@ -449,11 +449,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
           
           // Kanal Verileri Başlığı
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
             child: Row(
               children: [
-                const Icon(Icons.list, color: Colors.grey),
-                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.list,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 18,
+                  ),
+                ),
+                const SizedBox(width: 10),
                 Text(
                   'Kanal Verileri',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -461,12 +472,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
                 if (_searchQuery.isNotEmpty) ...[
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 12),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
                       'Arama: "$_searchQuery"',
@@ -549,7 +560,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       itemCount: filteredChannels.length,
       itemBuilder: (context, index) {
         final channel = filteredChannels[index];
@@ -557,7 +568,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         final latestData = data.isNotEmpty ? data.first : null;
 
         return Container(
-          margin: const EdgeInsets.only(bottom: 12),
+          margin: const EdgeInsets.only(bottom: 10),
           child: GestureDetector(
             onTap: () {
               Navigator.of(context).push(
@@ -574,12 +585,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
               _showAlarmOptions(channel);
             },
             child: Card(
-              elevation: 4,
+              elevation: 3,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(16),
               ),
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(14),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -588,8 +599,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
+                            color: Theme.of(context).colorScheme.primary.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(10),
                           ),
                           child: Icon(
                             Icons.sensors,
@@ -608,6 +619,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
+                              const SizedBox(height: 2),
                               Text(
                                 channel.description,
                                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -618,10 +630,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                         ),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(12),
+                            color: Theme.of(context).colorScheme.secondary.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(16),
                           ),
                           child: FutureBuilder<String>(
                             future: channel.category,
@@ -638,7 +650,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
                     if (latestData != null) ...[
                       Row(
                         children: [
@@ -655,7 +667,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               },
                             ),
                           ),
-                          const SizedBox(width: 16),
+                          const SizedBox(width: 12),
                           Expanded(
                             child: DataItem(
                               label: 'Kalite',
@@ -666,7 +678,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 6),
                       Row(
                         children: [
                           Expanded(
@@ -682,7 +694,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               },
                             ),
                           ),
-                          const SizedBox(width: 16),
+                          const SizedBox(width: 12),
                           Expanded(
                             child: FutureBuilder<String>(
                               future: channel.unit,

@@ -195,7 +195,7 @@ class _SplashScreenState extends State<SplashScreen>
                     child: Opacity(
                       opacity: _textAnimation.value,
                       child: Text(
-                        'Hydrological Monitoring System',
+                        'Versiyon 1.0.0',
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.grey.shade600,
