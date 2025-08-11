@@ -548,6 +548,32 @@ class RESTfulServer:
                     "error": str(e)
                 }), 500
 
+        @self.app.route('/api/station/info', methods=['GET'])
+        def get_station_info():
+            """İstasyon bilgilerini getir"""
+            try:
+                logger.info("İstasyon bilgileri istendi")
+                station_data = self.json_reader.get_station_data()
+                
+                if station_data and 'station' in station_data and station_data['station']:
+                    return jsonify({
+                        "success": True,
+                        "data": station_data,
+                        "timestamp": datetime.now().isoformat()
+                })
+                else:
+                    return jsonify({
+                        "success": False,
+                        "error": "İstasyon verisi bulunamadı"
+                    }), 404
+                    
+            except Exception as e:
+                logger.error(f"İstasyon bilgileri getirme hatası: {e}")
+                return jsonify({
+                    "success": False,
+                    "error": str(e)
+                }), 500
+
     def start_background_monitoring(self):
         """Background monitoring thread'ini başlat"""
         if not self.monitoring_active:

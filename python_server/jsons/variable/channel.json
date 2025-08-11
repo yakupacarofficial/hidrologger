@@ -1,0 +1,28 @@
+{
+  "channel": [
+    {
+      "id": 1,
+      "name": "TEST-1",
+      "description": "TEST-1-KANAL-ACIKLAMA",
+      "channel_category": 1,
+      "channel_sub_category": 1,
+      "channel_parameter": 1,
+      "measurement_unit": 1,
+      "value_type": 1,
+      "log_interval": 1000,
+      "offset": 12.4
+    },
+    {
+      "id": 2,
+      "name": "TEST-KANAL-2",
+      "description": "TEST KANAL 2 ACIKLAMA",
+      "channel_category": 4,
+      "channel_sub_category": 4,
+      "channel_parameter": 1,
+      "measurement_unit": 13,
+      "value_type": 1,
+      "log_interval": 1000,
+      "offset": 2
+    }
+  ]
+}

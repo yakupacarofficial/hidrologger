@@ -1033,3 +1033,20 @@ class JSONReader:
             logger.error(f"Variable data kaydetme hatası: {e}")
             logger.error(traceback.format_exc())
             return False
+
+    def get_station_data(self) -> Optional[Dict[str, Any]]:
+        """Station verilerini getir"""
+        try:
+            file_path = os.path.join(self.variable_path, "station.json")
+            station_data = self._read_json_file(file_path)
+            
+            if station_data is None or not station_data:
+                logger.warning("Station.json dosyası okunamadı veya boş")
+                return {"station": []}
+            
+            logger.info("Station verileri başarıyla getirildi")
+            return station_data
+            
+        except Exception as e:
+            logger.error(f"Station verileri getirme hatası: {e}")
+            return {"station": []}
