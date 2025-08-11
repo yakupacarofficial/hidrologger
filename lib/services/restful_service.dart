@@ -131,7 +131,7 @@ class RESTfulService {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (data['success'] == true) {
-          return data['data'];
+          return data;  // Tüm response'u döndür, sadece data kısmını değil
         } else {
           print('API başarısız: ${data['error']}');
         }

@@ -70,17 +70,32 @@ class _LogScreenState extends State<LogScreen> {
         endDate: endDateStr,
       );
 
+      print('Log data tipi: ${logData?.runtimeType}');
+      print('Log data success değeri: ${logData?['success']}');
+      print('Log data success tipi: ${logData?['success']?.runtimeType}');
+      
       if (logData != null && logData['success'] == true) {
         print('Log verisi alındı: $logData');
         final List<Map<String, dynamic>> formattedData = [];
+        
+        // API response yapısını kontrol et
+        print('Log data yapısı: ${logData.keys}');
+        print('Data key içeriği: ${logData['data']}');
+        
         final dataList = logData['data']?['data'] as List<dynamic>? ?? [];
+        
+        print('API\'den gelen data listesi: $dataList');
+        print('Data listesi uzunluğu: ${dataList.length}');
         
         for (var item in dataList) {
           try {
+            print('İşlenen item: $item');
             final timestamp = DateTime.tryParse(item['timestamp'] ?? '') ?? DateTime.now();
             final value = (item['value'] ?? 0.0);
             final minValue = (item['min_value'] ?? value);
             final maxValue = (item['max_value'] ?? value);
+            
+            print('Timestamp: $timestamp, Value: $value, Min: $minValue, Max: $maxValue');
             
             formattedData.add({
               'id': item['id'] ?? 0,
@@ -105,6 +120,7 @@ class _LogScreenState extends State<LogScreen> {
         print('Formatlanmış log verisi: ${formattedData.length} kayıt');
       } else {
         print('API\'den veri gelmedi veya başarısız');
+        print('Log data: $logData');
         setState(() {
           _logData = [];
         });
