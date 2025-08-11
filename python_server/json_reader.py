@@ -30,10 +30,6 @@ class JSONReader:
         self._initialize_file_tracking()
         
         logger.info("JSONReader başlatıldı")
-        logger.info(f"Constant klasörü: {self.constant_path}")
-        logger.info(f"Variable klasörü: {self.variable_path}")
-        logger.info(f"Alarm klasörü: {self.alarm_path}")
-        logger.info(f"Logsfile klasörü: {self.logsfile_path}")
     
     def _initialize_file_tracking(self):
         """Tüm JSON dosyalarının son değiştirilme zamanlarını kaydet"""
@@ -81,7 +77,7 @@ class JSONReader:
         
         try:
             files = [f for f in os.listdir(directory_path) if f.endswith('.json')]
-            logger.info(f"{category_name} klasöründe {len(files)} JSON dosyası bulundu")
+            logger.debug(f"{category_name} klasöründe {len(files)} JSON dosyası bulundu")
             
             for filename in files:
                 file_path = os.path.join(directory_path, filename)

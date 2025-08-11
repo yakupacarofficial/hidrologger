@@ -1,4 +1,3 @@
-import asyncio
 import json
 import logging
 import threading
@@ -67,23 +66,18 @@ class RESTfulServer:
                 
                 # Min/max değerleri hesapla ve güncelle
                 if variable_data and 'data' in variable_data and variable_data['data']:
-                    logger.info(f"Min/max hesaplama başlıyor. Data: {variable_data['data']}")
                     updated_data = []
                     for item in variable_data['data']:
                         channel_id = item.get('channel')
                         current_value = item.get('value', 0)
-                        logger.info(f"Kanal {channel_id} için işleniyor, current_value: {current_value}")
                         
                         # Logs.json'dan min/max değerleri al
                         logs_data = self.json_reader.get_log_data(channel_id)
-                        logger.info(f"Kanal {channel_id} için logs_data: {logs_data}")
                         if logs_data and 'data' in logs_data and logs_data['data']:
                             values = [log.get('value', 0) for log in logs_data['data']]
-                            logger.info(f"Kanal {channel_id} için values: {values}")
                             if values:
                                 min_value = min(values)
                                 max_value = max(values)
-                                logger.info(f"Kanal {channel_id} için min: {min_value}, max: {max_value}")
                             else:
                                 min_value = current_value
                                 max_value = current_value
@@ -96,7 +90,6 @@ class RESTfulServer:
                         updated_item['min_value'] = min_value
                         updated_item['max_value'] = max_value
                         updated_data.append(updated_item)
-                        logger.info(f"Güncellenmiş item: {updated_item}")
                     
                     # Güncellenmiş veriyi data.json'a kaydet
                     variable_data['data'] = updated_data
