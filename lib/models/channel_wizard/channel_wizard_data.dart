@@ -12,6 +12,9 @@ class ChannelWizardData {
 
   // Step 4: Kategori Seçimi
   String selectedCategory = '';
+  
+  // Step 4.5: Sub Kategori Seçimi
+  int? channelSubCategory;
 
   // Step 5: Birim Seçimi
   Map<String, String> selectedUnits = {}; // WAT -> °C, WAP -> bar, EC -> μS/cm
@@ -31,6 +34,8 @@ class ChannelWizardData {
   
   bool get isStep4Valid => selectedCategory.isNotEmpty;
   
+  bool get isStep4SubCategoryValid => channelSubCategory != null;
+  
   bool get isStep5Valid => selectedUnits.length == selectedMeasurements.length;
   
   bool get isStep6Valid => true; // Offset her zaman geçerli
@@ -45,6 +50,7 @@ class ChannelWizardData {
     selectedSensor = 'TPEC 3 Parametreli Sensör';
     selectedMeasurements.clear();
     selectedCategory = '';
+    channelSubCategory = null;
     selectedUnits.clear();
     offsetValue = 0.0;
     alarmSettings.clear();
@@ -58,6 +64,7 @@ class ChannelWizardData {
     String? selectedSensor,
     List<String>? selectedMeasurements,
     String? selectedCategory,
+    int? channelSubCategory,
     Map<String, String>? selectedUnits,
     double? offsetValue,
     Map<String, Map<String, double>>? alarmSettings,
@@ -69,6 +76,7 @@ class ChannelWizardData {
       ..selectedSensor = selectedSensor ?? this.selectedSensor
       ..selectedMeasurements = selectedMeasurements ?? this.selectedMeasurements
       ..selectedCategory = selectedCategory ?? this.selectedCategory
+      ..channelSubCategory = channelSubCategory ?? this.channelSubCategory
       ..selectedUnits = selectedUnits ?? this.selectedUnits
       ..offsetValue = offsetValue ?? this.offsetValue
       ..alarmSettings = alarmSettings ?? this.alarmSettings;

@@ -4,6 +4,7 @@ import 'steps/step1_basic_info.dart';
 import 'steps/step2_sensor_selection.dart';
 import 'steps/step3_measurement_selection.dart';
 import 'steps/step4_category_selection.dart';
+import 'steps/step4_sub_category_selection.dart';
 import 'steps/step5_unit_selection.dart';
 import 'steps/step6_offset_input.dart';
 import 'steps/step7_alarm_settings.dart';
@@ -52,6 +53,11 @@ class _ChannelWizardScreenState extends State<ChannelWizardScreen> {
         onBack: _previousStep,
       ),
       Step4CategorySelection(
+        wizardData: _wizardData,
+        onNext: _nextStep,
+        onBack: _previousStep,
+      ),
+      Step4SubCategorySelection(
         wizardData: _wizardData,
         onNext: _nextStep,
         onBack: _previousStep,
