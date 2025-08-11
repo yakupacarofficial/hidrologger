@@ -17,6 +17,20 @@
           "value": 155,
           "min_value": 152,
           "max_value": 24424.2
+        },
+        {
+          "id": 3,
+          "timestamp": "2025-07-18T12:00:00Z",
+          "value": 100,
+          "min_value": 95,
+          "max_value": 105
+        },
+        {
+          "id": 4,
+          "timestamp": "2025-07-17T15:30:00Z",
+          "value": 85,
+          "min_value": 80,
+          "max_value": 90
         }
       ]
     },

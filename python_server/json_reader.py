@@ -2,7 +2,7 @@ import json
 import os
 import logging
 from typing import Dict, List, Any, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 import traceback
 import time
 
@@ -694,28 +694,49 @@ class JSONReader:
             
             # Tarih filtreleme
             if start_date or end_date:
+                logger.info(f"Tarih filtreleme başlıyor - Başlangıç: {start_date}, Bitiş: {end_date}")
+                logger.info(f"Filtreleme öncesi log sayısı: {len(channel_logs.get('data', []))}")
+                
                 filtered_data = []
                 for log_entry in channel_logs.get('data', []):
                     log_timestamp = log_entry.get('timestamp', '')
+                    logger.info(f"Log entry timestamp: {log_timestamp}")
                     
                     try:
                         # Timestamp'i datetime objesine çevir
                         if log_timestamp:
                             log_dt = datetime.fromisoformat(log_timestamp.replace('Z', '+00:00'))
+                            logger.info(f"Parse edilen log_dt: {log_dt}")
                             
                             # Başlangıç tarihi kontrolü
                             if start_date:
                                 start_dt = datetime.fromisoformat(start_date.replace('Z', '+00:00'))
+                                # Eğer start_dt offset-naive ise, UTC olarak kabul et
+                                if start_dt.tzinfo is None:
+                                    start_dt = start_dt.replace(tzinfo=timezone.utc)
+                                logger.info(f"Başlangıç tarihi: {start_dt}")
                                 if log_dt < start_dt:
+                                    logger.info(f"Log tarihi {log_dt} başlangıç tarihinden {start_dt} küçük, atlanıyor")
                                     continue
                             
                             # Bitiş tarihi kontrolü
                             if end_date:
                                 end_dt = datetime.fromisoformat(end_date.replace('Z', '+00:00'))
+                                # Eğer end_dt offset-naive ise, UTC olarak kabul et
+                                if end_dt.tzinfo is None:
+                                    end_dt = end_dt.replace(tzinfo=timezone.utc)
+                                logger.info(f"Bitiş tarihi: {end_dt}")
                                 if log_dt > end_dt:
+                                    logger.info(f"Log tarihi {log_dt} bitiş tarihinden {end_dt} büyük, atlanıyor")
                                     continue
-                        
-                        filtered_data.append(log_entry)
+                            
+                            # Tüm kontrolleri geçti, veriyi ekle
+                            logger.info(f"Log entry filtrelendi ve eklendi: {log_entry}")
+                            filtered_data.append(log_entry)
+                        else:
+                            # Timestamp yoksa veriyi ekle
+                            logger.info(f"Timestamp yok, log entry eklendi: {log_entry}")
+                            filtered_data.append(log_entry)
                         
                     except Exception as e:
                         logger.warning(f"Timestamp parse hatası: {log_timestamp} - {e}")

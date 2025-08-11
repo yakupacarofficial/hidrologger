@@ -43,11 +43,17 @@ class _LogScreenState extends State<LogScreen> {
   }
 
   void _onDateRangeChanged(String range, DateTime? start, DateTime? end) {
+    print('Tarih aralığı değişti: $range');
+    print('Eski tarihler: $_startDate - $_endDate');
+    print('Yeni tarihler: $start - $end');
+    
     setState(() {
       _selectedDateRange = range;
       if (start != null) _startDate = start;
       if (end != null) _endDate = end;
     });
+    
+    print('State güncellendi. Yeni tarihler: $_startDate - $_endDate');
     _loadLogData();
   }
 
