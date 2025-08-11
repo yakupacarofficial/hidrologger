@@ -1,26 +1,3 @@
 {
-  "data": [
-    {
-      "id": 1,
-      "channel": 1,
-      "value_type": 1,
-      "value_timestamp": 1754917919,
-      "value": 15,
-      "min_value": 14,
-      "max_value": 15,
-      "battery_percentage": 100,
-      "signal_strength": 100
-    },
-    {
-      "id": 2,
-      "channel": 2,
-      "value_type": 1,
-      "value_timestamp": 1754917998,
-      "value": 22,
-      "min_value": 11,
-      "max_value": 22,
-      "battery_percentage": 100,
-      "signal_strength": 100
-    }
-  ]
+  "data": []
 }

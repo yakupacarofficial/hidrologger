@@ -17,6 +17,7 @@ class JSONReader:
         self.base_path = base_path
         self.constant_path = os.path.join(base_path, "constant")
         self.variable_path = os.path.join(base_path, "variable")
+        self.semi_variable_path = os.path.join(base_path, "semi-variable")
         self.alarm_path = os.path.join(base_path, "alarm")
         self.logsfile_path = os.path.join(base_path, "logsfile")
         
@@ -33,7 +34,7 @@ class JSONReader:
     
     def _initialize_file_tracking(self):
         """Tüm JSON dosyalarının son değiştirilme zamanlarını kaydet"""
-        for folder_path in [self.constant_path, self.variable_path, self.alarm_path, self.logsfile_path]:
+        for folder_path in [self.constant_path, self.variable_path, self.semi_variable_path, self.alarm_path, self.logsfile_path]:
             if os.path.exists(folder_path):
                 for filename in os.listdir(folder_path):
                     if filename.endswith('.json'):
@@ -1033,7 +1034,7 @@ class JSONReader:
     def get_station_data(self) -> Optional[Dict[str, Any]]:
         """Station verilerini getir"""
         try:
-            file_path = os.path.join(self.variable_path, "station.json")
+            file_path = os.path.join(self.semi_variable_path, "station.json")
             station_data = self._read_json_file(file_path)
             
             if station_data is None or not station_data:
@@ -1046,3 +1047,45 @@ class JSONReader:
         except Exception as e:
             logger.error(f"Station verileri getirme hatası: {e}")
             return {"station": []}
+
+    def get_semi_variable_data(self) -> Optional[Dict[str, Any]]:
+        """Semi-variable klasöründeki tüm verileri getir"""
+        try:
+            return self._read_directory_files(self.semi_variable_path, "semi-variable")
+        except Exception as e:
+            logger.error(f"Semi-variable veri getirme hatası: {e}")
+            return {}
+
+    def get_data_json_data(self) -> Optional[Dict[str, Any]]:
+        """Data.json dosyasındaki verileri getir"""
+        try:
+            file_path = os.path.join(self.variable_path, "data.json")
+            data = self._read_json_file(file_path)
+            
+            if data is None or not data:
+                logger.warning("Data.json dosyası okunamadı veya boş")
+                return {"data": []}
+            
+            logger.info("Data.json verileri başarıyla getirildi")
+            return data
+            
+        except Exception as e:
+            logger.error(f"Data.json veri getirme hatası: {e}")
+            return {"data": []}
+
+    def get_channel_json_data(self) -> Optional[Dict[str, Any]]:
+        """Channel.json dosyasındaki verileri getir"""
+        try:
+            file_path = os.path.join(self.variable_path, "channel.json")
+            data = self._read_json_file(file_path)
+            
+            if data is None or not data:
+                logger.warning("Channel.json dosyası okunamadı veya boş")
+                return {"channel": []}
+            
+            logger.info("Channel.json verileri başarıyla getirildi")
+            return data
+            
+        except Exception as e:
+            logger.error(f"Channel.json veri getirme hatası: {e}")
+            return {"channel": []}

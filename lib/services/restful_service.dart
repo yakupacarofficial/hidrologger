@@ -32,54 +32,98 @@ class RESTfulService {
     }
   }
 
-  /// Tüm verileri getir
+  /// Tüm verileri getir (yeni endpoint'lerden birleştirilmiş)
   Future<ChannelData?> fetchAllData() async {
     try {
-      final response = await http.get(
-        Uri.parse('$_baseUrl/data'),
+      // Yeni endpoint'lerden veri çek
+      final dataResponse = await http.get(
+        Uri.parse('$_baseUrl/data/data'),
         headers: {'Content-Type': 'application/json'},
       ).timeout(const Duration(seconds: 10));
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data['success'] == true) {
-          // Boş veri durumunu handle et
-          final responseData = data['data'];
-          if (responseData == null) {
-            // Boş veri durumunda varsayılan ChannelData oluştur
-            final emptyChannelData = ChannelData(
-              timestamp: DateTime.now().toIso8601String(),
-              variable: {},
-              alarm: {},
-            );
-            _dataController.add(emptyChannelData);
-            return emptyChannelData;
-          }
+      final channelResponse = await http.get(
+        Uri.parse('$_baseUrl/data/channel'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(const Duration(seconds: 10));
+
+      final alarmResponse = await http.get(
+        Uri.parse('$_baseUrl/data/alarm'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(const Duration(seconds: 10));
+
+      if (dataResponse.statusCode == 200 && 
+          channelResponse.statusCode == 200 && 
+          alarmResponse.statusCode == 200) {
+        
+        final dataData = json.decode(dataResponse.body);
+        final channelData = json.decode(channelResponse.body);
+        final alarmData = json.decode(alarmResponse.body);
+        
+        if (dataData['success'] == true && 
+            channelData['success'] == true && 
+            alarmData['success'] == true) {
           
-          final channelData = ChannelData.fromJson(responseData);
-          _dataController.add(channelData);
-          return channelData;
+          // Eski format ile uyumlu olacak şekilde birleştir
+          final combinedData = {
+            'timestamp': DateTime.now().toIso8601String(),
+            'variable': {
+              'data': dataData['data']['data'],
+              'channel': channelData['data']['channel'],
+            },
+            'alarm': alarmData['data'],
+          };
+          
+          final channelDataObj = ChannelData.fromJson(combinedData);
+          _dataController.add(channelDataObj);
+          return channelDataObj;
         }
       }
-      return null;
+      
+      // Hata durumunda boş veri döndür
+      final emptyChannelData = ChannelData(
+        timestamp: DateTime.now().toIso8601String(),
+        variable: {},
+        alarm: {},
+      );
+      _dataController.add(emptyChannelData);
+      return emptyChannelData;
+      
     } catch (e) {
       // Veri getirme hatası
-      return null;
+      final emptyChannelData = ChannelData(
+        timestamp: DateTime.now().toIso8601String(),
+        variable: {},
+        alarm: {},
+      );
+      _dataController.add(emptyChannelData);
+      return emptyChannelData;
     }
   }
 
-  /// Değişken verileri getir
+  /// Değişken verileri getir (data.json + channel.json birleştirilmiş)
   Future<Map<String, dynamic>?> fetchVariableData() async {
     try {
-      final response = await http.get(
-        Uri.parse('$_baseUrl/data/variable'),
+      // Yeni endpoint'lerden veri çek
+      final dataResponse = await http.get(
+        Uri.parse('$_baseUrl/data/data'),
         headers: {'Content-Type': 'application/json'},
       ).timeout(const Duration(seconds: 10));
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data['success'] == true) {
-          return data['data'];
+      final channelResponse = await http.get(
+        Uri.parse('$_baseUrl/data/channel'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(const Duration(seconds: 10));
+
+      if (dataResponse.statusCode == 200 && channelResponse.statusCode == 200) {
+        final dataData = json.decode(dataResponse.body);
+        final channelData = json.decode(channelResponse.body);
+        
+        if (dataData['success'] == true && channelData['success'] == true) {
+          // Eski format ile uyumlu olacak şekilde birleştir
+          return {
+            'data': dataData['data']['data'],
+            'channel': channelData['data']['channel'],
+          };
         }
       }
       return null;
@@ -275,6 +319,69 @@ class RESTfulService {
       return null;
     } catch (e) {
       // Sunucu bilgi getirme hatası
+      return null;
+    }
+  }
+
+  /// Sadece data.json verilerini getir
+  Future<Map<String, dynamic>?> fetchDataJsonData() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/data/data'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['success'] == true) {
+          return data['data'];
+        }
+      }
+      return null;
+    } catch (e) {
+      // Data.json veri getirme hatası
+      return null;
+    }
+  }
+
+  /// Sadece channel.json verilerini getir
+  Future<Map<String, dynamic>?> fetchChannelJsonData() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/data/channel'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['success'] == true) {
+          return data['data'];
+        }
+      }
+      return null;
+    } catch (e) {
+      // Channel.json veri getirme hatası
+      return null;
+    }
+  }
+
+  /// İstasyon bilgilerini getir
+  Future<Map<String, dynamic>?> fetchStationInfo() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/station/info'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['success'] == true) {
+          return data['data'];
+        }
+      }
+      return null;
+    } catch (e) {
+      // İstasyon bilgi getirme hatası
       return null;
     }
   }

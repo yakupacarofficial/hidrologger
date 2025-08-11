@@ -107,6 +107,44 @@ class RESTfulServer:
                     "success": False,
                     "error": str(e)
                 }), 500
+
+        @self.app.route('/api/data/data', methods=['GET'])
+        def get_data_json_data():
+            """Data.json dosyasındaki verileri getir"""
+            try:
+                logger.info("Data.json verileri istendi")
+                data_json_data = self.json_reader.get_data_json_data()
+                
+                return jsonify({
+                    "success": True,
+                    "data": data_json_data,
+                    "timestamp": datetime.now().isoformat()
+                })
+            except Exception as e:
+                logger.error(f"Data.json veri getirme hatası: {e}")
+                return jsonify({
+                    "success": False,
+                    "error": str(e)
+                }), 500
+
+        @self.app.route('/api/data/channel', methods=['GET'])
+        def get_channel_json_data():
+            """Channel.json dosyasındaki verileri getir"""
+            try:
+                logger.info("Channel.json verileri istendi")
+                channel_json_data = self.json_reader.get_channel_json_data()
+                
+                return jsonify({
+                    "success": True,
+                    "data": channel_json_data,
+                    "timestamp": datetime.now().isoformat()
+                })
+            except Exception as e:
+                logger.error(f"Channel.json veri getirme hatası: {e}")
+                return jsonify({
+                    "success": False,
+                    "error": str(e)
+                }), 500
         
         @self.app.route('/api/data/alarm', methods=['GET'])
         def get_alarm_data():
@@ -553,7 +591,7 @@ class RESTfulServer:
                         "success": True,
                         "data": station_data,
                         "timestamp": datetime.now().isoformat()
-                })
+                    })
                 else:
                     return jsonify({
                         "success": False,
@@ -562,6 +600,26 @@ class RESTfulServer:
                     
             except Exception as e:
                 logger.error(f"İstasyon bilgileri getirme hatası: {e}")
+                return jsonify({
+                    "success": False,
+                    "error": str(e)
+                }), 500
+
+        @self.app.route('/api/semi-variable', methods=['GET'])
+        def get_semi_variable_data():
+            """Semi-variable verilerini getir"""
+            try:
+                logger.info("Semi-variable verileri istendi")
+                semi_variable_data = self.json_reader.get_semi_variable_data()
+                
+                return jsonify({
+                    "success": True,
+                    "data": semi_variable_data,
+                    "timestamp": datetime.now().isoformat()
+                })
+                    
+            except Exception as e:
+                logger.error(f"Semi-variable veri getirme hatası: {e}")
                 return jsonify({
                     "success": False,
                     "error": str(e)
