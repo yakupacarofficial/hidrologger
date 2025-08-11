@@ -1,6 +1,6 @@
-# Hidrologger Flutter Uygulaması
+# Hidrolink - Hidrolojik İzleme Sistemi
 
-Bu proje, hidrolojik sensör verilerini izleyen ve yöneten modern bir Flutter mobil uygulamasıdır. Python RESTful API sunucusu ile entegre çalışarak gerçek zamanlı veri izleme, alarm yönetimi ve veri analizi özelliklerini sunar.
+Bu proje, hidrolojik sensör verilerini izleyen ve yöneten modern bir Flutter mobil uygulamasıdır. Python RESTful API sunucusu ile entegre çalışarak gerçek zamanlı veri izleme, alarm yönetimi, log kayıtları ve veri analizi özelliklerini sunar.
 
 ## 📋 İçindekiler
 
@@ -10,6 +10,7 @@ Bu proje, hidrolojik sensör verilerini izleyen ve yöneten modern bir Flutter m
 - [Kullanım](#kullanım)
 - [Ekranlar](#ekranlar)
 - [API Entegrasyonu](#api-entegrasyonu)
+- [Log Sistemi](#log-sistemi)
 - [Alarm Sistemi](#alarm-sistemi)
 - [Veri Yönetimi](#veri-yönetimi)
 - [Geliştirme](#geliştirme)
@@ -18,15 +19,17 @@ Bu proje, hidrolojik sensör verilerini izleyen ve yöneten modern bir Flutter m
 
 ## 🌟 Genel Bakış
 
-Hidrologger Flutter uygulaması, hidrolojik sensörlerden gelen verileri gerçek zamanlı olarak izleyen, alarm yönetimi yapan ve veri analizi sunan kapsamlı bir mobil uygulamadır. Python RESTful API sunucusu ile entegre çalışarak güvenilir ve hızlı veri iletişimi sağlar.
+Hidrolink Flutter uygulaması, hidrolojik sensörlerden gelen verileri gerçek zamanlı olarak izleyen, alarm yönetimi yapan, log kayıtları tutan ve veri analizi sunan kapsamlı bir mobil uygulamadır. Python RESTful API sunucusu ile entegre çalışarak güvenilir ve hızlı veri iletişimi sağlar.
 
 ### 🎯 Ana Amaçlar
 
 - **Gerçek Zamanlı İzleme**: Sensör verilerini anlık takip
 - **Alarm Yönetimi**: Dinamik alarm kurma ve düzenleme
-- **Veri Analizi**: Kanal bazlı veri analizi
+- **Log Kayıtları**: Tarih bazlı veri geçmişi ve grafik analizi
+- **Veri Analizi**: Kanal bazlı veri analizi (min/max değerler)
 - **Çoklu Platform**: Android ve iOS desteği
 - **Ağ Uyumluluğu**: WiFi üzerinden otomatik bağlantı
+- **Splash Screen**: Animasyonlu açılış ekranı
 
 ## ✨ Özellikler
 
@@ -35,24 +38,40 @@ Hidrologger Flutter uygulaması, hidrolojik sensörlerden gelen verileri gerçek
 - **Cross-Platform**: Android ve iOS desteği
 - **Responsive Design**: Tüm ekran boyutlarına uyum
 - **Material Design**: Modern kullanıcı arayüzü
+- **Animasyonlar**: Smooth geçişler ve animasyonlar
 
 ### 🔄 RESTful API Entegrasyonu
 - **HTTP İletişimi**: RESTful API ile veri alışverişi
 - **Otomatik Bağlantı**: Ağ tarama ile sunucu bulma
 - **Polling Sistemi**: Periyodik veri güncelleme
 - **Hata Yönetimi**: Bağlantı sorunlarında otomatik yeniden deneme
+- **Background Monitoring**: Arka planda sürekli veri izleme
+
+### 📊 Log Sistemi
+- **Tarih Bazlı Filtreleme**: Bugün, Son 24 Saat, Son 7 Gün, Son 1 Ay, Custom
+- **Grafik Görünümü**: Veri trendlerini görselleştirme
+- **Tablo Görünümü**: Detaylı log kayıtları
+- **Min/Max Değerler**: Her kayıt için minimum ve maksimum değerler
+- **Otomatik Loglama**: Veri değişikliklerinde otomatik kayıt
 
 ### 🚨 Alarm Sistemi
 - **Dinamik Alarmlar**: Kullanıcı tanımlı alarm kuralları
 - **Renk Kodlaması**: Görsel alarm gösterimi
 - **Alarm Bilgileri**: Açıklayıcı alarm mesajları
 - **Edit/Silme**: Alarm düzenleme ve silme
+- **Çoklu Alarm**: Her kanal için birden fazla alarm
 
 ### 📊 Veri Yönetimi
 - **Yerel JSON**: Sabit verilerin yerel yönetimi
 - **Gerçek Zamanlı**: Canlı sensör verileri
 - **Kanal Detayları**: Detaylı kanal bilgileri
 - **Veri Geçmişi**: Kanal bazlı veri geçmişi
+- **Min/Max Hesaplama**: Otomatik minimum ve maksimum değer hesaplama
+
+### 🌐 Ağ ve Sistem Bilgileri
+- **WiFi IP Adresi**: Bağlı olduğunuz ağın IP adresi
+- **İstasyon Bilgileri**: İstasyon adı ve kodu
+- **Bağlantı Durumu**: Sunucu bağlantı durumu
 
 ## 🛠️ Kurulum
 
@@ -61,7 +80,7 @@ Hidrologger Flutter uygulaması, hidrolojik sensörlerden gelen verileri gerçek
 - Flutter SDK 3.8+
 - Dart 3.0+
 - Android Studio / Xcode
-- Python Server (Hidrologger Backend)
+- Python Server (Hidrolink Backend)
 
 ### Adım Adım Kurulum
 
@@ -85,7 +104,14 @@ Hidrologger Flutter uygulaması, hidrolojik sensörlerden gelen verileri gerçek
    flutter pub get
    ```
 
-4. **Uygulamayı Çalıştırma**
+4. **Python Server Kurulumu**
+   ```bash
+   cd python_server
+   pip3 install -r requirements.txt
+   python3 server.py
+   ```
+
+5. **Uygulamayı Çalıştırma**
    ```bash
    # Web için
    flutter run -d chrome
@@ -104,6 +130,8 @@ Hidrologger Flutter uygulaması, hidrolojik sensörlerden gelen verileri gerçek
 git clone https://github.com/yakupacarofficial/hidrologger.git && \
 cd hidrologger && \
 flutter pub get && \
+cd python_server && \
+python3 server.py &
 flutter run -d chrome
 ```
 
@@ -111,10 +139,10 @@ flutter run -d chrome
 
 ### İlk Kurulum
 
-1. **Uygulamayı Açın**: Hidrologger uygulamasını başlatın
-2. **Ağ Taraması**: Otomatik sunucu arama
-3. **Bağlantı**: Bulunan sunucuya bağlanın
-4. **Dashboard**: Ana ekrana yönlendirme
+1. **Splash Screen**: Animasyonlu açılış ekranı
+2. **Bağlantı Ekranı**: Otomatik sunucu arama
+3. **Dashboard**: Ana ekrana yönlendirme
+4. **Veri İzleme**: Gerçek zamanlı sensör verileri
 
 ### Sunucu Bağlantısı
 
@@ -133,9 +161,23 @@ flutter run -d chrome
 1. **Dashboard**: Ana ekranda tüm kanalları görün
 2. **Kanal Detayı**: Kanal kartına tıklayın
 3. **Gerçek Zamanlı**: Canlı veri akışını izleyin
-4. **Geçmiş Veri**: Veri geçmişini görüntüleyin
+4. **Log Kayıtları**: Tarih bazlı veri geçmişi
+5. **Grafik Analizi**: Veri trendlerini görselleştirin
+
+### Log Sistemi Kullanımı
+
+1. **Kanal Detayına Gidin**: Herhangi bir kanalı seçin
+2. **LOG KAYITLARI Butonu**: Ekranın altında bulunur
+3. **Tarih Seçimi**: Önceden tanımlı aralıklar veya custom
+4. **Grafik Görünümü**: Veri trendlerini inceleyin
+5. **Tablo Görünümü**: Detaylı kayıtları görüntüleyin
 
 ## 📱 Ekranlar
+
+### 🎬 Splash Screen
+- **Animasyonlu Logo**: Scale ve fade animasyonları
+- **Hidro Link Yazısı**: Slide ve color animasyonları
+- **Otomatik Geçiş**: 3 saniye sonra bağlantı ekranına
 
 ### 🔗 Bağlantı Ekranı (ConnectionScreen)
 - **Ağ Tarama**: Otomatik sunucu bulma
@@ -144,16 +186,26 @@ flutter run -d chrome
 - **Durum Gösterimi**: Bağlantı durumu
 
 ### 📊 Dashboard Ekranı (DashboardScreen)
+- **Üst Bilgi Kartları**: Toplam kanal, aktif kanal, toplam alarm
+- **İstasyon Bilgileri**: İstasyon adı, kodu ve WiFi IP adresi
 - **Kanal Listesi**: Tüm kanalların görünümü
-- **Gerçek Zamanlı Veri**: Canlı sensör verileri
+- **Gerçek Zamanlı Veri**: Canlı sensör verileri (değer, min, max)
 - **Arama**: Kanal ismine göre filtreleme
-- **Alarm Yönetimi**: Alarm ekranına erişim
+- **Responsive Tasarım**: Klavye açıldığında uyumlu layout
 
 ### 🔍 Kanal Detay Ekranı (ChannelDetailScreen)
 - **Kanal Bilgileri**: Detaylı kanal özellikleri
-- **Veri Geçmişi**: Kanal veri geçmişi
+- **Veri Gösterimi**: Mevcut değer, minimum, maksimum
 - **Düzenleme**: Log interval ve offset düzenleme
 - **Gerçek Zamanlı**: Canlı veri akışı
+- **LOG KAYITLARI**: Log ekranına erişim
+
+### 📈 Log Ekranı (LogScreen)
+- **Tarih Seçimi**: Bugün, Son 24 Saat, Son 7 Gün, Son 1 Ay, Custom
+- **Grafik Görünümü**: Veri trendlerini görselleştirme
+- **Tablo Görünümü**: Detaylı log kayıtları
+- **Filtreleme**: Tarih bazlı veri filtreleme
+- **Responsive**: Tüm ekran boyutlarına uyum
 
 ### 🚨 Alarm Yönetim Ekranı (AlarmManagementScreen)
 - **Alarm Ekleme**: Yeni alarm kurma
@@ -180,6 +232,10 @@ class RESTfulService {
   // Veri alma
   Future<ChannelData?> fetchAllData()
   
+  // Log verileri
+  Future<Map<String, dynamic>?> fetchLogData(int channelId, {String? startDate, String? endDate})
+  Future<bool> saveLogData(int channelId, Map<String, dynamic> logData)
+  
   // Alarm yönetimi
   Future<Map<String, dynamic>?> fetchAlarmData()
   Future<bool> saveAlarmData(Map<String, dynamic> alarmData)
@@ -192,10 +248,13 @@ class RESTfulService {
 ### Endpoint'ler
 - `GET /api/health` - Sunucu durumu
 - `GET /api/data` - Tüm veriler
-- `GET /api/data/variable` - Değişken veriler
+- `GET /api/data/variable` - Değişken veriler (min/max dahil)
 - `GET /api/data/alarm` - Alarm verileri
 - `POST /api/data/alarm` - Alarm kaydetme
 - `PUT /api/channel/{id}` - Kanal güncelleme
+- `GET /api/logs/{channelId}` - Log verileri (tarih filtreli)
+- `POST /api/logs/{channelId}` - Log kaydetme
+- `GET /api/monitoring/status` - Monitoring durumu
 
 ### Ağ Tarama
 ```dart
@@ -208,6 +267,39 @@ Future<void> _scanNetwork()
 // Test IP'leri
 List<String> _generateTestIPs(String subnet)
 ```
+
+## 📊 Log Sistemi
+
+### Tarih Filtreleme
+- **Bugün**: Günün başından şu ana kadar
+- **Son 24 Saat**: Son 24 saat
+- **Son 7 Gün**: Son 7 gün
+- **Son 1 Ay**: Son 1 ay
+- **Custom**: Kullanıcı tanımlı tarih aralığı
+
+### Log Veri Yapısı
+```dart
+class LogEntry {
+  final int id;
+  final DateTime timestamp;
+  final double value;
+  final double minValue;
+  final double maxValue;
+  final String quality;
+  final int batteryPercentage;
+  final int signalStrength;
+}
+```
+
+### Grafik Görünümü
+- **Line Chart**: Veri trendlerini gösterir
+- **Responsive**: Ekran boyutuna uyum sağlar
+- **Hata Yönetimi**: Veri yoksa uygun mesaj gösterir
+
+### Tablo Görünümü
+- **Liste Formatı**: Tüm log kayıtları
+- **Sıralama**: Tarih bazlı sıralama
+- **Detaylar**: Her kayıt için tüm bilgiler
 
 ## 🚨 Alarm Sistemi
 
@@ -232,6 +324,7 @@ class AlarmParameter {
 - **Renk Seçimi**: 10 farklı renk seçeneği
 - **Alarm Bilgisi**: Açıklayıcı mesaj
 - **Veri Sıklığı**: Gönderme aralığı ayarı
+- **Çoklu Alarm**: Her kanal için birden fazla alarm
 
 ### Renk Kodları
 - `#FF0000` - Kırmızı
@@ -292,8 +385,21 @@ class Channel {
 class VariableData {
   final int channelId;
   final double value;
+  final double minValue;
+  final double maxValue;
   final int valueTimestamp;
   // ... diğer özellikler
+}
+```
+
+### StationService
+```dart
+class StationService {
+  // İstasyon bilgilerini yükle
+  static Future<Map<String, dynamic>?> getStationInfo()
+  
+  // WiFi IP adresini al
+  static Future<String?> getWiFiIPAddress()
 }
 ```
 
@@ -302,21 +408,28 @@ class VariableData {
 ### Proje Yapısı
 ```
 lib/
-├── main.dart                    # Ana uygulama
+├── main.dart                    # Ana uygulama (HidrolinkApp)
 ├── models/                      # Veri modelleri
-│   └── channel_data.dart
+│   └── channel_data.dart       # Min/max değerler dahil
 ├── services/                    # Servisler
-│   ├── restful_service.dart
-│   └── constant_data_service.dart
+│   ├── restful_service.dart    # API iletişimi
+│   ├── constant_data_service.dart
+│   └── station_service.dart    # İstasyon ve WiFi bilgileri
 ├── screens/                     # Ekranlar
+│   ├── splash_screen.dart      # Animasyonlu açılış
 │   ├── connection_screen.dart
-│   ├── dashboard_screen.dart
+│   ├── dashboard_screen.dart   # Responsive tasarım
 │   ├── channel_detail_screen.dart
 │   ├── alarm_management_screen.dart
-│   └── constant_data_screen.dart
+│   ├── constant_data_screen.dart
+│   └── logs/                   # Log sistemi
+│       ├── log_screen.dart
+│       ├── date_selection_widget.dart
+│       ├── log_chart_widget.dart
+│       └── log_table_widget.dart
 ├── widgets/                     # Widget'lar
-│   ├── info_card.dart
-│   ├── data_item.dart
+│   ├── info_card.dart          # Güncellenmiş tasarım
+│   ├── data_item.dart          # Min/max değerler
 │   └── connection_status_badge.dart
 └── jsons_flutter/              # Yerel JSON dosyaları
     └── constant/
@@ -431,6 +544,11 @@ flutter doctor
 ls -la lib/jsons_flutter/constant/
 ```
 
+#### 5. Log Verisi Görünmüyor
+- Python server'ın çalıştığından emin olun
+- `logs.json` dosyasında veri olduğunu kontrol edin
+- Tarih filtreleme parametrelerini kontrol edin
+
 ### Debug Modu
 ```dart
 // Debug print'leri
@@ -449,15 +567,15 @@ try {
 // Detaylı loglar için
 import 'dart:developer' as developer;
 
-developer.log('Detaylı log mesajı', name: 'Hidrologger');
+developer.log('Detaylı log mesajı', name: 'Hidrolink');
 ```
 
 ## 📞 Destek
 
 ### İletişim
-- **Geliştirici**: Hidrologger AKIM ELEKTRONIK
+- **Geliştirici**: Hidrolink AKIM ELEKTRONIK
 - **Versiyon**: 1.0.0
-- **Son Güncelleme**: 2025-08-05
+- **Son Güncelleme**: 2025-08-11
 
 ### Teknik Detaylar
 - **Framework**: Flutter 3.8+
@@ -472,6 +590,16 @@ developer.log('Detaylı log mesajı', name: 'Hidrologger');
 - **Web**: Modern tarayıcılar
 - **Sunucu**: Python Flask RESTful API
 
+### Bağımlılıklar
+```yaml
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.1.0
+  intl: ^0.19.0
+  network_info_plus: ^4.1.0
+```
+
 ---
 
-**Not**: Bu uygulama, Hidrologger Python Server ile birlikte çalışmak üzere tasarlanmıştır.
+**Not**: Bu uygulama, Hidrolink Python Server ile birlikte çalışmak üzere tasarlanmıştır. Tüm özellikler için Python server'ın çalışır durumda olması gereklidir.
