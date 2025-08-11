@@ -11,6 +11,18 @@
       "value_type": 1,
       "log_interval": 1000,
       "offset": 12.4
+    },
+    {
+      "id": 2,
+      "name": "TEST2",
+      "description": "test acıklama 2",
+      "channel_category": 1,
+      "channel_sub_category": 1,
+      "channel_parameter": 1,
+      "measurement_unit": 3,
+      "value_type": 1,
+      "log_interval": 1000,
+      "offset": 5.7
     }
   ]
 }

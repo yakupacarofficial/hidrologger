@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/connection_screen.dart';
+import 'screens/splash_screen.dart';
 
 void main() {
   runApp(const HidrolinkApp());
@@ -21,7 +21,7 @@ class HidrolinkApp extends StatelessWidget {
         useMaterial3: true,
         fontFamily: 'Roboto',
       ),
-      home: const ConnectionScreen(),
+      home: const SplashScreen(),
     );
   }
 }
