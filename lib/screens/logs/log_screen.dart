@@ -70,23 +70,32 @@ class _LogScreenState extends State<LogScreen> {
         endDate: endDateStr,
       );
 
-      if (logData != null) {
+      if (logData != null && logData['success'] == true) {
         print('Log verisi alındı: $logData');
         final List<Map<String, dynamic>> formattedData = [];
-        final dataList = logData['data'] as List<dynamic>? ?? [];
+        final dataList = logData['data']?['data'] as List<dynamic>? ?? [];
         
         for (var item in dataList) {
-          final timestamp = DateTime.tryParse(item['timestamp'] ?? '') ?? DateTime.now();
-          formattedData.add({
-            'id': item['id'] ?? 0,
-            'timestamp': timestamp,
-            'value': (item['value'] ?? 0.0).toDouble(),
-            'min_value': (item['min_value'] ?? 0.0).toDouble(),
-            'max_value': (item['max_value'] ?? 0.0).toDouble(),
-            'quality': 'good', // Varsayılan değer
-            'battery_percentage': 100, // Varsayılan değer
-            'signal_strength': 100, // Varsayılan değer
-          });
+          try {
+            final timestamp = DateTime.tryParse(item['timestamp'] ?? '') ?? DateTime.now();
+            final value = (item['value'] ?? 0.0);
+            final minValue = (item['min_value'] ?? value);
+            final maxValue = (item['max_value'] ?? value);
+            
+            formattedData.add({
+              'id': item['id'] ?? 0,
+              'timestamp': timestamp,
+              'value': value is num ? value.toDouble() : 0.0,
+              'min_value': minValue is num ? minValue.toDouble() : 0.0,
+              'max_value': maxValue is num ? maxValue.toDouble() : 0.0,
+              'quality': 'good', // Varsayılan değer
+              'battery_percentage': 100, // Varsayılan değer
+              'signal_strength': 100, // Varsayılan değer
+            });
+          } catch (itemError) {
+            print('Veri öğesi işlenirken hata: $itemError');
+            continue;
+          }
         }
         
         setState(() {
@@ -95,7 +104,7 @@ class _LogScreenState extends State<LogScreen> {
         
         print('Formatlanmış log verisi: ${formattedData.length} kayıt');
       } else {
-        print('API\'den veri gelmedi, mock data kullanılıyor');
+        print('API\'den veri gelmedi veya başarısız, mock data kullanılıyor');
         // API'den veri gelmezse mock data kullan
         _logData = _generateMockData();
       }

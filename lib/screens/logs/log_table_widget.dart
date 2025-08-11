@@ -141,10 +141,10 @@ class LogTableWidget extends StatelessWidget {
               itemCount: logData.length,
               itemBuilder: (context, index) {
                 final item = logData[index];
-                final timestamp = item['timestamp'] as DateTime;
-                final value = item['value'] as double;
-                final quality = item['quality'] as String;
-                final batteryPercentage = item['battery_percentage'] as int;
+                final timestamp = item['timestamp'] as DateTime? ?? DateTime.now();
+                final value = (item['value'] as num?)?.toDouble() ?? 0.0;
+                final quality = item['quality'] as String? ?? 'good';
+                final batteryPercentage = (item['battery_percentage'] as num?)?.toInt() ?? 100;
 
                 return Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

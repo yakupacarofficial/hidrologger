@@ -114,69 +114,104 @@ class ChartPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (logData.isEmpty) return;
+    if (logData.isEmpty || size.width <= 0 || size.height <= 0) return;
 
-    final paint = Paint()
-      ..color = Colors.blue
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke;
+    try {
+      final paint = Paint()
+        ..color = Colors.blue
+        ..strokeWidth = 2
+        ..style = PaintingStyle.stroke;
 
-    final fillPaint = Paint()
-      ..color = Colors.blue.withOpacity(0.1)
-      ..style = PaintingStyle.fill;
+      final fillPaint = Paint()
+        ..color = Colors.blue.withOpacity(0.1)
+        ..style = PaintingStyle.fill;
 
-    final path = Path();
-    final fillPath = Path();
+      final path = Path();
+      final fillPath = Path();
 
-    final values = logData.map((e) => e['value'] as double).toList();
-    final minValue = values.reduce((a, b) => a < b ? a : b);
-    final maxValue = values.reduce((a, b) => a > b ? a : b);
-    final valueRange = maxValue - minValue;
-
-    final width = size.width;
-    final height = size.height;
-    final padding = 20.0;
-
-    fillPath.moveTo(padding, height - padding);
-
-    for (int i = 0; i < values.length; i++) {
-      final x = padding + (i / (values.length - 1)) * (width - 2 * padding);
-      final normalizedValue = valueRange > 0 
-          ? (values[i] - minValue) / valueRange 
-          : 0.5;
-      final y = height - padding - normalizedValue * (height - 2 * padding);
-
-      if (i == 0) {
-        path.moveTo(x, y);
-        fillPath.lineTo(x, y);
-      } else {
-        path.lineTo(x, y);
-        fillPath.lineTo(x, y);
+      // Güvenli veri çıkarma
+      final values = <double>[];
+      for (final item in logData) {
+        final value = item['value'];
+        if (value != null && value is num) {
+          values.add(value.toDouble());
+        }
       }
-    }
 
-    fillPath.lineTo(width - padding, height - padding);
-    fillPath.close();
+      if (values.isEmpty) return;
 
-    // Fill area
-    canvas.drawPath(fillPath, fillPaint);
-    
-    // Draw line
-    canvas.drawPath(path, paint);
+      final minValue = values.reduce((a, b) => a < b ? a : b);
+      final maxValue = values.reduce((a, b) => a > b ? a : b);
+      final valueRange = maxValue - minValue;
 
-    // Draw points
-    final pointPaint = Paint()
-      ..color = Colors.blue
-      ..style = PaintingStyle.fill;
+      final width = size.width;
+      final height = size.height;
+      final padding = 20.0;
 
-    for (int i = 0; i < values.length; i++) {
-      final x = padding + (i / (values.length - 1)) * (width - 2 * padding);
-      final normalizedValue = valueRange > 0 
-          ? (values[i] - minValue) / valueRange 
-          : 0.5;
-      final y = height - padding - normalizedValue * (height - 2 * padding);
+      // Minimum boyut kontrolü
+      if (width < 2 * padding || height < 2 * padding) return;
 
-      canvas.drawCircle(Offset(x, y), 3, pointPaint);
+      fillPath.moveTo(padding, height - padding);
+
+      for (int i = 0; i < values.length; i++) {
+        final x = padding + (i / (values.length - 1)) * (width - 2 * padding);
+        final normalizedValue = valueRange > 0 
+            ? (values[i] - minValue) / valueRange 
+            : 0.5;
+        final y = height - padding - normalizedValue * (height - 2 * padding);
+
+        if (i == 0) {
+          path.moveTo(x, y);
+          fillPath.lineTo(x, y);
+        } else {
+          path.lineTo(x, y);
+          fillPath.lineTo(x, y);
+        }
+      }
+
+      fillPath.lineTo(width - padding, height - padding);
+      fillPath.close();
+
+      // Fill area
+      canvas.drawPath(fillPath, fillPaint);
+      
+      // Draw line
+      canvas.drawPath(path, paint);
+
+      // Draw points
+      final pointPaint = Paint()
+        ..color = Colors.blue
+        ..style = PaintingStyle.fill;
+
+      for (int i = 0; i < values.length; i++) {
+        final x = padding + (i / (values.length - 1)) * (width - 2 * padding);
+        final normalizedValue = valueRange > 0 
+            ? (values[i] - minValue) / valueRange 
+            : 0.5;
+        final y = height - padding - normalizedValue * (height - 2 * padding);
+
+        canvas.drawCircle(Offset(x, y), 3, pointPaint);
+      }
+    } catch (e) {
+      // Hata durumunda basit bir çizgi çiz
+      final paint = Paint()
+        ..color = Colors.red
+        ..strokeWidth = 2
+        ..style = PaintingStyle.stroke;
+      
+      final errorPadding = 20.0;
+      
+      // Basit bir X işareti çiz
+      canvas.drawLine(
+        Offset(errorPadding, errorPadding),
+        Offset(size.width - errorPadding, size.height - errorPadding),
+        paint,
+      );
+      canvas.drawLine(
+        Offset(size.width - errorPadding, errorPadding),
+        Offset(errorPadding, size.height - errorPadding),
+        paint,
+      );
     }
   }
 
