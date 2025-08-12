@@ -1,0 +1,15 @@
+{
+  "channel": [
+    {
+      "id": 1,
+      "name": "TWSTOOO1",
+      "description": "kdkdksksks",
+      "channel_category": 1,
+      "channel_sub_category": 2,
+      "channel_parameter": 101,
+      "measurement_unit": 1,
+      "log_interval": 60,
+      "offset": 72.6
+    }
+  ]
+}

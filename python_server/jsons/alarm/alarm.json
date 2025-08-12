@@ -1,0 +1,14 @@
+{
+  "parameter1": {
+    "channel_id": 1,
+    "alarminfo": "Kanal 1 alarm ayarları",
+    "alarms": [
+      {
+        "min_value": -10.0,
+        "max_value": 50.0,
+        "color": "#FF0000",
+        "data_post_frequency": 1000
+      }
+    ]
+  }
+}

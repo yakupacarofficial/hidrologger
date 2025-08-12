@@ -58,49 +58,48 @@ class RESTfulService {
   /// Tüm verileri getir (yeni endpoint'lerden birleştirilmiş)
   Future<ChannelData?> fetchAllData() async {
     try {
+      print('🔍 fetchAllData başlatılıyor...');
+      
       // Yeni endpoint'lerden veri çek
       final dataResponse = await http.get(
-        Uri.parse('$_baseUrl/data/data'),
+        Uri.parse('$_baseUrl/data'),
         headers: {'Content-Type': 'application/json'},
       ).timeout(const Duration(seconds: 10));
 
       final channelResponse = await http.get(
-        Uri.parse('$_baseUrl/data/channel'),
+        Uri.parse('$_baseUrl/channel'),
         headers: {'Content-Type': 'application/json'},
       ).timeout(const Duration(seconds: 10));
 
-      final alarmResponse = await http.get(
-        Uri.parse('$_baseUrl/data/alarm'),
-        headers: {'Content-Type': 'application/json'},
-      ).timeout(const Duration(seconds: 10));
+      print('📡 Data response status: ${dataResponse.statusCode}');
+      print('📡 Channel response status: ${channelResponse.statusCode}');
 
-      if (dataResponse.statusCode == 200 && 
-          channelResponse.statusCode == 200 && 
-          alarmResponse.statusCode == 200) {
+      if (dataResponse.statusCode == 200 && channelResponse.statusCode == 200) {
         
         final dataData = json.decode(dataResponse.body);
         final channelData = json.decode(channelResponse.body);
-        final alarmData = json.decode(alarmResponse.body);
         
-        if (dataData['success'] == true && 
-            channelData['success'] == true && 
-            alarmData['success'] == true) {
-          
-          // Eski format ile uyumlu olacak şekilde birleştir
-          final combinedData = {
-            'timestamp': DateTime.now().toIso8601String(),
-            'variable': {
-              'data': dataData['data']['data'],
-              'channel': channelData['data']['channel'],
-            },
-            'alarm': alarmData['data'],
-          };
-          
-          final channelDataObj = ChannelData.fromJson(combinedData);
-          _dataController.add(channelDataObj);
-          return channelDataObj;
-        }
+        print('📡 Data verisi alındı: ${dataData.length} kayıt');
+        print('📡 Channel verisi alındı: ${channelData.length} kayıt');
+        
+        // Yeni format ile uyumlu olacak şekilde birleştir
+        final combinedData = {
+          'timestamp': DateTime.now().toIso8601String(),
+          'variable': {
+            'data': dataData,
+            'channel': channelData,
+          },
+          'alarm': {}, // Alarm verisi şimdilik boş
+        };
+        
+        print('🔧 Combined data oluşturuldu');
+        
+        final channelDataObj = ChannelData.fromJson(combinedData);
+        _dataController.add(channelDataObj);
+        return channelDataObj;
       }
+      
+      print('❌ Veri çekme başarısız');
       
       // Hata durumunda boş veri döndür
       final emptyChannelData = ChannelData(
@@ -112,6 +111,7 @@ class RESTfulService {
       return emptyChannelData;
       
     } catch (e) {
+      print('💥 fetchAllData hatası: $e');
       // Veri getirme hatası
       final emptyChannelData = ChannelData(
         timestamp: DateTime.now().toIso8601String(),
@@ -126,31 +126,40 @@ class RESTfulService {
   /// Değişken verileri getir (data.json + channel.json birleştirilmiş)
   Future<Map<String, dynamic>?> fetchVariableData() async {
     try {
+      print('🔍 fetchVariableData başlatılıyor...');
+      
       // Yeni endpoint'lerden veri çek
       final dataResponse = await http.get(
-        Uri.parse('$_baseUrl/data/data'),
+        Uri.parse('$_baseUrl/data'),
         headers: {'Content-Type': 'application/json'},
       ).timeout(const Duration(seconds: 10));
 
       final channelResponse = await http.get(
-        Uri.parse('$_baseUrl/data/channel'),
+        Uri.parse('$_baseUrl/channel'),
         headers: {'Content-Type': 'application/json'},
       ).timeout(const Duration(seconds: 10));
+
+      print('📡 Variable data response status: ${dataResponse.statusCode}');
+      print('📡 Variable channel response status: ${channelResponse.statusCode}');
 
       if (dataResponse.statusCode == 200 && channelResponse.statusCode == 200) {
         final dataData = json.decode(dataResponse.body);
         final channelData = json.decode(channelResponse.body);
         
-        if (dataData['success'] == true && channelData['success'] == true) {
-          // Eski format ile uyumlu olacak şekilde birleştir
-          return {
-            'data': dataData['data']['data'],
-            'channel': channelData['data']['channel'],
-          };
-        }
+        print('📡 Variable data alındı: ${dataData.length} kayıt');
+        print('📡 Variable channel alındı: ${channelData.length} kayıt');
+        
+        // Yeni format ile uyumlu olacak şekilde birleştir
+        return {
+          'data': dataData,
+          'channel': channelData,
+        };
       }
+      
+      print('❌ Variable data çekme başarısız');
       return null;
     } catch (e) {
+      print('💥 fetchVariableData hatası: $e');
       // Değişken veri getirme hatası
       return null;
     }
@@ -159,19 +168,25 @@ class RESTfulService {
   /// Alarm verilerini getir
   Future<Map<String, dynamic>?> fetchAlarmData() async {
     try {
+      print('🔍 fetchAlarmData başlatılıyor...');
+      
       final response = await http.get(
-        Uri.parse('$_baseUrl/data/alarm'),
+        Uri.parse('$_baseUrl/alarm'),
         headers: {'Content-Type': 'application/json'},
       ).timeout(const Duration(seconds: 10));
 
+      print('📡 Alarm response status: ${response.statusCode}');
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        if (data['success'] == true) {
-          return data['data'];
-        }
+        print('📡 Alarm verisi alındı: ${data.length} kayıt');
+        return data;
       }
+      
+      print('❌ Alarm data çekme başarısız');
       return null;
     } catch (e) {
+      print('💥 fetchAlarmData hatası: $e');
       // Alarm veri getirme hatası
       return null;
     }

@@ -12,10 +12,25 @@ class ChannelData {
   });
 
   factory ChannelData.fromJson(Map<String, dynamic> json) {
+    // JSON'dan gelen verileri güvenli şekilde dönüştür
+    final variableData = json['variable'];
+    final alarmData = json['alarm'];
+    
+    Map<String, dynamic> variableMap = {};
+    Map<String, dynamic> alarmMap = {};
+    
+    if (variableData is Map) {
+      variableMap = Map<String, dynamic>.from(variableData);
+    }
+    
+    if (alarmData is Map) {
+      alarmMap = Map<String, dynamic>.from(alarmData);
+    }
+    
     return ChannelData(
       timestamp: json['timestamp'] ?? '',
-      variable: json['variable'] ?? {},
-      alarm: json['alarm'] ?? {},
+      variable: variableMap,
+      alarm: alarmMap,
     );
   }
 
@@ -23,7 +38,15 @@ class ChannelData {
     final channelData = variable['channel'];
     if (channelData == null) return [];
     if (channelData is List<dynamic>) {
-      return channelData.map((channel) => Channel.fromJson(channel, this)).toList();
+      return channelData.map((channel) {
+        if (channel is Map<String, dynamic>) {
+          return Channel.fromJson(channel, this);
+        } else if (channel is Map) {
+          // Map<dynamic, dynamic>'i Map<String, dynamic>'e dönüştür
+          return Channel.fromJson(Map<String, dynamic>.from(channel), this);
+        }
+        return null;
+      }).whereType<Channel>().toList();
     }
     return [];
   }
@@ -32,7 +55,15 @@ class ChannelData {
     final data = variable['data'];
     if (data == null) return [];
     if (data is List<dynamic>) {
-      return data.map((item) => VariableData.fromJson(item)).toList();
+      return data.map((item) {
+        if (item is Map<String, dynamic>) {
+          return VariableData.fromJson(item);
+        } else if (item is Map) {
+          // Map<dynamic, dynamic>'i Map<String, dynamic>'e dönüştür
+          return VariableData.fromJson(Map<String, dynamic>.from(item));
+        }
+        return null;
+      }).whereType<VariableData>().toList();
     }
     return [];
   }
@@ -184,7 +215,7 @@ class VariableData {
 
   factory VariableData.fromJson(Map<String, dynamic> json) {
     return VariableData(
-      channelId: json['channel'] ?? 0, // 'channel' alanını kullan
+      channelId: json['id'] ?? json['channelID'] ?? json['channel'] ?? 0, // 'id' alanını kullan
       value: (json['value'] ?? 0.0).toDouble(),
       minValue: (json['min_value'] ?? 0.0).toDouble(),
       maxValue: (json['max_value'] ?? 0.0).toDouble(),
