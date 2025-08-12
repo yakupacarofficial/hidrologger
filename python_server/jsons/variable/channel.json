@@ -2,18 +2,14 @@
   "channel": [
     {
       "id": 1,
-      "name": "sadasd111",
-      "description": "111",
-      "channel_category": "Deniz",
-      "channel_sub_category": "TarimsalSulama",
+      "name": "TEST1",
+      "description": "TETS1AC",
+      "channel_category": 1,
+      "channel_sub_category": 2,
       "channel_parameter": 101,
       "measurement_unit": 1,
       "log_interval": 60,
-      "offset": 12,
-      "channel_color": "#2196f3",
-      "sensor_name": "DS18B20",
-      "parameter": "WAP",
-      "unit": "MPa"
+      "offset": 12
     }
   ]
 }

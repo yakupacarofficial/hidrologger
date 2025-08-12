@@ -1114,7 +1114,7 @@ class JSONReader:
             return {"channel": []}
 
     def get_channels(self) -> List[Dict[str, Any]]:
-        """Tüm kanalları getir"""
+        """Tüm kanalları getir - Yeni API yapısı"""
         try:
             file_path = os.path.join(self.variable_path, "channel.json")
             channel_data = self._read_json_file(file_path)
@@ -1124,8 +1124,24 @@ class JSONReader:
                 return []
             
             if 'channel' in channel_data and channel_data['channel']:
-                logger.info(f"{len(channel_data['channel'])} kanal bulundu")
-                return channel_data['channel']
+                # ID'leri string'e çevir (görüntüleme için)
+                formatted_channels = []
+                for channel in channel_data['channel']:
+                    formatted_channel = {
+                        "id": channel.get('id'),
+                        "name": channel.get('name', ''),
+                        "description": channel.get('description', ''),
+                        "channel_category": channel.get('channel_category', 1),
+                        "channel_sub_category": channel.get('channel_sub_category', 1),
+                        "channel_parameter": channel.get('channel_parameter', 101),
+                        "measurement_unit": channel.get('measurement_unit', 1),
+                        "log_interval": channel.get('log_interval', 60),
+                        "offset": channel.get('offset', 0.0)
+                    }
+                    formatted_channels.append(formatted_channel)
+                
+                logger.info(f"{len(formatted_channels)} kanal bulundu")
+                return formatted_channels
             
             logger.warning("Kanal verisi bulunamadı")
             return []
@@ -1204,7 +1220,7 @@ class JSONReader:
             return []
 
     def add_channel(self, channel_data: Dict[str, Any]) -> bool:
-        """Yeni kanal ekle"""
+        """Yeni kanal ekle - Yeni API yapısı"""
         try:
             file_path = os.path.join(self.variable_path, "channel.json")
             current_data = self._read_json_file(file_path)
@@ -1217,26 +1233,20 @@ class JSONReader:
                 max_id = max(channel.get('id', 0) for channel in existing_channels)
                 new_id = max_id + 1
             
-            # Min/max değerleri al
-            min_value = channel_data.get('minvalue', -10.0)
-            max_value = channel_data.get('maxvalue', 50.0)
-            min_value_reset = channel_data.get('minvaluereset', 0.0)
-            max_value_reset = channel_data.get('maxvaluereset', 40.0)
+            # String değerleri ID'lere çevir
+            category_id = self._get_category_id_by_name(channel_data.get('category', 'Kuyu'))
+            sub_category_id = self._get_sub_category_id_by_name(channel_data.get('sub_category', 'SolSahilSulama'))
             
             new_channel = {
                 "id": new_id,
                 "name": channel_data.get('channel_name', ''),
                 "description": channel_data.get('channel_description', ''),
-                "channel_category": channel_data.get('category', 'Kuyu'),
-                "channel_sub_category": channel_data.get('sub_category', 'SolSahilSulama'),
+                "channel_category": category_id,
+                "channel_sub_category": sub_category_id,
                 "channel_parameter": 101,  # Varsayılan değer
                 "measurement_unit": 1,  # Varsayılan değer
                 "log_interval": 60,
-                "offset": channel_data.get('offset', 0.0),
-                "channel_color": channel_data.get('channel_color', '#FF0000'),
-                "sensor_name": channel_data.get('sensor_name', 'DS18B20'),
-                "parameter": channel_data.get('parameter', 'temperature'),
-                "unit": channel_data.get('unit', '°C')
+                "offset": channel_data.get('offset', 0.0)
                 # minvalue, minvaluereset, maxvalue, maxvaluereset alanları kaldırıldı
             }
             
@@ -1245,6 +1255,12 @@ class JSONReader:
             
             with open(file_path, 'w', encoding='utf-8') as file:
                 json.dump(current_data, file, indent=2, ensure_ascii=False)
+            
+            # Min/max değerleri al (alarm için)
+            min_value = channel_data.get('minvalue', -10.0)
+            max_value = channel_data.get('maxvalue', 50.0)
+            min_value_reset = channel_data.get('minvaluereset', 0.0)
+            max_value_reset = channel_data.get('maxvaluereset', 40.0)
             
             # Alarm.json dosyasına min/max değerleri ekle
             self._add_alarm_for_channel(new_id, min_value, max_value, min_value_reset, max_value_reset)
@@ -1428,3 +1444,166 @@ class JSONReader:
         except Exception as e:
             logger.error(f"Kanal taşıma hatası: {e}")
             return False
+
+    def _get_category_id_by_name(self, category_name: str) -> int:
+        """Kategori adına göre ID döndür"""
+        try:
+            category_file_path = os.path.join("lib", "jsons_flutter", "constant", "channel_category.json")
+            if not os.path.exists(category_file_path):
+                category_file_path = os.path.join("python_server", "lib", "jsons_flutter", "constant", "channel_category.json")
+            
+            category_data = self._read_json_file(category_file_path)
+            if category_data and 'channel_category' in category_data:
+                for category in category_data['channel_category']:
+                    if category.get('name') == category_name:
+                        return category.get('id', 1)
+            return 1  # Varsayılan ID
+        except Exception as e:
+            logger.error(f"Kategori ID getirme hatası: {e}")
+            return 1
+
+    def _get_sub_category_id_by_name(self, sub_category_name: str) -> int:
+        """Alt kategori adına göre ID döndür"""
+        try:
+            sub_category_file_path = os.path.join("lib", "jsons_flutter", "constant", "channel_sub_category.json")
+            if not os.path.exists(sub_category_file_path):
+                sub_category_file_path = os.path.join("python_server", "lib", "jsons_flutter", "constant", "channel_sub_category.json")
+            
+            sub_category_data = self._read_json_file(sub_category_file_path)
+            if sub_category_data and 'channel_sub_category' in sub_category_data:
+                for sub_category in sub_category_data['channel_sub_category']:
+                    if sub_category.get('name') == sub_category_name:
+                        return sub_category.get('id', 1)
+            return 1  # Varsayılan ID
+        except Exception as e:
+            logger.error(f"Alt kategori ID getirme hatası: {e}")
+            return 1
+
+    def _get_category_name_by_id(self, category_id: int) -> str:
+        """Kategori ID'sine göre ad döndür"""
+        try:
+            category_file_path = os.path.join("lib", "jsons_flutter", "constant", "channel_category.json")
+            if not os.path.exists(category_file_path):
+                category_file_path = os.path.join("python_server", "lib", "jsons_flutter", "constant", "channel_category.json")
+            
+            category_data = self._read_json_file(category_file_path)
+            if category_data and 'channel_category' in category_data:
+                for category in category_data['channel_category']:
+                    if category.get('id') == category_id:
+                        return category.get('name', 'Kuyu')
+            return 'Kuyu'  # Varsayılan ad
+        except Exception as e:
+            logger.error(f"Kategori ad getirme hatası: {e}")
+            return 'Kuyu'
+
+    def _get_sub_category_name_by_id(self, sub_category_id: int) -> str:
+        """Alt kategori ID'sine göre ad döndür"""
+        try:
+            sub_category_file_path = os.path.join("lib", "jsons_flutter", "constant", "channel_sub_category.json")
+            if not os.path.exists(sub_category_file_path):
+                sub_category_file_path = os.path.join("python_server", "lib", "jsons_flutter", "constant", "channel_sub_category.json")
+            
+            sub_category_data = self._read_json_file(sub_category_file_path)
+            if sub_category_data and 'channel_sub_category' in sub_category_data:
+                for sub_category in sub_category_data['channel_sub_category']:
+                    if sub_category.get('id') == sub_category_id:
+                        return sub_category.get('name', 'SolSahilSulama')
+            return 'SolSahilSulama'  # Varsayılan ad
+        except Exception as e:
+            logger.error(f"Alt kategori ad getirme hatası: {e}")
+            return 'SolSahilSulama'
+
+    def get_alarms(self) -> List[Dict[str, Any]]:
+        """Tüm alarmları getir - Yeni API yapısı"""
+        try:
+            alarm_file_path = os.path.join(self.alarm_path, "alarm.json")
+            alarm_data = self._read_json_file(alarm_file_path)
+            
+            if alarm_data is None:
+                return []
+            
+            formatted_alarms = []
+            alarm_id = 1
+            
+            for parameter_key, parameter_data in alarm_data.items():
+                if parameter_key.startswith('parameter'):
+                    channel_id = parameter_data.get('channel_id', 0)
+                    alarms_list = parameter_data.get('alarms', [])
+                    
+                    for alarm in alarms_list:
+                        formatted_alarm = {
+                            "id": alarm_id,
+                            "channel_id": channel_id,
+                            "min_value": alarm.get('min_value', 0.0),
+                            "max_value": alarm.get('max_value', 100.0),
+                            "min_reset": alarm.get('min_reset', 0.0),
+                            "max_reset": alarm.get('max_reset', 100.0),
+                            "color": alarm.get('color', '#FF0000'),
+                            "data_post_frequency": alarm.get('data_post_frequency', 60),
+                            "status": alarm.get('status', 'active'),
+                            "trigger_time": alarm.get('trigger_time', 0),
+                            "reset_time": alarm.get('reset_time', 0)
+                        }
+                        formatted_alarms.append(formatted_alarm)
+                        alarm_id += 1
+            
+            logger.info(f"{len(formatted_alarms)} alarm bulundu")
+            return formatted_alarms
+            
+        except Exception as e:
+            logger.error(f"Alarm verileri getirme hatası: {e}")
+            return []
+
+    def get_alarm_by_id(self, alarm_id: int) -> Optional[Dict[str, Any]]:
+        """Belirtilen ID'li alarmı getir"""
+        try:
+            alarms = self.get_alarms()
+            for alarm in alarms:
+                if alarm.get('id') == alarm_id:
+                    return alarm
+            return None
+        except Exception as e:
+            logger.error(f"Alarm ID {alarm_id} getirme hatası: {e}")
+            return None
+
+    def get_logs(self, channel_id: Optional[int] = None, start_time: Optional[int] = None, end_time: Optional[int] = None) -> List[Dict[str, Any]]:
+        """Log verilerini getir - Filtreleme ile"""
+        try:
+            logs_file_path = os.path.join(self.logsfile_path, "logs.json")
+            logs_data = self._read_json_file(logs_file_path)
+            
+            if logs_data is None or 'logs' not in logs_data:
+                return []
+            
+            all_logs = logs_data['logs']
+            filtered_logs = []
+            
+            for log in all_logs:
+                # Kanal ID filtresi
+                if channel_id is not None and log.get('channel') != channel_id:
+                    continue
+                
+                # Zaman filtresi
+                log_timestamp = log.get('value_timestamp', 0)
+                if start_time is not None and log_timestamp < start_time:
+                    continue
+                if end_time is not None and log_timestamp > end_time:
+                    continue
+                
+                # Yeni format
+                formatted_log = {
+                    'battery_percentage': log.get('battery_percentage', 100),
+                    'channel': log.get('channel', 0),
+                    'signal_strength': log.get('signal_strength', 90),
+                    'value': log.get('value', 0),
+                    'value_timestamp': log.get('value_timestamp', 0),
+                    'value_type': log.get('value_type', 1)
+                }
+                filtered_logs.append(formatted_log)
+            
+            logger.info(f"{len(filtered_logs)} log verisi bulundu")
+            return filtered_logs
+            
+        except Exception as e:
+            logger.error(f"Log verileri getirme hatası: {e}")
+            return []

@@ -235,30 +235,68 @@ class RESTfulServer:
             """Belirtilen ID'li alarm bilgisini getir"""
             try:
                 logger.info(f"ID {alarm_id} olan alarm bilgisi istendi")
-                alarm_data = self.json_reader.get_alarm_data()
+                alarm_data = self.json_reader.get_alarm_by_id(alarm_id)
                 
-                if alarm_data is not None:
-                    parameter_key = f"parameter{alarm_id}"
-                    if parameter_key in alarm_data:
-                        return jsonify({
-                            "success": True,
-                            "data": alarm_data[parameter_key],
-                            "timestamp": datetime.now().isoformat()
-                        })
-                    else:
-                        return jsonify({
-                            "success": False,
-                            "error": f"ID {alarm_id} olan alarm bulunamadı"
-                        }), 404
+                if alarm_data:
+                    return jsonify(alarm_data)
                 else:
                     return jsonify({
-                        "success": False,
-                        "error": "Alarm verileri bulunamadı"
+                        "error": f"ID {alarm_id} olan alarm bulunamadı"
                     }), 404
             except Exception as e:
                 logger.error(f"Alarm ID {alarm_id} getirme hatası: {e}")
                 return jsonify({
-                    "success": False,
+                    "error": str(e)
+                }), 500
+
+        @self.app.route('/api/alarm', methods=['GET'])
+        def get_alarms():
+            """Tüm alarmları getir"""
+            try:
+                logger.info("Tüm alarmlar istendi")
+                alarms = self.json_reader.get_alarms()
+                return jsonify(alarms)
+            except Exception as e:
+                logger.error(f"Alarm listesi getirme hatası: {e}")
+                return jsonify({
+                    "error": str(e)
+                }), 500
+
+        @self.app.route('/api/log', methods=['GET'])
+        def get_logs():
+            """Log verilerini getir - Filtreleme ile"""
+            try:
+                logger.info("Log verileri istendi")
+                
+                # Query parametrelerini al
+                channel_id = request.args.get('channel', type=int)
+                start_time = request.args.get('start', type=int)
+                end_time = request.args.get('end', type=int)
+                
+                logs = self.json_reader.get_logs(channel_id, start_time, end_time)
+                return jsonify(logs)
+            except Exception as e:
+                logger.error(f"Log verileri getirme hatası: {e}")
+                return jsonify({
+                    "error": str(e)
+                }), 500
+
+        @self.app.route('/api/station/<int:station_id>', methods=['GET'])
+        def get_station(station_id):
+            """İstasyon bilgisini getir"""
+            try:
+                logger.info(f"İstasyon {station_id} bilgisi istendi")
+                station_data = self.json_reader.get_station_by_id(station_id)
+                
+                if station_data:
+                    return jsonify(station_data)
+                else:
+                    return jsonify({
+                        "error": f"İstasyon {station_id} bulunamadı"
+                    }), 404
+            except Exception as e:
+                logger.error(f"İstasyon {station_id} getirme hatası: {e}")
+                return jsonify({
                     "error": str(e)
                 }), 500
         
@@ -483,38 +521,7 @@ class RESTfulServer:
                     "error": str(e)
                 }), 500
 
-        @self.app.route('/api/logs/<int:channel_id>', methods=['GET'])
-        def get_logs(channel_id):
-            """Belirli kanal için log verilerini getir"""
-            try:
-                # Query parametrelerini al
-                start_date = request.args.get('start_date')
-                end_date = request.args.get('end_date')
-                
-                logger.info(f"Kanal {channel_id} için log verileri istendi - Başlangıç: {start_date}, Bitiş: {end_date}")
-                
-                log_data = self.json_reader.get_log_data(channel_id, start_date, end_date)
-                
-                if log_data is not None:
-                    logger.info(f"Kanal {channel_id} için {len(log_data.get('data', []))} log kaydı döndürüldü")
-                    return jsonify({
-                        "success": True,
-                        "data": log_data,
-                        "timestamp": datetime.now().isoformat()
-                    })
-                else:
-                    logger.warning(f"Kanal {channel_id} için log verisi bulunamadı")
-                    return jsonify({
-                        "success": False,
-                        "error": f"Kanal {channel_id} için log verisi bulunamadı"
-                    }), 404
-                    
-            except Exception as e:
-                logger.error(f"Log veri getirme hatası: {e}")
-                return jsonify({
-                    "success": False,
-                    "error": str(e)
-                }), 500
+
 
         @self.app.route('/api/logs/<int:channel_id>', methods=['POST'])
         def save_log(channel_id):
@@ -753,26 +760,6 @@ class RESTfulServer:
                 }), 500
 
 
-
-        @self.app.route('/api/station/<int:station_id>', methods=['GET'])
-        def get_station_by_id(station_id):
-            """Belirtilen ID'li istasyon bilgisini getir"""
-            try:
-                logger.info(f"ID {station_id} olan istasyon bilgisi istendi")
-                station_data = self.json_reader.get_station_by_id(station_id)
-                
-                if station_data:
-                    return jsonify(station_data)
-                else:
-                    return jsonify({
-                        "error": f"ID {station_id} olan istasyon bulunamadı"
-                    }), 404
-                    
-            except Exception as e:
-                logger.error(f"İstasyon ID {station_id} getirme hatası: {e}")
-                return jsonify({
-                    "error": str(e)
-                }), 500
 
         @self.app.route('/api/semi-variable', methods=['GET'])
         def get_semi_variable_data():

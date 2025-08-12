@@ -280,26 +280,155 @@ class RESTfulService {
     }
   }
 
-  /// Kanal min/max değerlerini alarm.json'a taşı (/api/migrate_channels_to_alarm)
-  Future<bool> migrateChannelsToAlarm() async {
+  /// Tüm kanalları getir (/api/channel)
+  Future<List<Map<String, dynamic>>?> fetchChannels() async {
     try {
-      print('Kanal migration isteği gönderiliyor');
-      final response = await http.post(
-        Uri.parse('$_baseUrl/migrate_channels_to_alarm'),
+      final response = await http.get(
+        Uri.parse('$_baseUrl/channel'),
         headers: {'Content-Type': 'application/json'},
       ).timeout(const Duration(seconds: 10));
 
-      print('Kanal migration yanıtı: ${response.statusCode} - ${response.body}');
-      
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        return data['success'] == true;
+        if (data is List) {
+          return List<Map<String, dynamic>>.from(data);
+        }
       }
-      return false;
+      return null;
     } catch (e) {
-      print('Kanal migration hatası: $e');
-      return false;
+      print('Kanal listesi getirme hatası: $e');
+      return null;
     }
+  }
+
+  /// Belirtilen ID'li kanal bilgisini getir (/api/channel/<ID>)
+  Future<Map<String, dynamic>?> fetchChannel(int channelId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/channel/$channelId'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data;
+      } else if (response.statusCode == 404) {
+        print('Kanal bulunamadı: ID $channelId');
+        return null;
+      }
+      return null;
+    } catch (e) {
+      print('Kanal bilgi getirme hatası: $e');
+      return null;
+    }
+  }
+
+  /// Tüm alarmları getir (/api/alarm)
+  Future<List<Map<String, dynamic>>?> fetchAlarms() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/alarm'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data is List) {
+          return List<Map<String, dynamic>>.from(data);
+        }
+      }
+      return null;
+    } catch (e) {
+      print('Alarm listesi getirme hatası: $e');
+      return null;
+    }
+  }
+
+  /// Belirtilen ID'li alarm bilgisini getir (/api/alarm/<ID>)
+  Future<Map<String, dynamic>?> fetchAlarm(int alarmId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/alarm/$alarmId'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data;
+      } else if (response.statusCode == 404) {
+        print('Alarm bulunamadı: ID $alarmId');
+        return null;
+      }
+      return null;
+    } catch (e) {
+      print('Alarm bilgi getirme hatası: $e');
+      return null;
+    }
+  }
+
+  /// Log verilerini getir (/api/log)
+  Future<List<Map<String, dynamic>>?> fetchLogs({int? channelId, int? startTime, int? endTime}) async {
+    try {
+      String url = '$_baseUrl/log';
+      List<String> queryParams = [];
+      
+      if (channelId != null) {
+        queryParams.add('channel=$channelId');
+      }
+      if (startTime != null) {
+        queryParams.add('start=$startTime');
+      }
+      if (endTime != null) {
+        queryParams.add('end=$endTime');
+      }
+      
+      if (queryParams.isNotEmpty) {
+        url += '?${queryParams.join('&')}';
+      }
+
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data is List) {
+          return List<Map<String, dynamic>>.from(data);
+        }
+      }
+      return null;
+    } catch (e) {
+      print('Log verileri getirme hatası: $e');
+      return null;
+    }
+  }
+
+  /// İstasyon bilgisini getir (/api/station/<ID>)
+  Future<Map<String, dynamic>?> fetchStation(int stationId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/station/$stationId'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data;
+      } else if (response.statusCode == 404) {
+        print('İstasyon bulunamadı: ID $stationId');
+        return null;
+      }
+      return null;
+    } catch (e) {
+      print('İstasyon bilgi getirme hatası: $e');
+      return null;
+    }
+  }
+
+  /// İstasyon bilgisini getir (fetchStationById alias)
+  Future<Map<String, dynamic>?> fetchStationById(int stationId) async {
+    return fetchStation(stationId);
   }
 
   /// Kanalı sil
@@ -342,157 +471,8 @@ class RESTfulService {
       }
       return false;
     } catch (e) {
-      // Kanal güncelleme hatası
+      print('Kanal güncelleme hatası: $e');
       return false;
-    }
-  }
-
-  /// Sunucu bilgilerini getir
-  Future<Map<String, dynamic>?> getServerInfo() async {
-    try {
-      final response = await http.get(
-        Uri.parse('$_baseUrl/info'),
-        headers: {'Content-Type': 'application/json'},
-      ).timeout(const Duration(seconds: 10));
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data['success'] == true) {
-          return data;
-        }
-      }
-      return null;
-    } catch (e) {
-      // Sunucu bilgi getirme hatası
-      return null;
-    }
-  }
-
-  /// Sadece data.json verilerini getir
-  Future<Map<String, dynamic>?> fetchDataJsonData() async {
-    try {
-      final response = await http.get(
-        Uri.parse('$_baseUrl/data/data'),
-        headers: {'Content-Type': 'application/json'},
-      ).timeout(const Duration(seconds: 10));
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data['success'] == true) {
-          return data['data'];
-        }
-      }
-      return null;
-    } catch (e) {
-      // Data.json veri getirme hatası
-      return null;
-    }
-  }
-
-  /// Sadece channel.json verilerini getir
-  Future<Map<String, dynamic>?> fetchChannelJsonData() async {
-    try {
-      final response = await http.get(
-        Uri.parse('$_baseUrl/data/channel'),
-        headers: {'Content-Type': 'application/json'},
-      ).timeout(const Duration(seconds: 10));
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data['success'] == true) {
-          return data['data'];
-        }
-      }
-      return null;
-    } catch (e) {
-      // Channel.json veri getirme hatası
-      return null;
-    }
-  }
-
-  /// İstasyon bilgilerini getir
-  Future<Map<String, dynamic>?> fetchStationInfo() async {
-    try {
-      final response = await http.get(
-        Uri.parse('$_baseUrl/station/info'),
-        headers: {'Content-Type': 'application/json'},
-      ).timeout(const Duration(seconds: 10));
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data['success'] == true) {
-          return data['data'];
-        }
-      }
-      return null;
-    } catch (e) {
-      // İstasyon bilgi getirme hatası
-      return null;
-    }
-  }
-
-  /// Belirtilen ID'li istasyon bilgisini getir
-  Future<Map<String, dynamic>?> fetchStationById(int stationId) async {
-    try {
-      final response = await http.get(
-        Uri.parse('$_baseUrl/station/$stationId'),
-        headers: {'Content-Type': 'application/json'},
-      ).timeout(const Duration(seconds: 10));
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        return data;
-      } else if (response.statusCode == 404) {
-        print('İstasyon bulunamadı: ID $stationId');
-        return null;
-      }
-      return null;
-    } catch (e) {
-      print('İstasyon bilgi getirme hatası: $e');
-      return null;
-    }
-  }
-
-  /// Tüm kanalları getir
-  Future<List<Map<String, dynamic>>?> fetchChannels() async {
-    try {
-      final response = await http.get(
-        Uri.parse('$_baseUrl/channel'),
-        headers: {'Content-Type': 'application/json'},
-      ).timeout(const Duration(seconds: 10));
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data is List) {
-          return List<Map<String, dynamic>>.from(data);
-        }
-      }
-      return null;
-    } catch (e) {
-      print('Kanal listesi getirme hatası: $e');
-      return null;
-    }
-  }
-
-  /// Belirtilen ID'li kanal bilgisini getir
-  Future<Map<String, dynamic>?> fetchChannel(int channelId) async {
-    try {
-      final response = await http.get(
-        Uri.parse('$_baseUrl/channel/$channelId'),
-        headers: {'Content-Type': 'application/json'},
-      ).timeout(const Duration(seconds: 10));
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        return data;
-      } else if (response.statusCode == 404) {
-        print('Kanal bulunamadı: ID $channelId');
-        return null;
-      }
-      return null;
-    } catch (e) {
-      print('Kanal bilgi getirme hatası: $e');
-      return null;
     }
   }
 
