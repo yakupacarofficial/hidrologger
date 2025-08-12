@@ -11,6 +11,18 @@
       "latitude": 41.0082,
       "longitude": 28.9784,
       "phone": "+902122345678"
+    },
+    {
+      "id": 2,
+      "code": "ANK001",
+      "security_code": "SEC12323",
+      "name": "Ankara Ana İstasyon",
+      "region": 32,
+      "basin": 4,
+      "no": 132,
+      "latitude": 42.0082,
+      "longitude": 29.584,
+      "phone": "+903524256789"
     }
   ]
 } 

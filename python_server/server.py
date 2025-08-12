@@ -626,31 +626,25 @@ class RESTfulServer:
                     "error": str(e)
                 }), 500
 
-        @self.app.route('/api/station/info', methods=['GET'])
-        def get_station_info():
-            """İstasyon bilgilerini getir"""
+        @self.app.route('/api/station', methods=['GET'])
+        def get_all_stations():
+            """Tüm istasyonları getir"""
             try:
-                logger.info("İstasyon bilgileri istendi")
+                logger.info("Tüm istasyonlar istendi")
                 station_data = self.json_reader.get_station_data()
                 
                 if station_data and 'station' in station_data and station_data['station']:
-                    return jsonify({
-                        "success": True,
-                        "data": station_data,
-                        "timestamp": datetime.now().isoformat()
-                    })
+                    return jsonify(station_data['station'])
                 else:
-                    return jsonify({
-                        "success": False,
-                        "error": "İstasyon verisi bulunamadı"
-                    }), 404
+                    return jsonify([])
                     
             except Exception as e:
-                logger.error(f"İstasyon bilgileri getirme hatası: {e}")
+                logger.error(f"Tüm istasyonlar getirme hatası: {e}")
                 return jsonify({
-                    "success": False,
                     "error": str(e)
                 }), 500
+
+
 
         @self.app.route('/api/station/<int:station_id>', methods=['GET'])
         def get_station_by_id(station_id):
