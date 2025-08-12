@@ -87,18 +87,74 @@ class _DashboardScreenState extends State<DashboardScreen> {
   
   void _loadStationAndWiFiInfo() async {
     try {
-      // Station bilgilerini yükle
-      final stationInfo = await _stationService.getStationInfo();
+      // Önce RESTful API'den station bilgilerini yüklemeyi dene
+      final apiStationInfo = await widget.restfulService.fetchStationById(1);
       final wifiIP = await _stationService.getWiFiIPAddress();
       
       if (mounted) {
         setState(() {
-          _stationInfo = stationInfo;
+          _stationInfo = apiStationInfo;
           _wifiIPAddress = wifiIP;
         });
+        
+        // API'den veri gelmezse local dosyadan yükle
+        if (apiStationInfo == null) {
+          final localStationInfo = await _stationService.getStationInfo();
+          if (mounted && localStationInfo != null) {
+            setState(() {
+              _stationInfo = localStationInfo;
+            });
+          }
+        }
       }
     } catch (e) {
       print('Station ve WiFi bilgileri yüklenemedi: $e');
+      // API başarısız olursa local dosyadan yükle
+      try {
+        final localStationInfo = await _stationService.getStationInfo();
+        final wifiIP = await _stationService.getWiFiIPAddress();
+        
+        if (mounted) {
+          setState(() {
+            _stationInfo = localStationInfo;
+            _wifiIPAddress = wifiIP;
+          });
+        }
+      } catch (localError) {
+        print('Local station bilgileri de yüklenemedi: $localError');
+      }
+    }
+  }
+
+  void _refreshStationInfo() async {
+    try {
+      // RESTful API'den station bilgilerini yenile
+      final apiStationInfo = await widget.restfulService.fetchStationById(1);
+      
+      if (mounted) {
+        setState(() {
+          _stationInfo = apiStationInfo ?? _stationInfo;
+        });
+        
+        // Başarı mesajı göster
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('İstasyon bilgileri güncellendi!'),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('İstasyon bilgileri güncellenirken hata oluştu: $e'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     }
   }
 
@@ -340,6 +396,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   }
                   break;
                 case 'station_detail':
+                  // Önce station bilgilerini güncelle
+                  _refreshStationInfo();
+                  // Sonra istasyon detay sayfasını aç
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => StationDetailScreen(
