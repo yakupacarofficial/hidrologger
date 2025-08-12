@@ -292,64 +292,144 @@ class _DashboardScreenState extends State<DashboardScreen> {
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
         elevation: 0,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.add_circle_outline),
-            onPressed: _currentData != null ? () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => ChannelWizardScreen(
-                    restfulService: widget.restfulService,
-                  ),
-                ),
-              );
-            } : null,
-            tooltip: 'Kanal Ekle',
-          ),
-          IconButton(
-            icon: const Icon(Icons.sensors),
-            onPressed: _currentData != null ? () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => SensorWizardScreen(
-                    restfulService: widget.restfulService,
-                  ),
-                ),
-              );
-            } : null,
-            tooltip: 'Sensör Sihirbazı',
-          ),
-          IconButton(
-            icon: const Icon(Icons.info_outline),
-            onPressed: _currentData != null ? () {
-              Navigator.of(context).push(MaterialPageRoute(builder: (context) => const ConstantDataScreen()));
-            } : null,
-            tooltip: 'Constant Verileri',
-          ),
-          IconButton(
-            icon: const Icon(Icons.alarm),
-            onPressed: _currentData != null ? () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                                  builder: (context) => AlarmManagementScreen(
-                  restfulService: widget.restfulService,
-                ),
-                ),
-              );
-            } : null,
-            tooltip: 'Alarm Yönetimi',
-          ),
-          IconButton(
-            icon: const Icon(Icons.location_on),
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => StationDetailScreen(
-                    restfulService: widget.restfulService,
-                  ),
-                ),
-              );
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            tooltip: 'Menü',
+            onSelected: (value) {
+              switch (value) {
+                case 'add_channel':
+                  if (_currentData != null) {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => ChannelWizardScreen(
+                          restfulService: widget.restfulService,
+                        ),
+                      ),
+                    );
+                  }
+                  break;
+                case 'sensor_wizard':
+                  if (_currentData != null) {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => SensorWizardScreen(
+                          restfulService: widget.restfulService,
+                        ),
+                      ),
+                    );
+                  }
+                  break;
+                case 'constant_data':
+                  if (_currentData != null) {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const ConstantDataScreen(),
+                      ),
+                    );
+                  }
+                  break;
+                case 'alarm_management':
+                  if (_currentData != null) {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => AlarmManagementScreen(
+                          restfulService: widget.restfulService,
+                        ),
+                      ),
+                    );
+                  }
+                  break;
+                case 'station_detail':
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => StationDetailScreen(
+                        restfulService: widget.restfulService,
+                      ),
+                    ),
+                  );
+                  break;
+              }
             },
-            tooltip: 'İstasyon Detayları',
+            itemBuilder: (BuildContext context) => [
+              PopupMenuItem<String>(
+                value: 'add_channel',
+                enabled: _currentData != null,
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.add_circle_outline,
+                      color: _currentData != null 
+                          ? Theme.of(context).colorScheme.onSurface
+                          : Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text('Kanal Ekle'),
+                  ],
+                ),
+              ),
+              PopupMenuItem<String>(
+                value: 'sensor_wizard',
+                enabled: _currentData != null,
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.sensors,
+                      color: _currentData != null 
+                          ? Theme.of(context).colorScheme.onSurface
+                          : Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text('Sensör Sihirbazı'),
+                  ],
+                ),
+              ),
+              PopupMenuItem<String>(
+                value: 'constant_data',
+                enabled: _currentData != null,
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      color: _currentData != null 
+                          ? Theme.of(context).colorScheme.onSurface
+                          : Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text('Constant Verileri'),
+                  ],
+                ),
+              ),
+              const PopupMenuDivider(),
+              PopupMenuItem<String>(
+                value: 'alarm_management',
+                enabled: _currentData != null,
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.alarm,
+                      color: _currentData != null 
+                          ? Theme.of(context).colorScheme.onSurface
+                          : Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text('Alarm Yönetimi'),
+                  ],
+                ),
+              ),
+              PopupMenuItem<String>(
+                value: 'station_detail',
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.location_on,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                    const SizedBox(width: 12),
+                    const Text('İstasyon Detayları'),
+                  ],
+                ),
+              ),
+            ],
           ),
           ConnectionStatusBadge(
             isConnected: _isConnected,
