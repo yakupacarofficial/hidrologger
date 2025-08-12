@@ -63,55 +63,50 @@ class _LogScreenState extends State<LogScreen> {
     });
 
     try {
-      // Tarih formatını ISO 8601'e çevir
-      final startDateStr = _startDate.toIso8601String();
-      final endDateStr = _endDate.toIso8601String();
+      // DateTime'i Unix timestamp'e çevir
+      final startTimestamp = _startDate.millisecondsSinceEpoch ~/ 1000;
+      final endTimestamp = _endDate.millisecondsSinceEpoch ~/ 1000;
       
-      print('Log verisi isteniyor: Kanal ${widget.channel.id}, Başlangıç: $startDateStr, Bitiş: $endDateStr');
+      print('Log verisi isteniyor: Kanal ${widget.channel.id}, Başlangıç: $startTimestamp, Bitiş: $endTimestamp');
       
-      // Gerçek API çağrısı yap
-      final logData = await widget.restfulService.fetchLogData(
-        widget.channel.id,
-        startDate: startDateStr,
-        endDate: endDateStr,
+      // Yeni API çağrısı yap
+      final logData = await widget.restfulService.fetchLogs(
+        channelId: widget.channel.id,
+        startTime: startTimestamp,
+        endTime: endTimestamp,
       );
 
       print('Log data tipi: ${logData?.runtimeType}');
-      print('Log data success değeri: ${logData?['success']}');
-      print('Log data success tipi: ${logData?['success']?.runtimeType}');
+      print('Log data uzunluğu: ${logData?.length}');
       
-      if (logData != null && logData['success'] == true) {
-        print('Log verisi alındı: $logData');
+      if (logData != null && logData.isNotEmpty) {
+        print('Log verisi alındı: ${logData.length} kayıt');
         final List<Map<String, dynamic>> formattedData = [];
         
-        // API response yapısını kontrol et
-        print('Log data yapısı: ${logData.keys}');
-        print('Data key içeriği: ${logData['data']}');
-        
-        final dataList = logData['data']?['data'] as List<dynamic>? ?? [];
-        
-        print('API\'den gelen data listesi: $dataList');
-        print('Data listesi uzunluğu: ${dataList.length}');
-        
-        for (var item in dataList) {
+        for (var item in logData) {
           try {
             print('İşlenen item: $item');
-            final timestamp = DateTime.tryParse(item['timestamp'] ?? '') ?? DateTime.now();
-            final value = (item['value'] ?? 0.0);
-            final minValue = (item['min_value'] ?? value);
-            final maxValue = (item['max_value'] ?? value);
             
-            print('Timestamp: $timestamp, Value: $value, Min: $minValue, Max: $maxValue');
+            // Unix timestamp'i DateTime'e çevir
+            final timestamp = DateTime.fromMillisecondsSinceEpoch(
+              (item['value_timestamp'] ?? 0) * 1000
+            );
+            
+            final value = (item['value'] ?? 0.0);
+            final batteryPercentage = (item['battery_percentage'] ?? 100);
+            final signalStrength = (item['signal_strength'] ?? 90);
+            
+            print('Timestamp: $timestamp, Value: $value, Battery: $batteryPercentage, Signal: $signalStrength');
             
             formattedData.add({
               'id': item['id'] ?? 0,
               'timestamp': timestamp,
               'value': value is num ? value.toDouble() : 0.0,
-              'min_value': minValue is num ? minValue.toDouble() : 0.0,
-              'max_value': maxValue is num ? maxValue.toDouble() : 0.0,
+              'min_value': value is num ? value.toDouble() : 0.0, // API'den gelmiyor, value kullan
+              'max_value': value is num ? value.toDouble() : 0.0, // API'den gelmiyor, value kullan
               'quality': 'good', // Varsayılan değer
-              'battery_percentage': 100, // Varsayılan değer
-              'signal_strength': 100, // Varsayılan değer
+              'battery_percentage': batteryPercentage,
+              'signal_strength': signalStrength,
             });
           } catch (itemError) {
             print('Veri öğesi işlenirken hata: $itemError');
@@ -125,8 +120,7 @@ class _LogScreenState extends State<LogScreen> {
         
         print('Formatlanmış log verisi: ${formattedData.length} kayıt');
       } else {
-        print('API\'den veri gelmedi veya başarısız');
-        print('Log data: $logData');
+        print('API\'den veri gelmedi veya boş');
         setState(() {
           _logData = [];
         });
