@@ -1217,6 +1217,12 @@ class JSONReader:
                 max_id = max(channel.get('id', 0) for channel in existing_channels)
                 new_id = max_id + 1
             
+            # Min/max değerleri al
+            min_value = channel_data.get('minvalue', -10.0)
+            max_value = channel_data.get('maxvalue', 50.0)
+            min_value_reset = channel_data.get('minvaluereset', 0.0)
+            max_value_reset = channel_data.get('maxvaluereset', 40.0)
+            
             new_channel = {
                 "id": new_id,
                 "name": channel_data.get('channel_name', ''),
@@ -1230,11 +1236,8 @@ class JSONReader:
                 "channel_color": channel_data.get('channel_color', '#FF0000'),
                 "sensor_name": channel_data.get('sensor_name', 'DS18B20'),
                 "parameter": channel_data.get('parameter', 'temperature'),
-                "unit": channel_data.get('unit', '°C'),
-                "minvalue": channel_data.get('minvalue', -10.0),
-                "minvaluereset": channel_data.get('minvaluereset', 0.0),
-                "maxvalue": channel_data.get('maxvalue', 50.0),
-                "maxvaluereset": channel_data.get('maxvaluereset', 40.0)
+                "unit": channel_data.get('unit', '°C')
+                # minvalue, minvaluereset, maxvalue, maxvaluereset alanları kaldırıldı
             }
             
             existing_channels.append(new_channel)
@@ -1243,9 +1246,185 @@ class JSONReader:
             with open(file_path, 'w', encoding='utf-8') as file:
                 json.dump(current_data, file, indent=2, ensure_ascii=False)
             
+            # Alarm.json dosyasına min/max değerleri ekle
+            self._add_alarm_for_channel(new_id, min_value, max_value, min_value_reset, max_value_reset)
+            
+            # Yeni kanal için otomatik data ekle
+            self._add_data_for_channel(new_id, min_value, max_value)
+            
             logger.info(f"Yeni kanal başarıyla eklendi: ID {new_id}, İsim: {new_channel['name']}")
             return True
             
         except Exception as e:
             logger.error(f"Kanal ekleme hatası: {e}")
+            return False
+
+    def _add_alarm_for_channel(self, channel_id: int, min_value: float, max_value: float, min_value_reset: float, max_value_reset: float) -> bool:
+        """Kanal için alarm ayarlarını ekle"""
+        try:
+            alarm_file_path = os.path.join(self.alarm_path, "alarm.json")
+            current_alarm_data = self._read_json_file(alarm_file_path)
+            if current_alarm_data is None:
+                current_alarm_data = {}
+            
+            # Kanal için alarm parametresi oluştur
+            parameter_key = f"parameter{channel_id}"
+            alarm_info = f"Kanal {channel_id} alarm ayarları"
+            
+            new_alarm_parameter = {
+                "channel_id": channel_id,
+                "alarminfo": alarm_info,
+                "alarms": [
+                    {
+                        "min_value": min_value,
+                        "max_value": max_value,
+                        "color": "#FF0000",
+                        "data_post_frequency": 1000
+                    }
+                ]
+            }
+            
+            current_alarm_data[parameter_key] = new_alarm_parameter
+            
+            with open(alarm_file_path, 'w', encoding='utf-8') as file:
+                json.dump(current_alarm_data, file, indent=2, ensure_ascii=False)
+            
+            logger.info(f"Kanal {channel_id} için alarm ayarları eklendi")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Alarm ekleme hatası: {e}")
+            return False
+
+    def _add_data_for_channel(self, channel_id: int, min_value: float, max_value: float) -> bool:
+        """Yeni kanal için otomatik data ekle"""
+        try:
+            logger.info(f"Kanal {channel_id} için data ekleme başlatılıyor...")
+            data_file_path = os.path.join(self.variable_path, "data.json")
+            logger.info(f"Data dosya yolu: {data_file_path}")
+            
+            # Dosya yoksa oluştur
+            if not os.path.exists(data_file_path):
+                logger.info("Data.json dosyası yok, oluşturuluyor")
+                current_data = {"data": []}
+            else:
+                current_data = self._read_json_file(data_file_path)
+                if current_data is None:
+                    logger.info("Data.json dosyası boş, yeni oluşturuluyor")
+                    current_data = {"data": []}
+            
+            existing_data = current_data.get('data', [])
+            logger.info(f"Mevcut data sayısı: {len(existing_data)}")
+            
+            new_data_id = 1
+            if existing_data:
+                max_id = max(item.get('id', 0) for item in existing_data)
+                new_data_id = max_id + 1
+                logger.info(f"Yeni data ID: {new_data_id}")
+            
+            # Şu anki timestamp'i al
+            current_timestamp = int(time.time())
+            logger.info(f"Timestamp: {current_timestamp}")
+            
+            # Yeni data bloğu oluştur
+            new_data_entry = {
+                "id": new_data_id,
+                "channel": channel_id,
+                "value_type": 1,
+                "value_timestamp": current_timestamp,
+                "value": (min_value + max_value) / 2,  # Ortalama değer
+                "min_value": min_value,
+                "max_value": max_value,
+                "battery_percentage": 100,
+                "signal_strength": 90
+            }
+            
+            logger.info(f"Yeni data entry: {new_data_entry}")
+            
+            existing_data.append(new_data_entry)
+            current_data['data'] = existing_data
+            
+            # Dosyayı kaydet
+            with open(data_file_path, 'w', encoding='utf-8') as file:
+                json.dump(current_data, file, indent=2, ensure_ascii=False)
+            
+            logger.info(f"Kanal {channel_id} için otomatik data eklendi: ID {new_data_id}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Data ekleme hatası: {e}")
+            logger.error(traceback.format_exc())
+            return False
+
+    def migrate_existing_channels_to_alarm(self) -> bool:
+        """Mevcut channel.json dosyasındaki min/max değerleri alarm.json'a taşı"""
+        try:
+            logger.info("Mevcut kanalların min/max değerleri alarm.json'a taşınıyor...")
+            
+            # Channel.json dosyasını oku
+            channel_file_path = os.path.join(self.variable_path, "channel.json")
+            channel_data = self._read_json_file(channel_file_path)
+            
+            if channel_data is None or 'channel' not in channel_data:
+                logger.warning("Channel.json dosyası bulunamadı veya boş")
+                return False
+            
+            # Alarm.json dosyasını oku
+            alarm_file_path = os.path.join(self.alarm_path, "alarm.json")
+            alarm_data = self._read_json_file(alarm_file_path)
+            if alarm_data is None:
+                alarm_data = {}
+            
+            migrated_count = 0
+            
+            for channel in channel_data['channel']:
+                channel_id = channel.get('id')
+                if channel_id is None:
+                    continue
+                
+                # Min/max değerleri al
+                min_value = channel.get('minvalue', -10.0)
+                max_value = channel.get('maxvalue', 50.0)
+                min_value_reset = channel.get('minvaluereset', 0.0)
+                max_value_reset = channel.get('maxvaluereset', 40.0)
+                
+                # Channel'dan min/max değerleri kaldır
+                if 'minvalue' in channel:
+                    del channel['minvalue']
+                if 'minvaluereset' in channel:
+                    del channel['minvaluereset']
+                if 'maxvalue' in channel:
+                    del channel['maxvalue']
+                if 'maxvaluereset' in channel:
+                    del channel['maxvaluereset']
+                
+                # Alarm.json'a ekle
+                parameter_key = f"parameter{channel_id}"
+                if parameter_key not in alarm_data:
+                    alarm_data[parameter_key] = {
+                        "channel_id": channel_id,
+                        "alarminfo": f"Kanal {channel_id} alarm ayarları",
+                        "alarms": [
+                            {
+                                "min_value": min_value,
+                                "max_value": max_value,
+                                "color": "#FF0000",
+                                "data_post_frequency": 1000
+                            }
+                        ]
+                    }
+                    migrated_count += 1
+            
+            # Dosyaları kaydet
+            with open(channel_file_path, 'w', encoding='utf-8') as file:
+                json.dump(channel_data, file, indent=2, ensure_ascii=False)
+            
+            with open(alarm_file_path, 'w', encoding='utf-8') as file:
+                json.dump(alarm_data, file, indent=2, ensure_ascii=False)
+            
+            logger.info(f"{migrated_count} kanalın min/max değerleri alarm.json'a taşındı")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Kanal taşıma hatası: {e}")
             return False

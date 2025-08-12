@@ -280,6 +280,28 @@ class RESTfulService {
     }
   }
 
+  /// Kanal min/max değerlerini alarm.json'a taşı (/api/migrate_channels_to_alarm)
+  Future<bool> migrateChannelsToAlarm() async {
+    try {
+      print('Kanal migration isteği gönderiliyor');
+      final response = await http.post(
+        Uri.parse('$_baseUrl/migrate_channels_to_alarm'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(const Duration(seconds: 10));
+
+      print('Kanal migration yanıtı: ${response.statusCode} - ${response.body}');
+      
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['success'] == true;
+      }
+      return false;
+    } catch (e) {
+      print('Kanal migration hatası: $e');
+      return false;
+    }
+  }
+
   /// Kanalı sil
   Future<bool> deleteChannel(int channelId) async {
     try {

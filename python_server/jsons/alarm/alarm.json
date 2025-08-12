@@ -1,11 +1,11 @@
 {
-  "parameter3": {
-    "channel_id": 3,
-    "alarminfo": "Kanal 3 alarm ayarları",
+  "parameter1": {
+    "channel_id": 1,
+    "alarminfo": "Kanal 1 alarm ayarları",
     "alarms": [
       {
-        "min_value": 12,
-        "max_value": 12,
+        "min_value": -10,
+        "max_value": 50,
         "color": "#FF0000",
         "data_post_frequency": 1000
       }

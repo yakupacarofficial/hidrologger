@@ -1,34 +1,15 @@
 {
   "data": [
     {
+      "id": 1,
       "channel": 1,
       "value_type": 1,
-      "value_timestamp": 1625247600,
-      "value": 10000,
-      "min_value": 25.5,
-      "max_value": 25.5,
-      "battery_percentage": 85,
-      "signal_strength": 92
-    },
-    {
-      "channel": 2,
-      "value_type": 1,
-      "value_timestamp": 1625247600,
-      "value": 65.2,
-      "min_value": 65.2,
-      "max_value": 65.2,
-      "battery_percentage": 90,
-      "signal_strength": 95
-    },
-    {
-      "channel": 3,
-      "value_type": 1,
-      "value_timestamp": 1625247600,
-      "value": 1013.25,
-      "min_value": 1013.25,
-      "max_value": 1013.25,
-      "battery_percentage": 78,
-      "signal_strength": 88
+      "value_timestamp": 1755012992,
+      "value": 20.0,
+      "min_value": -10,
+      "max_value": 50,
+      "battery_percentage": 100,
+      "signal_strength": 90
     }
   ]
 }

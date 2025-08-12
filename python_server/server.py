@@ -40,12 +40,27 @@ class RESTfulServer:
         
         @self.app.route('/api/data', methods=['GET'])
         def get_data():
-            """Tüm anlık verileri getir"""
+            """Tüm anlık verileri getir - Yeni JSON yapısı"""
             try:
                 logger.info("Tüm anlık veriler istendi")
-                data = self.json_reader.get_data()
+                data_list = self.json_reader.get_data()
                 
-                return jsonify(data)
+                # Yeni JSON yapısına dönüştür
+                formatted_data = []
+                for item in data_list:
+                    formatted_item = {
+                        "battery_percentage": item.get('battery_percentage', 100),
+                        "channelID": item.get('channel', 0),
+                        "max_value": item.get('max_value', 0),
+                        "min_value": item.get('min_value', 0),
+                        "signal_strength": item.get('signal_strength', 90),
+                        "value": item.get('value', 0),
+                        "value_timestamp": item.get('value_timestamp', int(time.time())),
+                        "value_type": item.get('value_type', 1)
+                    }
+                    formatted_data.append(formatted_item)
+                
+                return jsonify(formatted_data)
                     
             except Exception as e:
                 logger.error(f"Anlık veri getirme hatası: {e}")
@@ -214,6 +229,38 @@ class RESTfulServer:
                     "success": False,
                     "error": str(e)
                 }), 500
+
+        @self.app.route('/api/alarm/<int:alarm_id>', methods=['GET'])
+        def get_alarm_by_id(alarm_id):
+            """Belirtilen ID'li alarm bilgisini getir"""
+            try:
+                logger.info(f"ID {alarm_id} olan alarm bilgisi istendi")
+                alarm_data = self.json_reader.get_alarm_data()
+                
+                if alarm_data is not None:
+                    parameter_key = f"parameter{alarm_id}"
+                    if parameter_key in alarm_data:
+                        return jsonify({
+                            "success": True,
+                            "data": alarm_data[parameter_key],
+                            "timestamp": datetime.now().isoformat()
+                        })
+                    else:
+                        return jsonify({
+                            "success": False,
+                            "error": f"ID {alarm_id} olan alarm bulunamadı"
+                        }), 404
+                else:
+                    return jsonify({
+                        "success": False,
+                        "error": "Alarm verileri bulunamadı"
+                    }), 404
+            except Exception as e:
+                logger.error(f"Alarm ID {alarm_id} getirme hatası: {e}")
+                return jsonify({
+                    "success": False,
+                    "error": str(e)
+                }), 500
         
         @self.app.route('/api/channel', methods=['GET'])
         def get_channels():
@@ -322,6 +369,26 @@ class RESTfulServer:
                     return jsonify({"error": "Kanal eklenirken hata oluştu"}), 500
             except Exception as e:
                 logger.error(f"Kanal ekleme hatası: {e}")
+                return jsonify({"error": str(e)}), 500
+
+        @self.app.route('/api/migrate_channels_to_alarm', methods=['POST'])
+        def migrate_channels_to_alarm():
+            """Mevcut channel.json dosyasındaki min/max değerleri alarm.json'a taşı"""
+            try:
+                logger.info("Kanal migration isteği alındı")
+                
+                success = self.json_reader.migrate_existing_channels_to_alarm()
+                if success:
+                    logger.info("Kanal migration başarıyla tamamlandı")
+                    return jsonify({
+                        "success": True, 
+                        "message": "Kanal min/max değerleri alarm.json'a taşındı"
+                    }), 200
+                else:
+                    logger.error("Kanal migration başarısız")
+                    return jsonify({"error": "Migration sırasında hata oluştu"}), 500
+            except Exception as e:
+                logger.error(f"Kanal migration hatası: {e}")
                 return jsonify({"error": str(e)}), 500
 
         @self.app.route('/api/channel/<int:channel_id>', methods=['PUT'])

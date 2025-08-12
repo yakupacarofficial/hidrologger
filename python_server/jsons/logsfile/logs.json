@@ -2,138 +2,14 @@
   "logs": {
     "channel_1": {
       "channel_id": 1,
-      "channel_name": "TEST-1",
+      "channel_name": "sadasd111",
       "data": [
         {
           "id": 1,
-          "timestamp": "2025-08-11T16:11:59Z",
-          "value": 15,
-          "min_value": 14,
-          "max_value": 15
-        },
-        {
-          "id": 2,
-          "timestamp": "2025-08-11T16:11:59Z",
-          "value": 15,
-          "min_value": 15,
-          "max_value": 15
-        },
-        {
-          "id": 3,
-          "timestamp": "2021-07-02T20:40:00Z",
-          "value": 25.5,
-          "min_value": 0,
-          "max_value": 0
-        },
-        {
-          "id": 4,
-          "timestamp": "2021-07-02T20:40:00Z",
-          "value": 25.5,
-          "min_value": 25.5,
-          "max_value": 25.5
-        },
-        {
-          "id": 5,
-          "timestamp": "2021-07-02T21:40:00Z",
-          "value": 26.1,
-          "min_value": 25.5,
-          "max_value": 26.1
-        },
-        {
-          "id": 6,
-          "timestamp": "2021-07-02T20:40:00Z",
-          "value": 25.55555,
-          "min_value": 25.5,
-          "max_value": 25.5
-        },
-        {
-          "id": 7,
-          "timestamp": "2021-07-02T20:40:00Z",
-          "value": 10000,
-          "min_value": 25.5,
-          "max_value": 25.5
-        }
-      ]
-    },
-    "channel_2": {
-      "channel_id": 2,
-      "channel_name": "TEST-KANAL-2",
-      "data": [
-        {
-          "id": 1,
-          "timestamp": "2025-08-11T16:13:18Z",
-          "value": 0,
-          "min_value": 0,
-          "max_value": 0
-        },
-        {
-          "id": 2,
-          "timestamp": "2025-08-11T16:13:18Z",
-          "value": 22,
-          "min_value": 11,
-          "max_value": 22
-        },
-        {
-          "id": 3,
-          "timestamp": "2025-08-11T16:13:18Z",
-          "value": 22,
-          "min_value": 0,
-          "max_value": 22
-        },
-        {
-          "id": 4,
-          "timestamp": "2021-07-02T20:40:00Z",
-          "value": 65.2,
-          "min_value": 0,
-          "max_value": 0
-        },
-        {
-          "id": 5,
-          "timestamp": "2021-07-02T20:40:00Z",
-          "value": 65.2,
-          "min_value": 65.2,
-          "max_value": 65.2
-        },
-        {
-          "id": 6,
-          "timestamp": "2021-07-02T21:40:00Z",
-          "value": 67.8,
-          "min_value": 65.2,
-          "max_value": 67.8
-        }
-      ]
-    },
-    "channel_3": {
-      "channel_id": 3,
-      "channel_name": "ASDASDASDSADSA3333",
-      "data": [
-        {
-          "id": 1,
-          "timestamp": "2025-08-11T19:17:41Z",
-          "value": 0,
-          "min_value": 0,
-          "max_value": 0
-        },
-        {
-          "id": 2,
-          "timestamp": "2021-07-02T20:40:00Z",
-          "value": 1013.25,
-          "min_value": 0,
-          "max_value": 0
-        },
-        {
-          "id": 3,
-          "timestamp": "2021-07-02T20:40:00Z",
-          "value": 1013.25,
-          "min_value": 1013.25,
-          "max_value": 1013.25
-        },
-        {
-          "id": 4,
-          "timestamp": "2021-07-02T21:40:00Z",
-          "value": 1014.5,
-          "min_value": 1013.25,
-          "max_value": 1014.5
+          "timestamp": "2025-08-12T18:36:32Z",
+          "value": 20.0,
+          "min_value": -10,
+          "max_value": 50
         }
       ]
     }
