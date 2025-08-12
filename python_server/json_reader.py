@@ -1112,3 +1112,93 @@ class JSONReader:
         except Exception as e:
             logger.error(f"Channel.json veri getirme hatası: {e}")
             return {"channel": []}
+
+    def get_channels(self) -> List[Dict[str, Any]]:
+        """Tüm kanalları getir"""
+        try:
+            file_path = os.path.join(self.variable_path, "channel.json")
+            channel_data = self._read_json_file(file_path)
+            
+            if channel_data is None or not channel_data:
+                logger.warning("Channel.json dosyası okunamadı veya boş")
+                return []
+            
+            if 'channel' in channel_data and channel_data['channel']:
+                logger.info(f"{len(channel_data['channel'])} kanal bulundu")
+                return channel_data['channel']
+            
+            logger.warning("Kanal verisi bulunamadı")
+            return []
+            
+        except Exception as e:
+            logger.error(f"Kanal verileri getirme hatası: {e}")
+            return []
+
+    def get_channel(self, channel_id: int) -> Optional[Dict[str, Any]]:
+        """Belirtilen ID'li kanal bilgisini getir"""
+        try:
+            file_path = os.path.join(self.variable_path, "channel.json")
+            channel_data = self._read_json_file(file_path)
+            
+            if channel_data is None or not channel_data:
+                logger.warning("Channel.json dosyası okunamadı veya boş")
+                return None
+            
+            if 'channel' in channel_data and channel_data['channel']:
+                for channel in channel_data['channel']:
+                    if channel.get('id') == channel_id:
+                        logger.info(f"ID {channel_id} olan kanal bulundu")
+                        return channel
+            
+            logger.warning(f"ID {channel_id} olan kanal bulunamadı")
+            return None
+            
+        except Exception as e:
+            logger.error(f"Kanal ID {channel_id} getirme hatası: {e}")
+            return None
+
+    def get_data(self) -> List[Dict[str, Any]]:
+        """Tüm anlık verileri getir"""
+        try:
+            file_path = os.path.join(self.variable_path, "data.json")
+            data_json = self._read_json_file(file_path)
+            
+            if data_json is None or not data_json:
+                logger.warning("Data.json dosyası okunamadı veya boş")
+                return []
+            
+            if 'data' in data_json and data_json['data']:
+                logger.info(f"{len(data_json['data'])} anlık veri bulundu")
+                return data_json['data']
+            
+            logger.warning("Anlık veri bulunamadı")
+            return []
+            
+        except Exception as e:
+            logger.error(f"Anlık veri getirme hatası: {e}")
+            return []
+
+    def get_channel_data(self, channel_id: int) -> List[Dict[str, Any]]:
+        """Belirtilen kanal ID'sine ait anlık verileri getir"""
+        try:
+            file_path = os.path.join(self.variable_path, "data.json")
+            data_json = self._read_json_file(file_path)
+            
+            if data_json is None or not data_json:
+                logger.warning("Data.json dosyası okunamadı veya boş")
+                return []
+            
+            if 'data' in data_json and data_json['data']:
+                channel_data = [
+                    item for item in data_json['data'] 
+                    if item.get('channel') == channel_id
+                ]
+                logger.info(f"Kanal {channel_id} için {len(channel_data)} anlık veri bulundu")
+                return channel_data
+            
+            logger.warning(f"Kanal {channel_id} için anlık veri bulunamadı")
+            return []
+            
+        except Exception as e:
+            logger.error(f"Kanal {channel_id} anlık veri getirme hatası: {e}")
+            return []

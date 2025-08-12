@@ -1,3 +1,28 @@
 {
-  "data": []
+  "data": [
+    {
+      "channel": 1,
+      "value_type": 1,
+      "value_timestamp": 1625247600,
+      "value": 25.5,
+      "battery_percentage": 85,
+      "signal_strength": 92
+    },
+    {
+      "channel": 2,
+      "value_type": 1,
+      "value_timestamp": 1625247600,
+      "value": 65.2,
+      "battery_percentage": 90,
+      "signal_strength": 88
+    },
+    {
+      "channel": 3,
+      "value_type": 1,
+      "value_timestamp": 1625247600,
+      "value": 1013.25,
+      "battery_percentage": 78,
+      "signal_strength": 85
+    }
+  ]
 }

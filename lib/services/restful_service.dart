@@ -408,6 +408,91 @@ class RESTfulService {
     }
   }
 
+  /// Tüm kanalları getir
+  Future<List<Map<String, dynamic>>?> fetchChannels() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/channel'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data is List) {
+          return List<Map<String, dynamic>>.from(data);
+        }
+      }
+      return null;
+    } catch (e) {
+      print('Kanal listesi getirme hatası: $e');
+      return null;
+    }
+  }
+
+  /// Belirtilen ID'li kanal bilgisini getir
+  Future<Map<String, dynamic>?> fetchChannel(int channelId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/channel/$channelId'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data;
+      } else if (response.statusCode == 404) {
+        print('Kanal bulunamadı: ID $channelId');
+        return null;
+      }
+      return null;
+    } catch (e) {
+      print('Kanal bilgi getirme hatası: $e');
+      return null;
+    }
+  }
+
+  /// Tüm anlık verileri getir
+  Future<List<Map<String, dynamic>>?> fetchData() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/data'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data is List) {
+          return List<Map<String, dynamic>>.from(data);
+        }
+      }
+      return null;
+    } catch (e) {
+      print('Anlık veri getirme hatası: $e');
+      return null;
+    }
+  }
+
+  /// Belirtilen kanal ID'sine ait anlık verileri getir
+  Future<List<Map<String, dynamic>>?> fetchChannelData(int channelId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/data/$channelId'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data is List) {
+          return List<Map<String, dynamic>>.from(data);
+        }
+      }
+      return null;
+    } catch (e) {
+      print('Kanal anlık veri getirme hatası: $e');
+      return null;
+    }
+  }
+
   /// Veri akışını başlat
   void startPolling({int intervalSeconds = 5}) {
     if (_isPolling) return;

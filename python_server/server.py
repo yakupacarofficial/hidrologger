@@ -39,20 +39,32 @@ class RESTfulServer:
         """API endpoint'lerini tanımla"""
         
         @self.app.route('/api/data', methods=['GET'])
-        def get_all_data():
-            """Tüm verileri getir"""
+        def get_data():
+            """Tüm anlık verileri getir"""
             try:
-                logger.info("Tüm veriler istendi")
-                data = self.json_reader.read_all_data()
-                return jsonify({
-                    "success": True,
-                    "data": data,
-                    "timestamp": datetime.now().isoformat()
-                })
+                logger.info("Tüm anlık veriler istendi")
+                data = self.json_reader.get_data()
+                
+                return jsonify(data)
+                    
             except Exception as e:
-                logger.error(f"Veri getirme hatası: {e}")
+                logger.error(f"Anlık veri getirme hatası: {e}")
                 return jsonify({
-                    "success": False,
+                    "error": str(e)
+                }), 500
+
+        @self.app.route('/api/data/<int:channel_id>', methods=['GET'])
+        def get_channel_data(channel_id):
+            """Belirtilen kanal ID'sine ait anlık verileri getir"""
+            try:
+                logger.info(f"Kanal {channel_id} anlık verileri istendi")
+                channel_data = self.json_reader.get_channel_data(channel_id)
+                
+                return jsonify(channel_data)
+                    
+            except Exception as e:
+                logger.error(f"Kanal {channel_id} anlık veri getirme hatası: {e}")
+                return jsonify({
                     "error": str(e)
                 }), 500
         
@@ -203,6 +215,41 @@ class RESTfulServer:
                     "error": str(e)
                 }), 500
         
+        @self.app.route('/api/channel', methods=['GET'])
+        def get_channels():
+            """Tüm kanalları listele"""
+            try:
+                logger.info("Tüm kanallar istendi")
+                channels = self.json_reader.get_channels()
+                
+                return jsonify(channels)
+                    
+            except Exception as e:
+                logger.error(f"Kanal listesi getirme hatası: {e}")
+                return jsonify({
+                    "error": str(e)
+                }), 500
+
+        @self.app.route('/api/channel/<int:channel_id>', methods=['GET'])
+        def get_channel(channel_id):
+            """Belirtilen ID'li kanal bilgisini getir"""
+            try:
+                logger.info(f"ID {channel_id} olan kanal bilgisi istendi")
+                channel_data = self.json_reader.get_channel(channel_id)
+                
+                if channel_data:
+                    return jsonify(channel_data)
+                else:
+                    return jsonify({
+                        "error": f"ID {channel_id} olan kanal bulunamadı"
+                    }), 404
+                    
+            except Exception as e:
+                logger.error(f"Kanal ID {channel_id} getirme hatası: {e}")
+                return jsonify({
+                    "error": str(e)
+                }), 500
+
         @self.app.route('/api/channel', methods=['POST'])
         def create_channel():
             """Yeni kanal oluştur"""

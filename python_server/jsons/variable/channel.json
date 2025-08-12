@@ -1,3 +1,37 @@
 {
-  "channel": []
+  "channel": [
+    {
+      "id": 1,
+      "name": "Sıcaklık",
+      "description": "Hava sıcaklık ölçümü",
+      "channel_category": "TarimsalSulama",
+      "channel_sub_category": "SolSahilSulama",
+      "channel_parameter": 101,
+      "measurement_unit": 1,
+      "log_interval": 60,
+      "offset": 0.0
+    },
+    {
+      "id": 2,
+      "name": "Nem",
+      "description": "Bağıl nem ölçümü",
+      "channel_category": "TarimsalSulama",
+      "channel_sub_category": "SolSahilSulama",
+      "channel_parameter": 102,
+      "measurement_unit": 2,
+      "log_interval": 60,
+      "offset": 0.0
+    },
+    {
+      "id": 3,
+      "name": "Basınç",
+      "description": "Atmosferik basınç ölçümü",
+      "channel_category": "TarimsalSulama",
+      "channel_sub_category": "SolSahilSulama",
+      "channel_parameter": 103,
+      "measurement_unit": 3,
+      "log_interval": 60,
+      "offset": 0.0
+    }
+  ]
 }

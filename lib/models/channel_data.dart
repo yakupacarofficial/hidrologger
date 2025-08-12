@@ -95,14 +95,43 @@ class Channel {
       id: json['id'] ?? 0,
       name: json['name'] ?? '',
       description: json['description'] ?? '',
-      channelCategory: json['channel_category'] ?? 0,
-      channelSubCategory: json['channel_sub_category'] ?? 0,
+      channelCategory: _parseChannelCategory(json['channel_category']),
+      channelSubCategory: _parseChannelSubCategory(json['channel_sub_category']),
       channelParameter: json['channel_parameter'] ?? 0,
       measurementUnit: json['measurement_unit'] ?? 0,
       logInterval: json['log_interval'] ?? 0,
       offset: (json['offset'] ?? 0.0).toDouble(),
       channelData: channelData,
     );
+  }
+
+  // String olarak gelen category'leri int'e çevir
+  static int _parseChannelCategory(dynamic category) {
+    if (category is int) return category;
+    if (category is String) {
+      switch (category) {
+        case 'TarimsalSulama': return 1;
+        case 'Kuyu': return 2;
+        case 'Akarsu': return 3;
+        case 'Gol': return 4;
+        default: return 1; // Varsayılan
+      }
+    }
+    return 1; // Varsayılan
+  }
+
+  // String olarak gelen sub_category'leri int'e çevir
+  static int _parseChannelSubCategory(dynamic subCategory) {
+    if (subCategory is int) return subCategory;
+    if (subCategory is String) {
+      switch (subCategory) {
+        case 'SolSahilSulama': return 1;
+        case 'SagSahilSulama': return 2;
+        case 'MerkezSulama': return 3;
+        default: return 1; // Varsayılan
+      }
+    }
+    return 1; // Varsayılan
   }
 
   // Sabit verileri ConstantDataService'den alacak getter'lar
