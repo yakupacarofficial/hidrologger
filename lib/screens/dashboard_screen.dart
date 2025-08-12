@@ -10,6 +10,7 @@ import 'constant_data_screen.dart';
 import 'alarm_management_screen.dart';
 import 'sensor_wizard/sensor_wizard_screen.dart';
 import 'channel_wizard/channel_wizard_screen.dart';
+import 'station_detail_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   final RESTfulService restfulService;
@@ -35,9 +36,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Map<String, dynamic>? _stationInfo;
   String? _wifiIPAddress;
   
-  // İstasyon detay bilgileri
-  Map<String, dynamic>? _detailedStationInfo;
-  bool _isLoadingStation = false;
+
 
   @override
   void initState() {
@@ -103,49 +102,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  void _loadDetailedStationInfo() async {
-    if (_isLoadingStation) return;
-    
-    setState(() {
-      _isLoadingStation = true;
-    });
-    
-    try {
-      // RESTful API'den detaylı istasyon bilgilerini çek
-      final detailedInfo = await widget.restfulService.fetchStationById(1);
-      
-      if (mounted) {
-        setState(() {
-          _detailedStationInfo = detailedInfo;
-          _isLoadingStation = false;
-        });
-        
-        // Başarı mesajı göster
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('İstasyon bilgileri güncellendi!'),
-            backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoadingStation = false;
-        });
-        
-        // Hata mesajı göster
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('İstasyon bilgileri yüklenemedi: $e'),
-            backgroundColor: Colors.red,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-    }
-  }
+
 
   @override
   void dispose() {
@@ -381,6 +338,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
             } : null,
             tooltip: 'Alarm Yönetimi',
           ),
+          IconButton(
+            icon: const Icon(Icons.location_on),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => StationDetailScreen(
+                    restfulService: widget.restfulService,
+                  ),
+                ),
+              );
+            },
+            tooltip: 'İstasyon Detayları',
+          ),
           ConnectionStatusBadge(
             isConnected: _isConnected,
             status: _connectionStatus,
@@ -426,38 +396,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
           
-          // İstasyon Butonu ve Bilgi Kartları
+          // İstasyon Bilgi Kartları
           Container(
             padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
             child: Row(
               children: [
                 Expanded(
-                  flex: 2,
-                  child: ElevatedButton.icon(
-                    onPressed: _isLoadingStation ? null : _loadDetailedStationInfo,
-                    icon: _isLoadingStation 
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.location_on),
-                    label: Text(_isLoadingStation ? 'Yükleniyor...' : 'İstasyonu Göster'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.purple,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
                   child: InfoCard(
                     title: 'Station',
-                    value: _detailedStationInfo?['name'] ?? _stationInfo?['name'] ?? '--',
+                    value: _stationInfo?['name'] ?? '--',
                     icon: Icons.location_on,
                     color: Colors.purple,
                   ),
@@ -466,7 +413,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Expanded(
                   child: InfoCard(
                     title: 'Station Kodu',
-                    value: _detailedStationInfo?['code'] ?? _stationInfo?['code'] ?? '--',
+                    value: _stationInfo?['code'] ?? '--',
                     icon: Icons.qr_code,
                     color: Colors.indigo,
                   ),
@@ -484,95 +431,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
           
-          // Detaylı İstasyon Bilgileri Bölümü
-          if (_detailedStationInfo != null) ...[
-            Container(
-              margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.purple.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.purple.withOpacity(0.3)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.purple.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(
-                          Icons.info_outline,
-                          color: Colors.purple,
-                          size: 20,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        'İstasyon Detayları',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.purple,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildDetailItem('İstasyon Adı', _detailedStationInfo!['name'] ?? '--'),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: _buildDetailItem('İstasyon Kodu', _detailedStationInfo!['code'] ?? '--'),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildDetailItem('Bölge', '${_detailedStationInfo!['region'] ?? '--'}'),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: _buildDetailItem('Havza', '${_detailedStationInfo!['basin'] ?? '--'}'),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildDetailItem('İstasyon No', '${_detailedStationInfo!['no'] ?? '--'}'),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: _buildDetailItem('Telefon', _detailedStationInfo!['phone'] ?? '--'),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildDetailItem('Enlem', '${_detailedStationInfo!['latitude'] ?? '--'}°'),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: _buildDetailItem('Boylam', '${_detailedStationInfo!['longitude'] ?? '--'}°'),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
+
           
           // Arama Kutusu
           Container(
@@ -965,26 +824,5 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  Widget _buildDetailItem(String label, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Colors.purple.withOpacity(0.7),
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: Colors.purple.shade800,
-          ),
-        ),
-      ],
-    );
-  }
+
 } 
