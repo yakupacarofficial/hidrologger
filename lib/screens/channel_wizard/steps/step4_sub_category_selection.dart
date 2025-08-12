@@ -58,7 +58,9 @@ class _Step4SubCategorySelectionState extends State<Step4SubCategorySelection> {
     setState(() {
       _selectedSubCategoryId = subCategoryId;
     });
-    widget.wizardData.channelSubCategory = subCategoryId;
+    // String değer olarak kaydet
+    final subCategoryName = _subCategories[subCategoryId] ?? 'SolSahilSulama';
+    widget.wizardData.selectedSubCategory = subCategoryName;
   }
 
   bool get _canProceed => _selectedSubCategoryId != null;

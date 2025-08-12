@@ -2,36 +2,41 @@
   "channel": [
     {
       "id": 1,
-      "name": "Sıcaklık",
-      "description": "Hava sıcaklık ölçümü",
-      "channel_category": "TarimsalSulama",
+      "name": "Test Kanal",
+      "description": "Test açıklama",
+      "channel_category": "Kuyu",
       "channel_sub_category": "SolSahilSulama",
       "channel_parameter": 101,
       "measurement_unit": 1,
       "log_interval": 60,
-      "offset": 0.0
+      "offset": 0.5,
+      "channel_color": "#FF0000",
+      "sensor_name": "DS18B20",
+      "parameter": "temperature",
+      "unit": "°C",
+      "minvalue": -10.0,
+      "minvaluereset": 0.0,
+      "maxvalue": 50.0,
+      "maxvaluereset": 40.0
     },
     {
       "id": 2,
-      "name": "Nem",
-      "description": "Bağıl nem ölçümü",
-      "channel_category": "TarimsalSulama",
-      "channel_sub_category": "SolSahilSulama",
-      "channel_parameter": 102,
-      "measurement_unit": 2,
+      "name": "asdasd",
+      "description": "asdsadas",
+      "channel_category": "Kuyu",
+      "channel_sub_category": "TarimsalSulama",
+      "channel_parameter": 101,
+      "measurement_unit": 1,
       "log_interval": 60,
-      "offset": 0.0
-    },
-    {
-      "id": 3,
-      "name": "Basınç",
-      "description": "Atmosferik basınç ölçümü",
-      "channel_category": "TarimsalSulama",
-      "channel_sub_category": "SolSahilSulama",
-      "channel_parameter": 103,
-      "measurement_unit": 3,
-      "log_interval": 60,
-      "offset": 0.0
+      "offset": 122222222,
+      "channel_color": "#2a4d68",
+      "sensor_name": "DS18B20",
+      "parameter": "WAP",
+      "unit": "mmHg",
+      "minvalue": 123,
+      "minvaluereset": 12,
+      "maxvalue": 504,
+      "maxvaluereset": 405
     }
   ]
 }

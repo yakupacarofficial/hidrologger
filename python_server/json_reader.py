@@ -1202,3 +1202,50 @@ class JSONReader:
         except Exception as e:
             logger.error(f"Kanal {channel_id} anlık veri getirme hatası: {e}")
             return []
+
+    def add_channel(self, channel_data: Dict[str, Any]) -> bool:
+        """Yeni kanal ekle"""
+        try:
+            file_path = os.path.join(self.variable_path, "channel.json")
+            current_data = self._read_json_file(file_path)
+            if current_data is None:
+                current_data = {"channel": []}
+            
+            existing_channels = current_data.get('channel', [])
+            new_id = 1
+            if existing_channels:
+                max_id = max(channel.get('id', 0) for channel in existing_channels)
+                new_id = max_id + 1
+            
+            new_channel = {
+                "id": new_id,
+                "name": channel_data.get('channel_name', ''),
+                "description": channel_data.get('channel_description', ''),
+                "channel_category": channel_data.get('category', 'Kuyu'),
+                "channel_sub_category": channel_data.get('sub_category', 'SolSahilSulama'),
+                "channel_parameter": 101,  # Varsayılan değer
+                "measurement_unit": 1,  # Varsayılan değer
+                "log_interval": 60,
+                "offset": channel_data.get('offset', 0.0),
+                "channel_color": channel_data.get('channel_color', '#FF0000'),
+                "sensor_name": channel_data.get('sensor_name', 'DS18B20'),
+                "parameter": channel_data.get('parameter', 'temperature'),
+                "unit": channel_data.get('unit', '°C'),
+                "minvalue": channel_data.get('minvalue', -10.0),
+                "minvaluereset": channel_data.get('minvaluereset', 0.0),
+                "maxvalue": channel_data.get('maxvalue', 50.0),
+                "maxvaluereset": channel_data.get('maxvaluereset', 40.0)
+            }
+            
+            existing_channels.append(new_channel)
+            current_data['channel'] = existing_channels
+            
+            with open(file_path, 'w', encoding='utf-8') as file:
+                json.dump(current_data, file, indent=2, ensure_ascii=False)
+            
+            logger.info(f"Yeni kanal başarıyla eklendi: ID {new_id}, İsim: {new_channel['name']}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Kanal ekleme hatası: {e}")
+            return False

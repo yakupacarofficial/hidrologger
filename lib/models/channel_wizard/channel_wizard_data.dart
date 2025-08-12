@@ -5,55 +5,61 @@ class ChannelWizardData {
   String channelColor = '#2196F3'; // Default mavi
 
   // Step 2: Sensör Seçimi
-  String selectedSensor = 'TPEC 3 Parametreli Sensör';
+  String selectedSensor = 'DS18B20';
 
   // Step 3: Ölçüm Seçimi
-  List<String> selectedMeasurements = []; // WAT, WAP, EC
+  String selectedParameter = 'temperature';
 
   // Step 4: Kategori Seçimi
-  String selectedCategory = '';
+  String selectedCategory = 'Kuyu';
   
   // Step 4.5: Sub Kategori Seçimi
-  int? channelSubCategory;
+  String selectedSubCategory = 'SolSahilSulama';
 
   // Step 5: Birim Seçimi
-  Map<String, String> selectedUnits = {}; // WAT -> °C, WAP -> bar, EC -> μS/cm
+  String selectedUnit = '°C';
 
   // Step 6: Offset Değeri
   double offsetValue = 0.0;
 
   // Step 7: Alarm Ayarları
-  Map<String, Map<String, double>> alarmSettings = {}; // measurement -> {min, max, minReset, maxReset}
+  double minValue = -10.0;
+  double maxValue = 50.0;
+  double minValueReset = 0.0;
+  double maxValueReset = 40.0;
 
   // Helper methods
   bool get isStep1Valid => channelName.isNotEmpty && channelDescription.isNotEmpty;
   
   bool get isStep2Valid => selectedSensor.isNotEmpty;
   
-  bool get isStep3Valid => selectedMeasurements.isNotEmpty;
+  bool get isStep3Valid => selectedParameter.isNotEmpty;
   
   bool get isStep4Valid => selectedCategory.isNotEmpty;
   
-  bool get isStep4SubCategoryValid => channelSubCategory != null;
+  bool get isStep4SubCategoryValid => selectedSubCategory.isNotEmpty;
   
-  bool get isStep5Valid => selectedUnits.length == selectedMeasurements.length;
+  bool get isStep5Valid => selectedUnit.isNotEmpty;
   
   bool get isStep6Valid => true; // Offset her zaman geçerli
   
-  bool get isStep7Valid => alarmSettings.isNotEmpty;
+  bool get isStep7Valid => minValue < maxValue;
 
   // Reset method
   void reset() {
     channelName = '';
     channelDescription = '';
     channelColor = '#2196F3';
-    selectedSensor = 'TPEC 3 Parametreli Sensör';
-    selectedMeasurements.clear();
-    selectedCategory = '';
-    channelSubCategory = null;
-    selectedUnits.clear();
+    selectedSensor = 'DS18B20';
+    selectedParameter = 'temperature';
+    selectedCategory = 'Kuyu';
+    selectedSubCategory = 'SolSahilSulama';
+    selectedUnit = '°C';
     offsetValue = 0.0;
-    alarmSettings.clear();
+    minValue = -10.0;
+    maxValue = 50.0;
+    minValueReset = 0.0;
+    maxValueReset = 40.0;
   }
 
   // Copy method
@@ -62,23 +68,29 @@ class ChannelWizardData {
     String? channelDescription,
     String? channelColor,
     String? selectedSensor,
-    List<String>? selectedMeasurements,
+    String? selectedParameter,
     String? selectedCategory,
-    int? channelSubCategory,
-    Map<String, String>? selectedUnits,
+    String? selectedSubCategory,
+    String? selectedUnit,
     double? offsetValue,
-    Map<String, Map<String, double>>? alarmSettings,
+    double? minValue,
+    double? maxValue,
+    double? minValueReset,
+    double? maxValueReset,
   }) {
     return ChannelWizardData()
       ..channelName = channelName ?? this.channelName
       ..channelDescription = channelDescription ?? this.channelDescription
       ..channelColor = channelColor ?? this.channelColor
       ..selectedSensor = selectedSensor ?? this.selectedSensor
-      ..selectedMeasurements = selectedMeasurements ?? this.selectedMeasurements
+      ..selectedParameter = selectedParameter ?? this.selectedParameter
       ..selectedCategory = selectedCategory ?? this.selectedCategory
-      ..channelSubCategory = channelSubCategory ?? this.channelSubCategory
-      ..selectedUnits = selectedUnits ?? this.selectedUnits
+      ..selectedSubCategory = selectedSubCategory ?? this.selectedSubCategory
+      ..selectedUnit = selectedUnit ?? this.selectedUnit
       ..offsetValue = offsetValue ?? this.offsetValue
-      ..alarmSettings = alarmSettings ?? this.alarmSettings;
+      ..minValue = minValue ?? this.minValue
+      ..maxValue = maxValue ?? this.maxValue
+      ..minValueReset = minValueReset ?? this.minValueReset
+      ..maxValueReset = maxValueReset ?? this.maxValueReset;
   }
 }

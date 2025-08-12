@@ -27,31 +27,31 @@ class _Step8SummaryState extends State<Step8Summary> {
     });
 
     try {
-      // Kanal verilerini hazırla - Mevcut format
+      // Yeni JSON yapısına göre kanal verilerini hazırla
       final channelData = {
-        'id': await _getNextChannelId(),
-        'name': widget.wizardData.channelName,
-        'description': widget.wizardData.channelDescription,
-        'channel_category': _getCategoryId(widget.wizardData.selectedCategory),
-        'channel_sub_category': _getSubCategoryId(widget.wizardData.selectedCategory),
-        'channel_parameter': _getParameterId(widget.wizardData.selectedMeasurements),
-        'measurement_unit': _getMeasurementUnitId(widget.wizardData.selectedUnits),
-        'value_type': widget.wizardData.selectedMeasurements.length,
-        'log_interval': 1000,
+        'channel_name': widget.wizardData.channelName,
+        'channel_description': widget.wizardData.channelDescription,
+        'channel_color': widget.wizardData.channelColor,
+        'sensor_name': widget.wizardData.selectedSensor,
+        'parameter': widget.wizardData.selectedParameter,
+        'unit': widget.wizardData.selectedUnit,
+        'category': widget.wizardData.selectedCategory,
+        'sub_category': widget.wizardData.selectedSubCategory,
         'offset': widget.wizardData.offsetValue,
+        'minvalue': widget.wizardData.minValue,
+        'minvaluereset': widget.wizardData.minValueReset,
+        'maxvalue': widget.wizardData.maxValue,
+        'maxvaluereset': widget.wizardData.maxValueReset,
       };
 
-      // Kanalı kaydet
-      final success = await widget.restfulService.createChannel(channelData);
+      // Yeni addChannel metodunu kullan
+      final success = await widget.restfulService.addChannel(channelData);
       
       if (success) {
-        // Alarm ayarlarını da kaydet
-        await _saveAlarmSettings(await _getNextChannelId() - 1);
-        
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Kanal ve alarm ayarları başarıyla oluşturuldu!'),
+              content: Text('Kanal başarıyla oluşturuldu!'),
               backgroundColor: Colors.green,
             ),
           );
@@ -77,11 +77,9 @@ class _Step8SummaryState extends State<Step8Summary> {
         );
       }
     } finally {
-      if (mounted) {
-        setState(() {
-          _isSaving = false;
-        });
-      }
+      setState(() {
+        _isSaving = false;
+      });
     }
   }
 
@@ -147,10 +145,7 @@ class _Step8SummaryState extends State<Step8Summary> {
           // Ölçüm Bilgileri
           _buildSummaryCard(
             'Ölçüm Bilgileri',
-            widget.wizardData.selectedMeasurements.map((measurement) {
-              final unit = widget.wizardData.selectedUnits[measurement] ?? '';
-              return '${_getMeasurementTitle(measurement)}: $unit';
-            }).toList(),
+            ['${_getMeasurementTitle(widget.wizardData.selectedParameter)}: ${widget.wizardData.selectedUnit}'],
             Icons.analytics,
             Colors.orange,
           ),
@@ -166,11 +161,12 @@ class _Step8SummaryState extends State<Step8Summary> {
           // Alarm Ayarları
           _buildSummaryCard(
             'Alarm Ayarları',
-            widget.wizardData.alarmSettings.entries.map((entry) {
-              final measurement = entry.key;
-              final settings = entry.value;
-              return '${_getMeasurementTitle(measurement)}: ${settings['min']} - ${settings['max']}';
-            }).toList(),
+            [
+              'Min Değer: ${widget.wizardData.minValue}',
+              'Max Değer: ${widget.wizardData.maxValue}',
+              'Min Reset: ${widget.wizardData.minValueReset}',
+              'Max Reset: ${widget.wizardData.maxValueReset}',
+            ],
             Icons.alarm,
             Colors.red,
           ),
@@ -257,9 +253,10 @@ class _Step8SummaryState extends State<Step8Summary> {
 
   String _getMeasurementTitle(String measurement) {
     switch (measurement) {
-      case 'WAT': return 'Su Sıcaklığı (WAT)';
-      case 'WAP': return 'Su Basıncı (WAP)';
-      case 'EC': return 'Elektriksel İletkenlik (EC)';
+      case 'temperature': return 'Sıcaklık';
+      case 'humidity': return 'Nem';
+      case 'pressure': return 'Basınç';
+      case 'conductivity': return 'İletkenlik';
       default: return measurement;
     }
   }
@@ -325,29 +322,5 @@ class _Step8SummaryState extends State<Step8Summary> {
     }
   }
 
-  // Alarm ayarlarını kaydet
-  Future<void> _saveAlarmSettings(int channelId) async {
-    try {
-      final alarmData = {
-        'parameter$channelId': {
-          'channel_id': channelId,
-          'alarminfo': 'Kanal $channelId alarm ayarları',
-          'alarms': widget.wizardData.alarmSettings.entries.map((entry) {
-            final settings = entry.value;
-            return {
-              'min_value': settings['min'],
-              'max_value': settings['max'],
-              'color': '#FF0000',
-              'data_post_frequency': 1000,
-            };
-          }).toList(),
-        }
-      };
 
-      // Alarm verilerini kaydet
-      await widget.restfulService.saveAlarmData(alarmData);
-    } catch (e) {
-      print('Alarm ayarları kaydedilirken hata: $e');
-    }
-  }
 }

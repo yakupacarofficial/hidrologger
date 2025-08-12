@@ -283,6 +283,47 @@ class RESTfulServer:
                     "error": str(e)
                 }), 500
 
+        @self.app.route('/api/add_channel', methods=['POST'])
+        def add_channel():
+            """Yeni kanal ekle"""
+            try:
+                logger.info("Yeni kanal ekleme isteği alındı")
+                data = request.get_json()
+                if not data:
+                    return jsonify({"error": "Geçersiz JSON verisi"}), 400
+                
+                required_fields = ['channel_name', 'channel_description']
+                for field in required_fields:
+                    if field not in data or not data[field]:
+                        return jsonify({"error": f"Gerekli alan eksik: {field}"}), 400
+                
+                new_channel = {
+                    "channel_name": data.get('channel_name', ''),
+                    "channel_description": data.get('channel_description', ''),
+                    "channel_color": data.get('channel_color', '#FF0000'),
+                    "sensor_name": data.get('sensor_name', 'DS18B20'),
+                    "parameter": data.get('parameter', 'temperature'),
+                    "unit": data.get('unit', '°C'),
+                    "category": data.get('category', 'Kuyu'),
+                    "sub_category": data.get('sub_category', 'SolSahilSulama'),
+                    "offset": data.get('offset', 0.0),
+                    "minvalue": data.get('minvalue', -10.0),
+                    "minvaluereset": data.get('minvaluereset', 0.0),
+                    "maxvalue": data.get('maxvalue', 50.0),
+                    "maxvaluereset": data.get('maxvaluereset', 40.0)
+                }
+                
+                success = self.json_reader.add_channel(new_channel)
+                if success:
+                    logger.info(f"Yeni kanal başarıyla eklendi: {new_channel['channel_name']}")
+                    return jsonify({"success": True, "message": "Kanal başarıyla eklendi", "channel": new_channel}), 200
+                else:
+                    logger.error("Kanal ekleme başarısız")
+                    return jsonify({"error": "Kanal eklenirken hata oluştu"}), 500
+            except Exception as e:
+                logger.error(f"Kanal ekleme hatası: {e}")
+                return jsonify({"error": str(e)}), 500
+
         @self.app.route('/api/channel/<int:channel_id>', methods=['PUT'])
         def update_channel_field(channel_id):
             """Kanal alanını güncelle"""

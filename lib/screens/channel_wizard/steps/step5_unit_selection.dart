@@ -18,19 +18,19 @@ class Step5UnitSelection extends StatefulWidget {
 }
 
 class _Step5UnitSelectionState extends State<Step5UnitSelection> {
-  final Map<String, String> _selectedUnits = {};
+  String _selectedUnit = '';
 
   @override
   void initState() {
     super.initState();
-    _selectedUnits.addAll(widget.wizardData.selectedUnits);
+    _selectedUnit = widget.wizardData.selectedUnit;
   }
 
-  void _selectUnit(String measurement, String unit) {
+  void _selectUnit(String unit) {
     setState(() {
-      _selectedUnits[measurement] = unit;
+      _selectedUnit = unit;
     });
-    widget.wizardData.selectedUnits = Map.from(_selectedUnits);
+    widget.wizardData.selectedUnit = unit;
   }
 
   void _saveAndNext() {
@@ -68,43 +68,41 @@ class _Step5UnitSelectionState extends State<Step5UnitSelection> {
           ),
           const SizedBox(height: 24),
           
-          ...widget.wizardData.selectedMeasurements.map((measurement) {
-            return Card(
-              margin: const EdgeInsets.only(bottom: 16),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _getMeasurementTitle(measurement),
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+          Card(
+            margin: const EdgeInsets.only(bottom: 16),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _getMeasurementTitle(widget.wizardData.selectedParameter),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: _getUnitsForMeasurement(measurement).map((unit) {
-                        final isSelected = _selectedUnits[measurement] == unit;
-                        return ChoiceChip(
-                          label: Text(unit),
-                          selected: isSelected,
-                          onSelected: (selected) {
-                            if (selected) {
-                              _selectUnit(measurement, unit);
-                            }
-                          },
-                        );
-                      }).toList(),
-                    ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: _getUnitsForMeasurement(widget.wizardData.selectedParameter).map((unit) {
+                      final isSelected = _selectedUnit == unit;
+                      return ChoiceChip(
+                        label: Text(unit),
+                        selected: isSelected,
+                        onSelected: (selected) {
+                          if (selected) {
+                            _selectUnit(unit);
+                          }
+                        },
+                      );
+                    }).toList(),
+                  ),
+                ],
               ),
-            );
-          }).toList(),
+            ),
+          ),
           
           const SizedBox(height: 32),
           

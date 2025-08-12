@@ -25,8 +25,8 @@ class _Step3MeasurementSelectionState extends State<Step3MeasurementSelection> {
   void initState() {
     super.initState();
     // Eğer daha önce seçim yapılmışsa, ilk seçimi al
-    if (widget.wizardData.selectedMeasurements.isNotEmpty) {
-      _selectedMeasurement = widget.wizardData.selectedMeasurements.first;
+    if (widget.wizardData.selectedParameter.isNotEmpty) {
+      _selectedMeasurement = widget.wizardData.selectedParameter;
     }
   }
 
@@ -34,7 +34,7 @@ class _Step3MeasurementSelectionState extends State<Step3MeasurementSelection> {
     setState(() {
       _selectedMeasurement = measurement;
     });
-    widget.wizardData.selectedMeasurements = [_selectedMeasurement!];
+    widget.wizardData.selectedParameter = _selectedMeasurement!;
   }
 
   void _saveAndNext() {

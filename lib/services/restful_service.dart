@@ -257,6 +257,29 @@ class RESTfulService {
     }
   }
 
+  /// Yeni kanal ekle (/api/add_channel)
+  Future<bool> addChannel(Map<String, dynamic> channelData) async {
+    try {
+      print('Yeni kanal ekleme isteği gönderiliyor: $channelData');
+      final response = await http.post(
+        Uri.parse('$_baseUrl/add_channel'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(channelData),
+      ).timeout(const Duration(seconds: 10));
+
+      print('Yeni kanal ekleme yanıtı: ${response.statusCode} - ${response.body}');
+      
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['success'] == true;
+      }
+      return false;
+    } catch (e) {
+      print('Yeni kanal ekleme hatası: $e');
+      return false;
+    }
+  }
+
   /// Kanalı sil
   Future<bool> deleteChannel(int channelId) async {
     try {
