@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart';
 import '../models/channel_data.dart';
 
 class RESTfulService {
@@ -15,18 +16,40 @@ class RESTfulService {
   /// Bağlantıyı test et
   Future<bool> testConnection() async {
     try {
-      // Bağlantı testi başlatılıyor
+      print('🔌 Bağlantı testi başlatılıyor: $_baseUrl/station');
+      print('🌐 Platform: ${kIsWeb ? 'Web' : 'Mobile'}');
+      
+      // Web platformu için özel header'lar
+      Map<String, String> headers = {'Content-Type': 'application/json'};
+      
+      if (kIsWeb) {
+        headers['Accept'] = '*/*';
+        headers['Access-Control-Allow-Origin'] = '*';
+        print('🌐 Web platformu için özel header\'lar eklendi');
+      }
+      
+      // Bağlantı testi başlatılıyor - station endpoint ile test et
       final response = await http.get(
-        Uri.parse('$_baseUrl/health'),
-        headers: {'Content-Type': 'application/json'},
+        Uri.parse('$_baseUrl/station'),
+        headers: headers,
       ).timeout(const Duration(seconds: 10));
       
+      print('📡 Response status: ${response.statusCode}');
+      print('📡 Response headers: ${response.headers}');
+      print('📡 Response body: ${response.body}');
+      
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        return data['success'] == true;
+        print('✅ Bağlantı başarılı!');
+        // Station endpoint'i çalışıyorsa bağlantı başarılı
+        return true;
       }
+      
+      print('❌ Bağlantı başarısız - Status: ${response.statusCode}');
       return false;
     } catch (e) {
+      print('💥 Bağlantı hatası: $e');
+      print('💥 Hata tipi: ${e.runtimeType}');
+      print('💥 Hata detayı: ${e.toString()}');
       // Bağlantı testi hatası
       return false;
     }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../services/restful_service.dart';
 import 'dashboard_screen.dart';
 
@@ -11,8 +12,8 @@ class ConnectionScreen extends StatefulWidget {
 
 class _ConnectionScreenState extends State<ConnectionScreen>
     with TickerProviderStateMixin {
-  final _ipController = TextEditingController(text: '192.168.10.68');
-  final _portController = TextEditingController(text: '8765');
+  final _ipController = TextEditingController(text: '192.168.10.96');
+  final _portController = TextEditingController(text: '8060');
   final _formKey = GlobalKey<FormState>();
   
   bool _isConnecting = false;
@@ -85,8 +86,10 @@ class _ConnectionScreenState extends State<ConnectionScreen>
       
       // Farklı subnet'ler için test IP'leri - gerçek Android cihaz için optimize edildi
       final testIPs = [
+        '192.168.10.96', // Yeni server IP'si
         currentIP, // Mevcut IP
         ..._generateTestIPs(subnet), // Aynı subnet
+        ..._generateTestIPs('192.168.10'), // Yeni server subnet'i
         ..._generateTestIPs('192.168.1'), // Yaygın ev ağı
         ..._generateTestIPs('192.168.0'), // Yaygın ev ağı
         ..._generateTestIPs('10.0.0'), // Yaygın iş ağı
@@ -96,8 +99,21 @@ class _ConnectionScreenState extends State<ConnectionScreen>
       
       for (final ip in testIPs) {
         try {
-          final restfulService = RESTfulService(ip: ip, port: '8765');
+          // Önce yeni port ile dene
+          final restfulService = RESTfulService(ip: ip, port: '8060');
           final isConnected = await restfulService.testConnection();
+          
+          if (isConnected) {
+            setState(() {
+              _availableIPs.add(ip);
+            });
+            // Sunucu bulundu
+            continue;
+          }
+          
+          // Eski port ile de dene
+          final restfulServiceOld = RESTfulService(ip: ip, port: '8765');
+          final isConnectedOld = await restfulServiceOld.testConnection();
           
           if (isConnected) {
             setState(() {
@@ -171,15 +187,20 @@ class _ConnectionScreenState extends State<ConnectionScreen>
       final ip = _ipController.text.trim();
       final port = _portController.text.trim();
       
-      // Bağlantı deneniyor
+      print('🔌 Bağlantı deneniyor: $ip:$port');
       
       // IP ve port'u RESTfulService'e geçir
       final restfulService = RESTfulService(ip: ip, port: port);
       
+      print('📡 RESTfulService oluşturuldu, test connection başlatılıyor...');
+      
       // RESTful API bağlantısını test et
       final isConnected = await restfulService.testConnection();
       
+      print('📡 Test connection sonucu: $isConnected');
+      
       if (isConnected) {
+        print('✅ Bağlantı başarılı! Dashboard\'a yönlendiriliyor...');
         // Bağlantı başarılı
         if (mounted) {
           Navigator.of(context).pushReplacement(
@@ -189,10 +210,13 @@ class _ConnectionScreenState extends State<ConnectionScreen>
           );
         }
       } else {
+        print('❌ Bağlantı başarısız!');
         throw Exception('Sunucuya bağlanılamadı. IP: $ip, Port: $port');
       }
     } catch (e) {
-              // Bağlantı hatası
+      print('💥 Bağlantı hatası yakalandı: $e');
+      print('💥 Hata tipi: ${e.runtimeType}');
+      // Bağlantı hatası
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -388,7 +412,7 @@ class _ConnectionScreenState extends State<ConnectionScreen>
                         controller: _portController,
                         decoration: InputDecoration(
                           labelText: 'Port',
-                          hintText: '8765',
+                          hintText: '8060',
                           prefixIcon: const Icon(Icons.settings_ethernet),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -407,6 +431,40 @@ class _ConnectionScreenState extends State<ConnectionScreen>
                           return null;
                         },
                       ),
+                      
+                      // Web platformu için CORS uyarısı
+                      if (kIsWeb) ...[
+                        const SizedBox(height: 16),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.orange.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: Colors.orange.withOpacity(0.3),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.warning_amber_rounded,
+                                color: Colors.orange[700],
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Web platformunda CORS hatası alabilirsiniz. Server\'da CORS ayarları yapılandırılmalı.',
+                                  style: TextStyle(
+                                    color: Colors.orange[700],
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                       const SizedBox(height: 32),
                       
                       // Connect Button
