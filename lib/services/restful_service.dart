@@ -386,6 +386,28 @@ class RESTfulService {
     }
   }
 
+  /// Belirtilen ID'li istasyon bilgisini getir
+  Future<Map<String, dynamic>?> fetchStationById(int stationId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/station/$stationId'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data;
+      } else if (response.statusCode == 404) {
+        print('İstasyon bulunamadı: ID $stationId');
+        return null;
+      }
+      return null;
+    } catch (e) {
+      print('İstasyon bilgi getirme hatası: $e');
+      return null;
+    }
+  }
+
   /// Veri akışını başlat
   void startPolling({int intervalSeconds = 5}) {
     if (_isPolling) return;

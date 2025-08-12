@@ -1048,6 +1048,29 @@ class JSONReader:
             logger.error(f"Station verileri getirme hatası: {e}")
             return {"station": []}
 
+    def get_station_by_id(self, station_id: int) -> Optional[Dict[str, Any]]:
+        """Belirtilen ID'li istasyon bilgisini getir"""
+        try:
+            file_path = os.path.join(self.semi_variable_path, "station.json")
+            station_data = self._read_json_file(file_path)
+            
+            if station_data is None or not station_data:
+                logger.warning("Station.json dosyası okunamadı veya boş")
+                return None
+            
+            if 'station' in station_data and station_data['station']:
+                for station in station_data['station']:
+                    if station.get('id') == station_id:
+                        logger.info(f"ID {station_id} olan istasyon bulundu")
+                        return station
+            
+            logger.warning(f"ID {station_id} olan istasyon bulunamadı")
+            return None
+            
+        except Exception as e:
+            logger.error(f"Station ID {station_id} getirme hatası: {e}")
+            return None
+
     def get_semi_variable_data(self) -> Optional[Dict[str, Any]]:
         """Semi-variable klasöründeki tüm verileri getir"""
         try:

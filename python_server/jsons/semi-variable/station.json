@@ -1,16 +1,16 @@
 {
-    "station": [
-      {
-        "id": 1,
-        "code": "0606001",
-        "security_code": "ReS5w+bH5aTvQ4v/VMKBtg==",
-        "name": "Test Station",
-        "region": 0,
-        "basin": 0,
-        "no": 0,
-        "latitude": 0.0,
-        "longitude": 0.0,
-        "phone": null
-      }
-    ]
-  } 
+  "station": [
+    {
+      "id": 1,
+      "code": "IST001",
+      "security_code": "SEC123",
+      "name": "İstanbul Ana İstasyon",
+      "region": 34,
+      "basin": 1,
+      "no": 101,
+      "latitude": 41.0082,
+      "longitude": 28.9784,
+      "phone": "+902122345678"
+    }
+  ]
+} 

@@ -605,6 +605,26 @@ class RESTfulServer:
                     "error": str(e)
                 }), 500
 
+        @self.app.route('/api/station/<int:station_id>', methods=['GET'])
+        def get_station_by_id(station_id):
+            """Belirtilen ID'li istasyon bilgisini getir"""
+            try:
+                logger.info(f"ID {station_id} olan istasyon bilgisi istendi")
+                station_data = self.json_reader.get_station_by_id(station_id)
+                
+                if station_data:
+                    return jsonify(station_data)
+                else:
+                    return jsonify({
+                        "error": f"ID {station_id} olan istasyon bulunamadı"
+                    }), 404
+                    
+            except Exception as e:
+                logger.error(f"İstasyon ID {station_id} getirme hatası: {e}")
+                return jsonify({
+                    "error": str(e)
+                }), 500
+
         @self.app.route('/api/semi-variable', methods=['GET'])
         def get_semi_variable_data():
             """Semi-variable verilerini getir"""
