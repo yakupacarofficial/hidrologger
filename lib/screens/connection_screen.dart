@@ -12,13 +12,13 @@ class ConnectionScreen extends StatefulWidget {
 
 class _ConnectionScreenState extends State<ConnectionScreen>
     with TickerProviderStateMixin {
-  final _ipController = TextEditingController(text: '192.168.10.96');
-  final _portController = TextEditingController(text: '8060');
+  final _ipController = TextEditingController();
+  final _portController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   
   bool _isConnecting = false;
   bool _isScanning = false;
-  List<String> _availableIPs = [];
+  List<Map<String, String>> _availableServers = [];
   late AnimationController _fadeController;
   late AnimationController _slideController;
   late Animation<double> _fadeAnimation;
@@ -74,7 +74,7 @@ class _ConnectionScreenState extends State<ConnectionScreen>
   Future<void> _scanNetwork() async {
     setState(() {
       _isScanning = true;
-      _availableIPs.clear();
+      _availableServers.clear();
     });
 
     try {
@@ -82,7 +82,9 @@ class _ConnectionScreenState extends State<ConnectionScreen>
       final currentIP = await _getLocalIP();
       final subnet = _getSubnet(currentIP);
       
-      // Ağ taraması başlatılıyor
+      print('🔍 Ağ taraması başlatılıyor...');
+      print('📍 Mevcut IP: $currentIP');
+      print('🌐 Subnet: $subnet');
       
       // Farklı subnet'ler için test IP'leri - gerçek Android cihaz için optimize edildi
       final testIPs = [
@@ -97,44 +99,63 @@ class _ConnectionScreenState extends State<ConnectionScreen>
         ..._generateTestIPs('172.20.0'), // Yaygın iş ağı
       ];
       
+      print('🔍 Test edilecek IP sayısı: ${testIPs.length}');
+      
       for (final ip in testIPs) {
         try {
+          print('🔍 Test ediliyor: $ip:8060');
+          
           // Önce yeni port ile dene
           final restfulService = RESTfulService(ip: ip, port: '8060');
           final isConnected = await restfulService.testConnection();
           
           if (isConnected) {
+            print('✅ Sunucu bulundu: $ip:8060');
             setState(() {
-              _availableIPs.add(ip);
+              _availableServers.add({
+                'ip': ip,
+                'port': '8060',
+                'status': 'active'
+              });
             });
-            // Sunucu bulundu
             continue;
           }
+          
+          print('🔍 Test ediliyor: $ip:8765');
           
           // Eski port ile de dene
           final restfulServiceOld = RESTfulService(ip: ip, port: '8765');
           final isConnectedOld = await restfulServiceOld.testConnection();
           
-          if (isConnected) {
+          if (isConnectedOld) {
+            print('✅ Sunucu bulundu: $ip:8765');
             setState(() {
-              _availableIPs.add(ip);
+              _availableServers.add({
+                'ip': ip,
+                'port': '8765',
+                'status': 'active'
+              });
             });
-            // Sunucu bulundu
           }
         } catch (e) {
-                      // IP kontrol hatası
+          print('❌ IP kontrol hatası: $ip - $e');
         }
       }
       
-      // Eğer sunucu bulunduysa ilkini seç
-      if (_availableIPs.isNotEmpty) {
+      print('🔍 Tarama tamamlandı. Bulunan sunucu sayısı: ${_availableServers.length}');
+      
+      // Eğer sunucu bulunduysa ilkini öner
+      if (_availableServers.isNotEmpty) {
+        final firstServer = _availableServers.first;
         setState(() {
-          _ipController.text = _availableIPs.first;
+          _ipController.text = firstServer['ip']!;
+          _portController.text = firstServer['port']!;
         });
+        print('💡 Önerilen sunucu: ${firstServer['ip']}:${firstServer['port']}');
       }
       
     } catch (e) {
-      // Ağ tarama hatası
+      print('💥 Ağ tarama hatası: $e');
     } finally {
       setState(() {
         _isScanning = false;
@@ -302,7 +323,7 @@ class _ConnectionScreenState extends State<ConnectionScreen>
                               controller: _ipController,
                               decoration: InputDecoration(
                                 labelText: 'IP Adresi',
-                                hintText: '192.168.1.100',
+                                hintText: 'IP adresi girin (örn: 192.168.1.100)',
                                 prefixIcon: const Icon(Icons.computer),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(12),
@@ -343,8 +364,8 @@ class _ConnectionScreenState extends State<ConnectionScreen>
                         ],
                       ),
                       
-                      // Bulunan IP'leri göster
-                      if (_availableIPs.isNotEmpty) ...[
+                      // Bulunan sunucuları göster
+                      if (_availableServers.isNotEmpty) ...[
                         const SizedBox(height: 12),
                         Container(
                           padding: const EdgeInsets.all(12),
@@ -368,17 +389,19 @@ class _ConnectionScreenState extends State<ConnectionScreen>
                               const SizedBox(height: 8),
                               Wrap(
                                 spacing: 8,
-                                children: _availableIPs.map((ip) => 
+                                children: _availableServers.map((server) => 
                                   GestureDetector(
                                     onTap: () {
                                       setState(() {
-                                        _ipController.text = ip;
+                                        _ipController.text = server['ip']!;
+                                        _portController.text = server['port']!;
                                       });
+                                      print('💡 Seçilen sunucu: ${server['ip']}:${server['port']}');
                                     },
                                     child: Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                       decoration: BoxDecoration(
-                                        color: _ipController.text == ip 
+                                        color: (_ipController.text == server['ip'] && _portController.text == server['port'])
                                           ? Theme.of(context).colorScheme.primary 
                                           : Theme.of(context).colorScheme.surface,
                                         borderRadius: BorderRadius.circular(16),
@@ -387,9 +410,9 @@ class _ConnectionScreenState extends State<ConnectionScreen>
                                         ),
                                       ),
                                       child: Text(
-                                        ip,
+                                        '${server['ip']}:${server['port']}',
                                         style: TextStyle(
-                                          color: _ipController.text == ip 
+                                          color: (_ipController.text == server['ip'] && _portController.text == server['port'])
                                             ? Theme.of(context).colorScheme.onPrimary 
                                             : Theme.of(context).colorScheme.primary,
                                           fontSize: 12,
@@ -412,7 +435,7 @@ class _ConnectionScreenState extends State<ConnectionScreen>
                         controller: _portController,
                         decoration: InputDecoration(
                           labelText: 'Port',
-                          hintText: '8060',
+                          hintText: 'Port numarası girin (örn: 8060)',
                           prefixIcon: const Icon(Icons.settings_ethernet),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
