@@ -67,7 +67,13 @@ class _LogScreenState extends State<LogScreen> {
       final startTimestamp = _startDate.millisecondsSinceEpoch ~/ 1000;
       final endTimestamp = _endDate.millisecondsSinceEpoch ~/ 1000;
       
-      print('Log verisi isteniyor: Kanal ${widget.channel.id}, Başlangıç: $startTimestamp, Bitiş: $endTimestamp');
+      print('=== LOG VERİSİ YÜKLEME BAŞLADI ===');
+      print('Kanal ID: ${widget.channel.id}');
+      print('Başlangıç tarihi: $_startDate');
+      print('Bitiş tarihi: $_endDate');
+      print('Başlangıç timestamp: $startTimestamp');
+      print('Bitiş timestamp: $endTimestamp');
+      print('Seçilen tarih aralığı: $_selectedDateRange');
       
       // Yeni API çağrısı yap
       final logData = await widget.restfulService.fetchLogs(
@@ -76,8 +82,10 @@ class _LogScreenState extends State<LogScreen> {
         endTime: endTimestamp,
       );
 
+      print('=== API YANITI ALINDI ===');
       print('Log data tipi: ${logData?.runtimeType}');
       print('Log data uzunluğu: ${logData?.length}');
+      print('Ham log data: $logData');
       
       if (logData != null && logData.isNotEmpty) {
         print('Log verisi alındı: ${logData.length} kayıt');
@@ -118,15 +126,21 @@ class _LogScreenState extends State<LogScreen> {
           _logData = formattedData;
         });
         
+        print('=== FORMATLANMIŞ VERİ ===');
         print('Formatlanmış log verisi: ${formattedData.length} kayıt');
+        print('İlk kayıt: ${formattedData.isNotEmpty ? formattedData.first : 'Boş'}');
       } else {
-        print('API\'den veri gelmedi veya boş');
+        print('❌ API\'den veri gelmedi veya boş');
+        print('Log data null mu: ${logData == null}');
+        print('Log data boş mu: ${logData?.isEmpty}');
         setState(() {
           _logData = [];
         });
       }
     } catch (e) {
-      print('Log verisi yükleme hatası: $e');
+      print('❌ Log verisi yükleme hatası: $e');
+      print('Hata tipi: ${e.runtimeType}');
+      print('Hata stack trace: ${e.toString()}');
       setState(() {
         _logData = [];
       });
@@ -134,6 +148,7 @@ class _LogScreenState extends State<LogScreen> {
       setState(() {
         _isLoading = false;
       });
+      print('=== LOG VERİSİ YÜKLEME TAMAMLANDI ===');
     }
   }
 

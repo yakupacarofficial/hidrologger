@@ -617,58 +617,37 @@ class JSONReader:
                         logs_content = json.load(file)
                 except (json.JSONDecodeError, FileNotFoundError):
                     logger.warning("Logs.json dosyası bozuk, yeni dosya oluşturuluyor")
-                    logs_content = {"logs": {}}
+                    logs_content = {"logs": []}
             else:
                 logger.info("Yeni logs.json dosyası oluşturuluyor")
-                logs_content = {"logs": {}}
+                logs_content = {"logs": []}
             
             # Timestamp'i belirle
             if timestamp is None:
-                timestamp = datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
-            
-            # Kanal için log verilerini al
-            logs = logs_content.get('logs', {})
-            channel_key = f"channel_{channel_id}"
-            
-            if channel_key not in logs:
-                logs[channel_key] = {
-                    "channel_id": channel_id,
-                    "channel_name": self._get_channel_name(channel_id),
-                    "data": []
-                }
-            
-            # Yeni log kaydı için ID bul
-            existing_logs = logs[channel_key].get('data', [])
-            existing_ids = [log.get('id') for log in existing_logs if log.get('id') is not None]
-            new_log_id = max(existing_ids) + 1 if existing_ids else 1
-            
-            # Data.json'dan min/max değerleri al
-            min_value = 0
-            max_value = 0
-            data_file_path = os.path.join(self.variable_path, "data.json")
-            if os.path.exists(data_file_path):
+                current_timestamp = int(datetime.now().timestamp())
+            else:
+                # String timestamp'i Unix timestamp'e çevir
                 try:
-                    data_content = self._read_json_file(data_file_path)
-                    if data_content and 'data' in data_content:
-                        for data_entry in data_content['data']:
-                            if data_entry.get('channel') == channel_id:
-                                min_value = data_entry.get('min_value', 0)
-                                max_value = data_entry.get('max_value', 0)
-                                break
-                except Exception as e:
-                    logger.warning(f"Data.json'dan min/max değerleri alınamadı: {e}")
+                    dt = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+                    current_timestamp = int(dt.timestamp())
+                except:
+                    current_timestamp = int(datetime.now().timestamp())
             
-            # Yeni log kaydı oluştur
+            # Log listesini al
+            logs = logs_content.get('logs', [])
+            
+            # Yeni log kaydı oluştur (yeni format)
             new_log_entry = {
-                "id": new_log_id,
-                "timestamp": timestamp,
+                "battery_percentage": 100,  # Varsayılan değer
+                "channel": channel_id,
+                "signal_strength": 90,  # Varsayılan değer
                 "value": value,
-                "min_value": min_value,
-                "max_value": max_value
+                "value_timestamp": current_timestamp,
+                "value_type": 1  # Varsayılan değer
             }
             
             # Log kaydını listeye ekle
-            logs[channel_key]['data'].append(new_log_entry)
+            logs.append(new_log_entry)
             logs_content['logs'] = logs
             
             # Dosyayı kaydet
@@ -678,7 +657,7 @@ class JSONReader:
             # Dosya değişiklik zamanını güncelle
             self.file_last_modified[logs_file_path] = os.path.getmtime(logs_file_path)
             
-            logger.info(f"Kanal {channel_id} için log verisi başarıyla kaydedildi: ID={new_log_id}")
+            logger.info(f"Kanal {channel_id} için log verisi başarıyla kaydedildi")
             return True
             
         except Exception as e:
@@ -699,29 +678,33 @@ class JSONReader:
             if not logs_content:
                 return None
             
-            logs = logs_content.get('logs', {})
-            channel_key = f"channel_{channel_id}"
+            logs = logs_content.get('logs', [])
             
-            if channel_key not in logs:
+            # Kanal ID'sine göre filtrele
+            channel_logs = [log for log in logs if log.get('channel') == channel_id]
+            
+            if not channel_logs:
                 logger.info(f"Kanal {channel_id} için log verisi bulunamadı")
-                return None
-            
-            channel_logs = logs[channel_key].copy()
+                return {
+                    "channel_id": channel_id,
+                    "channel_name": self._get_channel_name(channel_id),
+                    "data": []
+                }
             
             # Tarih filtreleme
             if start_date or end_date:
                 logger.info(f"Tarih filtreleme başlıyor - Başlangıç: {start_date}, Bitiş: {end_date}")
-                logger.info(f"Filtreleme öncesi log sayısı: {len(channel_logs.get('data', []))}")
+                logger.info(f"Filtreleme öncesi log sayısı: {len(channel_logs)}")
                 
                 filtered_data = []
-                for log_entry in channel_logs.get('data', []):
-                    log_timestamp = log_entry.get('timestamp', '')
+                for log_entry in channel_logs:
+                    log_timestamp = log_entry.get('value_timestamp', 0)
                     logger.info(f"Log entry timestamp: {log_timestamp}")
                     
                     try:
-                        # Timestamp'i datetime objesine çevir
+                        # Unix timestamp'i datetime objesine çevir
                         if log_timestamp:
-                            log_dt = datetime.fromisoformat(log_timestamp.replace('Z', '+00:00'))
+                            log_dt = datetime.fromtimestamp(log_timestamp)
                             logger.info(f"Parse edilen log_dt: {log_dt}")
                             
                             # Başlangıç tarihi kontrolü
@@ -759,10 +742,14 @@ class JSONReader:
                         # Parse edilemeyen timestamp'leri de dahil et
                         filtered_data.append(log_entry)
                 
-                channel_logs['data'] = filtered_data
+                channel_logs = filtered_data
                 logger.info(f"Kanal {channel_id} için {len(filtered_data)} log kaydı filtrelendi")
             
-            return channel_logs
+            return {
+                "channel_id": channel_id,
+                "channel_name": self._get_channel_name(channel_id),
+                "data": channel_logs
+            }
             
         except Exception as e:
             logger.error(f"Log verisi okuma hatası: {e}")
@@ -874,12 +861,13 @@ class JSONReader:
                     with open(logs_file_path, 'r', encoding='utf-8') as file:
                         logs_content = json.load(file)
                 except (json.JSONDecodeError, FileNotFoundError):
-                    logs_content = {"logs": {}}
+                    logs_content = {"logs": []}
             else:
-                logs_content = {"logs": {}}
+                logs_content = {"logs": []}
             
             data_entries = data_content.get('data', [])
             saved_count = 0
+            logs = logs_content.get('logs', [])
             
             for data_entry in data_entries:
                 channel_id = data_entry.get('channel')
@@ -889,50 +877,31 @@ class JSONReader:
                 if channel_id is None:
                     continue
                 
-                # Kanal için mevcut log verilerini kontrol et
-                channel_key = f"channel_{channel_id}"
-                logs = logs_content.get('logs', {})
-                
-                if channel_key not in logs:
-                    logs[channel_key] = {
-                        "channel_id": channel_id,
-                        "channel_name": self._get_channel_name(channel_id),
-                        "data": []
-                    }
-                
-                existing_logs = logs[channel_key].get('data', [])
-                
                 # Timestamp'i belirle
                 if value_timestamp:
-                    # Unix timestamp'i ISO formatına çevir
-                    timestamp = datetime.fromtimestamp(value_timestamp).strftime("%Y-%m-%dT%H:%M:%SZ")
+                    current_timestamp = value_timestamp
                 else:
-                    timestamp = datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+                    current_timestamp = int(datetime.now().timestamp())
                 
-                # Duplicate kontrolü - aynı value, timestamp, min_value ve max_value'ya sahip kayıt var mı?
+                # Duplicate kontrolü - aynı value ve timestamp'e sahip kayıt var mı?
                 is_duplicate = False
-                min_value = data_entry.get('min_value', 0)
-                max_value = data_entry.get('max_value', 0)
-                
-                for existing_log in existing_logs:
+                for existing_log in logs:
                     if (existing_log.get('value') == value and 
-                        existing_log.get('timestamp') == timestamp and
-                        existing_log.get('min_value') == min_value and
-                        existing_log.get('max_value') == max_value):
+                        existing_log.get('value_timestamp') == current_timestamp and
+                        existing_log.get('channel') == channel_id):
                         is_duplicate = True
                         break
                 
                 if is_duplicate:
-                    logger.debug(f"Kanal {channel_id} için duplicate kayıt tespit edildi: {value} - {timestamp}")
+                    logger.debug(f"Kanal {channel_id} için duplicate kayıt tespit edildi: {value} - {current_timestamp}")
                     continue
                 
                 # Son log kaydını kontrol et
-                last_log = existing_logs[-1] if existing_logs else None
+                channel_logs = [log for log in logs if log.get('channel') == channel_id]
+                last_log = channel_logs[-1] if channel_logs else None
                 
-                # Eğer son log kaydı yoksa veya değer/min/max değişmişse yeni kayıt ekle
+                # Eğer son log kaydı yoksa veya değer değişmişse yeni kayıt ekle
                 should_add = False
-                min_value = data_entry.get('min_value', 0)
-                max_value = data_entry.get('max_value', 0)
                 
                 if last_log is None:
                     should_add = True
@@ -940,33 +909,24 @@ class JSONReader:
                 elif last_log.get('value') != value:
                     should_add = True
                     logger.info(f"Kanal {channel_id} için değer değişikliği tespit edildi: {last_log.get('value')} -> {value}")
-                elif last_log.get('min_value') != min_value:
-                    should_add = True
-                    logger.info(f"Kanal {channel_id} için min_value değişikliği tespit edildi: {last_log.get('min_value')} -> {min_value}")
-                elif last_log.get('max_value') != max_value:
-                    should_add = True
-                    logger.info(f"Kanal {channel_id} için max_value değişikliği tespit edildi: {last_log.get('max_value')} -> {max_value}")
-                elif last_log.get('timestamp') != timestamp:
+                elif last_log.get('value_timestamp') != current_timestamp:
                     # Aynı değer ama farklı timestamp varsa da ekle
                     should_add = True
-                    logger.info(f"Kanal {channel_id} için timestamp değişikliği tespit edildi: {timestamp}")
+                    logger.info(f"Kanal {channel_id} için timestamp değişikliği tespit edildi: {current_timestamp}")
                 
                 if should_add:
-                    # Yeni log kaydı için ID bul
-                    existing_ids = [log.get('id') for log in existing_logs if log.get('id') is not None]
-                    new_log_id = max(existing_ids) + 1 if existing_ids else 1
-                    
-                    # Yeni log kaydı oluştur
+                    # Yeni log kaydı oluştur (yeni format)
                     new_log_entry = {
-                        "id": new_log_id,
-                        "timestamp": timestamp,
+                        "battery_percentage": data_entry.get('battery_percentage', 100),
+                        "channel": channel_id,
+                        "signal_strength": data_entry.get('signal_strength', 90),
                         "value": value,
-                        "min_value": data_entry.get('min_value', 0),
-                        "max_value": data_entry.get('max_value', 0)
+                        "value_timestamp": current_timestamp,
+                        "value_type": data_entry.get('value_type', 1)
                     }
                     
                     # Log kaydını listeye ekle
-                    logs[channel_key]['data'].append(new_log_entry)
+                    logs.append(new_log_entry)
                     saved_count += 1
                     logger.info(f"Kanal {channel_id} için yeni log verisi kaydedildi: {value}")
             
@@ -1668,12 +1628,24 @@ class JSONReader:
             logs_data = self._read_json_file(logs_file_path)
             
             if logs_data is None or 'logs' not in logs_data:
+                logger.warning("Logs.json dosyası okunamadı veya 'logs' anahtarı bulunamadı")
                 return []
             
             all_logs = logs_data['logs']
+            
+            # Logs verisinin liste olduğunu kontrol et
+            if not isinstance(all_logs, list):
+                logger.error(f"Logs verisi liste değil, tip: {type(all_logs)}")
+                return []
+            
             filtered_logs = []
             
             for log in all_logs:
+                # Log verisinin dict olduğunu kontrol et
+                if not isinstance(log, dict):
+                    logger.warning(f"Log entry dict değil, tip: {type(log)}")
+                    continue
+                
                 # Kanal ID filtresi
                 if channel_id is not None and log.get('channel') != channel_id:
                     continue
@@ -1685,20 +1657,13 @@ class JSONReader:
                 if end_time is not None and log_timestamp > end_time:
                     continue
                 
-                # Yeni format
-                formatted_log = {
-                    'battery_percentage': log.get('battery_percentage', 100),
-                    'channel': log.get('channel', 0),
-                    'signal_strength': log.get('signal_strength', 90),
-                    'value': log.get('value', 0),
-                    'value_timestamp': log.get('value_timestamp', 0),
-                    'value_type': log.get('value_type', 1)
-                }
-                filtered_logs.append(formatted_log)
+                # Yeni format - direkt olarak log verisini döndür
+                filtered_logs.append(log)
             
             logger.info(f"{len(filtered_logs)} log verisi bulundu")
             return filtered_logs
             
         except Exception as e:
             logger.error(f"Log verileri getirme hatası: {e}")
+            logger.error(traceback.format_exc())
             return []

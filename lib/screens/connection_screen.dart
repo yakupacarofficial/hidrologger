@@ -88,10 +88,10 @@ class _ConnectionScreenState extends State<ConnectionScreen>
       
       // Farklı subnet'ler için test IP'leri - gerçek Android cihaz için optimize edildi
       final testIPs = [
-        '192.168.10.96', // Yeni server IP'si
+        '192.168.10.68', // Mevcut server IP'si
         currentIP, // Mevcut IP
         ..._generateTestIPs(subnet), // Aynı subnet
-        ..._generateTestIPs('192.168.10'), // Yeni server subnet'i
+        ..._generateTestIPs('192.168.10'), // Mevcut server subnet'i
         ..._generateTestIPs('192.168.1'), // Yaygın ev ağı
         ..._generateTestIPs('192.168.0'), // Yaygın ev ağı
         ..._generateTestIPs('10.0.0'), // Yaygın iş ağı

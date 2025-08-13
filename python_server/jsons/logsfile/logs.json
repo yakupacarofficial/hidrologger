@@ -1,30 +1,723 @@
 {
-  "logs": {
-    "channel_1": {
-      "channel_id": 1,
-      "channel_name": "ısısısı",
-      "data": [
-        {
-          "id": 1,
-          "timestamp": "2025-08-13T16:01:15Z",
-          "value": 20.0,
-          "min_value": -10.0,
-          "max_value": 50.0
-        }
-      ]
+  "logs": [
+    {
+      "id": 1,
+      "battery_percentage": 100,
+      "channel": 1,
+      "signal_strength": 90,
+      "value": 22.5,
+      "value_timestamp": 1755021600,
+      "value_type": 1
     },
-    "channel_2": {
-      "channel_id": 2,
-      "channel_name": "Test Kanal 3",
-      "data": [
-        {
-          "id": 1,
-          "timestamp": "2025-08-13T16:15:44Z",
-          "value": 50.0,
-          "min_value": 20.0,
-          "max_value": 80.0
-        }
-      ]
+    {
+      "id": 2,
+      "battery_percentage": 99,
+      "channel": 1,
+      "signal_strength": 89,
+      "value": 23.1,
+      "value_timestamp": 1755025200,
+      "value_type": 1
+    },
+    {
+      "id": 3,
+      "battery_percentage": 98,
+      "channel": 1,
+      "signal_strength": 88,
+      "value": 21.8,
+      "value_timestamp": 1755028800,
+      "value_type": 1
+    },
+    {
+      "id": 4,
+      "battery_percentage": 97,
+      "channel": 1,
+      "signal_strength": 87,
+      "value": 24.2,
+      "value_timestamp": 1755032400,
+      "value_type": 1
+    },
+    {
+      "id": 5,
+      "battery_percentage": 96,
+      "channel": 1,
+      "signal_strength": 86,
+      "value": 20.7,
+      "value_timestamp": 1755036000,
+      "value_type": 1
+    },
+    {
+      "id": 6,
+      "battery_percentage": 95,
+      "channel": 1,
+      "signal_strength": 85,
+      "value": 25.3,
+      "value_timestamp": 1755039600,
+      "value_type": 1
+    },
+    {
+      "id": 7,
+      "battery_percentage": 94,
+      "channel": 1,
+      "signal_strength": 84,
+      "value": 19.6,
+      "value_timestamp": 1755043200,
+      "value_type": 1
+    },
+    {
+      "id": 8,
+      "battery_percentage": 93,
+      "channel": 1,
+      "signal_strength": 83,
+      "value": 26.8,
+      "value_timestamp": 1755046800,
+      "value_type": 1
+    },
+    {
+      "id": 9,
+      "battery_percentage": 92,
+      "channel": 1,
+      "signal_strength": 82,
+      "value": 18.9,
+      "value_timestamp": 1755050400,
+      "value_type": 1
+    },
+    {
+      "id": 10,
+      "battery_percentage": 91,
+      "channel": 1,
+      "signal_strength": 81,
+      "value": 27.4,
+      "value_timestamp": 1755054000,
+      "value_type": 1
+    },
+    {
+      "id": 11,
+      "battery_percentage": 100,
+      "channel": 1,
+      "signal_strength": 90,
+      "value": 23.7,
+      "value_timestamp": 1755108000,
+      "value_type": 1
+    },
+    {
+      "id": 12,
+      "battery_percentage": 99,
+      "channel": 1,
+      "signal_strength": 89,
+      "value": 24.9,
+      "value_timestamp": 1755111600,
+      "value_type": 1
+    },
+    {
+      "id": 13,
+      "battery_percentage": 98,
+      "channel": 1,
+      "signal_strength": 88,
+      "value": 22.1,
+      "value_timestamp": 1755115200,
+      "value_type": 1
+    },
+    {
+      "id": 14,
+      "battery_percentage": 97,
+      "channel": 1,
+      "signal_strength": 87,
+      "value": 25.6,
+      "value_timestamp": 1755118800,
+      "value_type": 1
+    },
+    {
+      "id": 15,
+      "battery_percentage": 96,
+      "channel": 1,
+      "signal_strength": 86,
+      "value": 20.3,
+      "value_timestamp": 1755122400,
+      "value_type": 1
+    },
+    {
+      "id": 16,
+      "battery_percentage": 95,
+      "channel": 1,
+      "signal_strength": 85,
+      "value": 26.2,
+      "value_timestamp": 1755126000,
+      "value_type": 1
+    },
+    {
+      "id": 17,
+      "battery_percentage": 94,
+      "channel": 1,
+      "signal_strength": 84,
+      "value": 19.8,
+      "value_timestamp": 1755129600,
+      "value_type": 1
+    },
+    {
+      "id": 18,
+      "battery_percentage": 93,
+      "channel": 1,
+      "signal_strength": 83,
+      "value": 27.1,
+      "value_timestamp": 1755133200,
+      "value_type": 1
+    },
+    {
+      "id": 19,
+      "battery_percentage": 92,
+      "channel": 1,
+      "signal_strength": 82,
+      "value": 18.5,
+      "value_timestamp": 1755136800,
+      "value_type": 1
+    },
+    {
+      "id": 20,
+      "battery_percentage": 91,
+      "channel": 1,
+      "signal_strength": 81,
+      "value": 28.3,
+      "value_timestamp": 1755140400,
+      "value_type": 1
+    },
+    {
+      "id": 21,
+      "battery_percentage": 100,
+      "channel": 1,
+      "signal_strength": 90,
+      "value": 24.6,
+      "value_timestamp": 1755194400,
+      "value_type": 1
+    },
+    {
+      "id": 22,
+      "battery_percentage": 99,
+      "channel": 1,
+      "signal_strength": 89,
+      "value": 25.8,
+      "value_timestamp": 1755198000,
+      "value_type": 1
+    },
+    {
+      "id": 23,
+      "battery_percentage": 98,
+      "channel": 1,
+      "signal_strength": 88,
+      "value": 21.4,
+      "value_timestamp": 1755201600,
+      "value_type": 1
+    },
+    {
+      "id": 24,
+      "battery_percentage": 97,
+      "channel": 1,
+      "signal_strength": 87,
+      "value": 26.9,
+      "value_timestamp": 1755205200,
+      "value_type": 1
+    },
+    {
+      "id": 25,
+      "battery_percentage": 96,
+      "channel": 1,
+      "signal_strength": 86,
+      "value": 19.2,
+      "value_timestamp": 1755208800,
+      "value_type": 1
+    },
+    {
+      "id": 26,
+      "battery_percentage": 95,
+      "channel": 1,
+      "signal_strength": 85,
+      "value": 27.6,
+      "value_timestamp": 1755212400,
+      "value_type": 1
+    },
+    {
+      "id": 27,
+      "battery_percentage": 94,
+      "channel": 1,
+      "signal_strength": 84,
+      "value": 20.1,
+      "value_timestamp": 1755216000,
+      "value_type": 1
+    },
+    {
+      "id": 28,
+      "battery_percentage": 93,
+      "channel": 1,
+      "signal_strength": 83,
+      "value": 28.7,
+      "value_timestamp": 1755219600,
+      "value_type": 1
+    },
+    {
+      "id": 29,
+      "battery_percentage": 92,
+      "channel": 1,
+      "signal_strength": 82,
+      "value": 17.9,
+      "value_timestamp": 1755223200,
+      "value_type": 1
+    },
+    {
+      "id": 30,
+      "battery_percentage": 91,
+      "channel": 1,
+      "signal_strength": 81,
+      "value": 29.2,
+      "value_timestamp": 1755226800,
+      "value_type": 1
+    },
+    {
+      "id": 31,
+      "battery_percentage": 100,
+      "channel": 1,
+      "signal_strength": 90,
+      "value": 25.3,
+      "value_timestamp": 1755280800,
+      "value_type": 1
+    },
+    {
+      "id": 32,
+      "battery_percentage": 99,
+      "channel": 1,
+      "signal_strength": 89,
+      "value": 26.7,
+      "value_timestamp": 1755284400,
+      "value_type": 1
+    },
+    {
+      "id": 33,
+      "battery_percentage": 98,
+      "channel": 1,
+      "signal_strength": 88,
+      "value": 22.8,
+      "value_timestamp": 1755288000,
+      "value_type": 1
+    },
+    {
+      "id": 34,
+      "battery_percentage": 97,
+      "channel": 1,
+      "signal_strength": 87,
+      "value": 27.3,
+      "value_timestamp": 1755291600,
+      "value_type": 1
+    },
+    {
+      "id": 35,
+      "battery_percentage": 96,
+      "channel": 1,
+      "signal_strength": 86,
+      "value": 18.7,
+      "value_timestamp": 1755295200,
+      "value_type": 1
+    },
+    {
+      "id": 36,
+      "battery_percentage": 95,
+      "channel": 1,
+      "signal_strength": 85,
+      "value": 28.9,
+      "value_timestamp": 1755298800,
+      "value_type": 1
+    },
+    {
+      "id": 37,
+      "battery_percentage": 94,
+      "channel": 1,
+      "signal_strength": 84,
+      "value": 20.5,
+      "value_timestamp": 1755302400,
+      "value_type": 1
+    },
+    {
+      "id": 38,
+      "battery_percentage": 93,
+      "channel": 1,
+      "signal_strength": 83,
+      "value": 29.6,
+      "value_timestamp": 1755306000,
+      "value_type": 1
+    },
+    {
+      "id": 39,
+      "battery_percentage": 92,
+      "channel": 1,
+      "signal_strength": 82,
+      "value": 17.3,
+      "value_timestamp": 1755309600,
+      "value_type": 1
+    },
+    {
+      "id": 40,
+      "battery_percentage": 91,
+      "channel": 1,
+      "signal_strength": 81,
+      "value": 30.1,
+      "value_timestamp": 1755313200,
+      "value_type": 1
+    },
+    {
+      "id": 41,
+      "battery_percentage": 100,
+      "channel": 1,
+      "signal_strength": 90,
+      "value": 24.9,
+      "value_timestamp": 1755367200,
+      "value_type": 1
+    },
+    {
+      "id": 42,
+      "battery_percentage": 99,
+      "channel": 1,
+      "signal_strength": 89,
+      "value": 26.4,
+      "value_timestamp": 1755370800,
+      "value_type": 1
+    },
+    {
+      "id": 43,
+      "battery_percentage": 98,
+      "channel": 1,
+      "signal_strength": 88,
+      "value": 21.6,
+      "value_timestamp": 1755374400,
+      "value_type": 1
+    },
+    {
+      "id": 44,
+      "battery_percentage": 97,
+      "channel": 1,
+      "signal_strength": 87,
+      "value": 28.2,
+      "value_timestamp": 1755378000,
+      "value_type": 1
+    },
+    {
+      "id": 45,
+      "battery_percentage": 96,
+      "channel": 1,
+      "signal_strength": 86,
+      "value": 19.4,
+      "value_timestamp": 1755381600,
+      "value_type": 1
+    },
+    {
+      "id": 46,
+      "battery_percentage": 95,
+      "channel": 1,
+      "signal_strength": 85,
+      "value": 29.8,
+      "value_timestamp": 1755385200,
+      "value_type": 1
+    },
+    {
+      "id": 47,
+      "battery_percentage": 94,
+      "channel": 1,
+      "signal_strength": 84,
+      "value": 20.9,
+      "value_timestamp": 1755388800,
+      "value_type": 1
+    },
+    {
+      "id": 48,
+      "battery_percentage": 93,
+      "channel": 1,
+      "signal_strength": 83,
+      "value": 30.5,
+      "value_timestamp": 1755392400,
+      "value_type": 1
+    },
+    {
+      "id": 49,
+      "battery_percentage": 92,
+      "channel": 1,
+      "signal_strength": 82,
+      "value": 17.8,
+      "value_timestamp": 1755396000,
+      "value_type": 1
+    },
+    {
+      "id": 50,
+      "battery_percentage": 91,
+      "channel": 1,
+      "signal_strength": 81,
+      "value": 31.2,
+      "value_timestamp": 1755400000,
+      "value_type": 1
+    },
+    {
+      "id": 51,
+      "battery_percentage": 100,
+      "channel": 1,
+      "signal_strength": 90,
+      "value": 25.7,
+      "value_timestamp": 1755453600,
+      "value_type": 1
+    },
+    {
+      "id": 52,
+      "battery_percentage": 99,
+      "channel": 1,
+      "signal_strength": 89,
+      "value": 27.1,
+      "value_timestamp": 1755457200,
+      "value_type": 1
+    },
+    {
+      "id": 53,
+      "battery_percentage": 98,
+      "channel": 1,
+      "signal_strength": 88,
+      "value": 22.3,
+      "value_timestamp": 1755460800,
+      "value_type": 1
+    },
+    {
+      "id": 54,
+      "battery_percentage": 97,
+      "channel": 1,
+      "signal_strength": 87,
+      "value": 28.7,
+      "value_timestamp": 1755464400,
+      "value_type": 1
+    },
+    {
+      "id": 55,
+      "battery_percentage": 96,
+      "channel": 1,
+      "signal_strength": 86,
+      "value": 19.8,
+      "value_timestamp": 1755468000,
+      "value_type": 1
+    },
+    {
+      "id": 56,
+      "battery_percentage": 95,
+      "channel": 1,
+      "signal_strength": 85,
+      "value": 30.3,
+      "value_timestamp": 1755471600,
+      "value_type": 1
+    },
+    {
+      "id": 57,
+      "battery_percentage": 94,
+      "channel": 1,
+      "signal_strength": 84,
+      "value": 21.2,
+      "value_timestamp": 1755475200,
+      "value_type": 1
+    },
+    {
+      "id": 58,
+      "battery_percentage": 93,
+      "channel": 1,
+      "signal_strength": 83,
+      "value": 31.7,
+      "value_timestamp": 1755478800,
+      "value_type": 1
+    },
+    {
+      "id": 59,
+      "battery_percentage": 92,
+      "channel": 1,
+      "signal_strength": 82,
+      "value": 18.1,
+      "value_timestamp": 1755482400,
+      "value_type": 1
+    },
+    {
+      "id": 60,
+      "battery_percentage": 91,
+      "channel": 1,
+      "signal_strength": 81,
+      "value": 32.4,
+      "value_timestamp": 1755486000,
+      "value_type": 1
+    },
+    {
+      "id": 61,
+      "battery_percentage": 100,
+      "channel": 1,
+      "signal_strength": 90,
+      "value": 26.2,
+      "value_timestamp": 1755540000,
+      "value_type": 1
+    },
+    {
+      "id": 62,
+      "battery_percentage": 99,
+      "channel": 1,
+      "signal_strength": 89,
+      "value": 27.8,
+      "value_timestamp": 1755543600,
+      "value_type": 1
+    },
+    {
+      "id": 63,
+      "battery_percentage": 98,
+      "channel": 1,
+      "signal_strength": 88,
+      "value": 23.1,
+      "value_timestamp": 1755547200,
+      "value_type": 1
+    },
+    {
+      "id": 64,
+      "battery_percentage": 97,
+      "channel": 1,
+      "signal_strength": 87,
+      "value": 29.4,
+      "value_timestamp": 1755550800,
+      "value_type": 1
+    },
+    {
+      "id": 65,
+      "battery_percentage": 96,
+      "channel": 1,
+      "signal_strength": 86,
+      "value": 20.3,
+      "value_timestamp": 1755554400,
+      "value_type": 1
+    },
+    {
+      "id": 66,
+      "battery_percentage": 95,
+      "channel": 1,
+      "signal_strength": 85,
+      "value": 31.1,
+      "value_timestamp": 1755558000,
+      "value_type": 1
+    },
+    {
+      "id": 67,
+      "battery_percentage": 94,
+      "channel": 1,
+      "signal_strength": 84,
+      "value": 22.7,
+      "value_timestamp": 1755561600,
+      "value_type": 1
+    },
+    {
+      "id": 68,
+      "battery_percentage": 93,
+      "channel": 1,
+      "signal_strength": 83,
+      "value": 32.9,
+      "value_timestamp": 1755565200,
+      "value_type": 1
+    },
+    {
+      "id": 69,
+      "battery_percentage": 92,
+      "channel": 1,
+      "signal_strength": 82,
+      "value": 18.9,
+      "value_timestamp": 1755568800,
+      "value_type": 1
+    },
+    {
+      "id": 70,
+      "battery_percentage": 91,
+      "channel": 1,
+      "signal_strength": 81,
+      "value": 33.6,
+      "value_timestamp": 1755572400,
+      "value_type": 1
+    },
+    {
+      "id": 71,
+      "battery_percentage": 100,
+      "channel": 1,
+      "signal_strength": 90,
+      "value": 26.8,
+      "value_timestamp": 1755626400,
+      "value_type": 1
+    },
+    {
+      "id": 72,
+      "battery_percentage": 98,
+      "channel": 1,
+      "signal_strength": 88,
+      "value": 28.3,
+      "value_timestamp": 1755630000,
+      "value_type": 1
+    },
+    {
+      "id": 73,
+      "battery_percentage": 96,
+      "channel": 1,
+      "signal_strength": 86,
+      "value": 23.5,
+      "value_timestamp": 1755633600,
+      "value_type": 1
+    },
+    {
+      "id": 74,
+      "battery_percentage": 94,
+      "channel": 1,
+      "signal_strength": 84,
+      "value": 30.1,
+      "value_timestamp": 1755637200,
+      "value_type": 1
+    },
+    {
+      "id": 75,
+      "battery_percentage": 92,
+      "channel": 1,
+      "signal_strength": 82,
+      "value": 21.4,
+      "value_timestamp": 1755640800,
+      "value_type": 1
+    },
+    {
+      "id": 76,
+      "battery_percentage": 90,
+      "channel": 1,
+      "signal_strength": 80,
+      "value": 32.8,
+      "value_timestamp": 1755644400,
+      "value_type": 1
+    },
+    {
+      "id": 77,
+      "battery_percentage": 88,
+      "channel": 1,
+      "signal_strength": 78,
+      "value": 24.2,
+      "value_timestamp": 1755648000,
+      "value_type": 1
+    },
+    {
+      "id": 78,
+      "battery_percentage": 86,
+      "channel": 1,
+      "signal_strength": 76,
+      "value": 33.5,
+      "value_timestamp": 1755651600,
+      "value_type": 1
+    },
+    {
+      "id": 79,
+      "battery_percentage": 84,
+      "channel": 1,
+      "signal_strength": 74,
+      "value": 19.7,
+      "value_timestamp": 1755655200,
+      "value_type": 1
+    },
+    {
+      "id": 80,
+      "channel": 1,
+      "signal_strength": 72,
+      "value": 34.9,
+      "value_timestamp": 1755658800,
+      "value_type": 1
     }
-  }
+  ]
 }

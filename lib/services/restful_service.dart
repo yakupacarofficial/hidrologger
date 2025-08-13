@@ -424,20 +424,40 @@ class RESTfulService {
         url += '?${queryParams.join('&')}';
       }
 
+      print('=== FETCHLOGS API ÇAĞRISI ===');
+      print('URL: $url');
+      print('Channel ID: $channelId');
+      print('Start Time: $startTime');
+      print('End Time: $endTime');
+
       final response = await http.get(
         Uri.parse(url),
         headers: {'Content-Type': 'application/json'},
       ).timeout(const Duration(seconds: 10));
 
+      print('Response Status: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        print('Decoded Data Type: ${data.runtimeType}');
+        print('Decoded Data: $data');
+        
         if (data is List) {
-          return List<Map<String, dynamic>>.from(data);
+          print('Data is List, length: ${data.length}');
+          final result = List<Map<String, dynamic>>.from(data);
+          print('Converted result length: ${result.length}');
+          return result;
+        } else {
+          print('Data is not List, it is: ${data.runtimeType}');
         }
+      } else {
+        print('HTTP Error: ${response.statusCode}');
       }
       return null;
     } catch (e) {
-      print('Log verileri getirme hatası: $e');
+      print('❌ Log verileri getirme hatası: $e');
+      print('Hata tipi: ${e.runtimeType}');
       return null;
     }
   }

@@ -3,24 +3,10 @@
     "channel_1": {
       "alarm_1": {
         "alarminfo": "Kanal 1 Alarm 1 ayarları",
-        "min_value": -1,
-        "min_value_reset": 1,
-        "max_value": 1,
-        "max_value_reset": 1,
-        "color": "#FF0000",
-        "data_post_frequency": 1,
-        "status": "active",
-        "trigger_time": 1,
-        "reset_time": 1
-      }
-    },
-    "channel_2": {
-      "alarm_1": {
-        "alarminfo": "Kanal 2 Alarm 1 ayarları",
-        "min_value": 20.0,
-        "min_value_reset": 25.0,
-        "max_value": 80.0,
-        "max_value_reset": 75.0,
+        "min_value": -10.0,
+        "min_value_reset": 0.0,
+        "max_value": 50.0,
+        "max_value_reset": 40.0,
         "color": "#FF0000",
         "data_post_frequency": 1000,
         "status": "active",

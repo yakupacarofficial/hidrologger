@@ -662,22 +662,15 @@ class RESTfulServer:
         
         @self.app.route('/api/logs/auto-save', methods=['POST'])
         def auto_save_logs():
-            """Data.json dosyasındaki verileri otomatik olarak log verilerine kaydet"""
+            """Data.json dosyasındaki verileri otomatik olarak log verilerine kaydet - DEVRE DIŞI"""
             try:
-                logger.info("Otomatik log kaydetme istendi")
-                success = self.json_reader.auto_save_logs_from_data()
+                logger.info("Otomatik log kaydetme istendi - DEVRE DIŞI")
                 
-                if success:
-                    return jsonify({
-                        "success": True,
-                        "message": "Log verileri otomatik olarak kaydedildi",
-                        "timestamp": datetime.now().isoformat()
-                    })
-                else:
-                    return jsonify({
-                        "success": False,
-                        "error": "Log verileri kaydedilemedi"
-                    }), 500
+                return jsonify({
+                    "success": True,
+                    "message": "Otomatik log kaydetme devre dışı - loglar sabit kalacak",
+                    "timestamp": datetime.now().isoformat()
+                })
                     
             except Exception as e:
                 logger.error(f"Otomatik log kaydetme hatası: {e}")
@@ -688,15 +681,14 @@ class RESTfulServer:
 
         @self.app.route('/api/data/check-changes', methods=['GET'])
         def check_data_changes():
-            """Data.json dosyasındaki değişiklikleri kontrol et ve log verilerini otomatik olarak kaydet"""
+            """Data.json dosyasındaki değişiklikleri kontrol et ve log verilerini otomatik olarak kaydet - DEVRE DIŞI"""
             try:
-                logger.info("Data değişiklik kontrolü istendi")
-                changes_detected = self.json_reader.check_data_changes()
+                logger.info("Data değişiklik kontrolü istendi - DEVRE DIŞI")
                 
                 return jsonify({
                     "success": True,
-                    "changes_detected": changes_detected,
-                    "message": "Data değişiklik kontrolü tamamlandı",
+                    "changes_detected": False,
+                    "message": "Data değişiklik kontrolü devre dışı - loglar sabit kalacak",
                     "timestamp": datetime.now().isoformat()
                 })
                 
@@ -856,9 +848,8 @@ class RESTfulServer:
         logger.info("Sunucu tüm ağ arayüzlerinde dinliyor (0.0.0.0)")
         logger.info("Aynı WiFi ağındaki tüm cihazlar erişebilir")
         
-        # Background monitoring'i otomatik olarak başlat
-        logger.info("Background monitoring otomatik olarak başlatılıyor...")
-        self.start_background_monitoring()
+        # Background monitoring devre dışı - loglar sabit kalacak
+        logger.info("Background monitoring devre dışı - loglar sabit kalacak")
         
         try:
             self.app.run(
