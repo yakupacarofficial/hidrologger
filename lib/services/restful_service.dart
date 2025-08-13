@@ -166,7 +166,7 @@ class RESTfulService {
   }
 
   /// Alarm verilerini getir
-  Future<Map<String, dynamic>?> fetchAlarmData() async {
+  Future<dynamic> fetchAlarmData() async {
     try {
       print('🔍 fetchAlarmData başlatılıyor...');
       
@@ -179,7 +179,7 @@ class RESTfulService {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        print('📡 Alarm verisi alındı: ${data.length} kayıt');
+        print('📡 Alarm verisi alındı: ${data is List ? data.length : 'map'} kayıt');
         return data;
       }
       

@@ -262,6 +262,37 @@ class RESTfulServer:
                     "error": str(e)
                 }), 500
 
+        @self.app.route('/api/alarm/channel-<int:channel_id>/', methods=['GET'])
+        def get_channel_alarms(channel_id):
+            """Belirtilen kanalın tüm alarmlarını getir"""
+            try:
+                logger.info(f"Kanal {channel_id} alarmları istendi")
+                alarms = self.json_reader.get_channel_alarms(channel_id)
+                return jsonify(alarms)
+            except Exception as e:
+                logger.error(f"Kanal {channel_id} alarm listesi getirme hatası: {e}")
+                return jsonify({
+                    "error": str(e)
+                }), 500
+
+        @self.app.route('/api/alarm/channel-<int:channel_id>/<int:alarm_id>', methods=['GET'])
+        def get_channel_alarm(channel_id, alarm_id):
+            """Belirtilen kanalın belirtilen alarmını getir"""
+            try:
+                logger.info(f"Kanal {channel_id}, Alarm {alarm_id} istendi")
+                alarm = self.json_reader.get_channel_alarm(channel_id, alarm_id)
+                if alarm:
+                    return jsonify(alarm)
+                else:
+                    return jsonify({
+                        "error": f"Kanal {channel_id}, Alarm {alarm_id} bulunamadı"
+                    }), 404
+            except Exception as e:
+                logger.error(f"Kanal {channel_id}, Alarm {alarm_id} getirme hatası: {e}")
+                return jsonify({
+                    "error": str(e)
+                }), 500
+
         @self.app.route('/api/log', methods=['GET'])
         def get_logs():
             """Log verilerini getir - Filtreleme ile"""

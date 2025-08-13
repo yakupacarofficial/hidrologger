@@ -1541,38 +1541,40 @@ class JSONReader:
             return 'SolSahilSulama'
 
     def get_alarms(self) -> List[Dict[str, Any]]:
-        """Tüm alarmları getir - Yeni API yapısı"""
+        """Tüm alarmları getir - Yeni yapı (alarm -> channel_1 -> alarm_1)"""
         try:
             alarm_file_path = os.path.join(self.alarm_path, "alarm.json")
             alarm_data = self._read_json_file(alarm_file_path)
             
-            if alarm_data is None:
+            if alarm_data is None or 'alarm' not in alarm_data:
                 return []
             
             formatted_alarms = []
             alarm_id = 1
             
-            for parameter_key, parameter_data in alarm_data.items():
-                if parameter_key.startswith('parameter'):
-                    channel_id = parameter_data.get('channel_id', 0)
-                    alarms_list = parameter_data.get('alarms', [])
+            alarm_section = alarm_data['alarm']
+            
+            for channel_key, channel_data in alarm_section.items():
+                if channel_key.startswith('channel_'):
+                    # channel_1 -> 1 formatına çevir
+                    channel_id = int(channel_key.replace('channel_', ''))
                     
-                    for alarm in alarms_list:
-                        formatted_alarm = {
-                            "id": alarm_id,
-                            "channel_id": channel_id,
-                            "min_value": alarm.get('min_value', 0.0),
-                            "max_value": alarm.get('max_value', 100.0),
-                            "min_reset": alarm.get('min_reset', 0.0),
-                            "max_reset": alarm.get('max_reset', 100.0),
-                            "color": alarm.get('color', '#FF0000'),
-                            "data_post_frequency": alarm.get('data_post_frequency', 60),
-                            "status": alarm.get('status', 'active'),
-                            "trigger_time": alarm.get('trigger_time', 0),
-                            "reset_time": alarm.get('reset_time', 0)
-                        }
-                        formatted_alarms.append(formatted_alarm)
-                        alarm_id += 1
+                    for alarm_key, alarm_info in channel_data.items():
+                        if alarm_key.startswith('alarm_'):
+                            formatted_alarm = {
+                                "id": alarm_id,
+                                "channel_id": channel_id,
+                                "alarminfo": alarm_info.get('alarminfo', f'Kanal {channel_id} Alarm'),
+                                "min_value": alarm_info.get('min_value', 0.0),
+                                "max_value": alarm_info.get('max_value', 100.0),
+                                "color": alarm_info.get('color', '#FF0000'),
+                                "data_post_frequency": alarm_info.get('data_post_frequency', 1000),
+                                "status": "active",
+                                "trigger_time": 0,
+                                "reset_time": 0
+                            }
+                            formatted_alarms.append(formatted_alarm)
+                            alarm_id += 1
             
             logger.info(f"{len(formatted_alarms)} alarm bulundu")
             return formatted_alarms
@@ -1580,6 +1582,63 @@ class JSONReader:
         except Exception as e:
             logger.error(f"Alarm verileri getirme hatası: {e}")
             return []
+
+    def get_channel_alarms(self, channel_id: int) -> List[Dict[str, Any]]:
+        """Belirtilen kanalın tüm alarmlarını getir"""
+        try:
+            alarm_file_path = os.path.join(self.alarm_path, "alarm.json")
+            alarm_data = self._read_json_file(alarm_file_path)
+            
+            if alarm_data is None or 'alarm' not in alarm_data:
+                return []
+            
+            formatted_alarms = []
+            alarm_id = 1
+            
+            alarm_section = alarm_data['alarm']
+            channel_key = f'channel_{channel_id}'
+            
+            if channel_key in alarm_section:
+                channel_data = alarm_section[channel_key]
+                
+                for alarm_key, alarm_info in channel_data.items():
+                    if alarm_key.startswith('alarm_'):
+                        formatted_alarm = {
+                            "id": alarm_id,
+                            "channel_id": channel_id,
+                            "alarminfo": alarm_info.get('alarminfo', f'Kanal {channel_id} Alarm'),
+                            "min_value": alarm_info.get('min_value', 0.0),
+                            "max_value": alarm_info.get('max_value', 100.0),
+                            "color": alarm_info.get('color', '#FF0000'),
+                            "data_post_frequency": alarm_info.get('data_post_frequency', 1000),
+                            "status": "active",
+                            "trigger_time": 0,
+                            "reset_time": 0
+                        }
+                        formatted_alarms.append(formatted_alarm)
+                        alarm_id += 1
+            
+            logger.info(f"Kanal {channel_id} için {len(formatted_alarms)} alarm bulundu")
+            return formatted_alarms
+            
+        except Exception as e:
+            logger.error(f"Kanal {channel_id} alarm verileri getirme hatası: {e}")
+            return []
+
+    def get_channel_alarm(self, channel_id: int, alarm_id: int) -> Optional[Dict[str, Any]]:
+        """Belirtilen kanalın belirtilen alarmını getir"""
+        try:
+            channel_alarms = self.get_channel_alarms(channel_id)
+            
+            for alarm in channel_alarms:
+                if alarm.get('id') == alarm_id:
+                    return alarm
+            
+            return None
+            
+        except Exception as e:
+            logger.error(f"Kanal {channel_id}, Alarm {alarm_id} getirme hatası: {e}")
+            return None
 
     def get_alarm_by_id(self, alarm_id: int) -> Optional[Dict[str, Any]]:
         """Belirtilen ID'li alarmı getir"""

@@ -8,6 +8,15 @@
         "color": "#FF0000",
         "data_post_frequency": 1000
       }
+    },
+    "channel_2": {
+      "alarm_1": {
+        "alarminfo": "Kanal 2 Alarm 1 ayarları",
+        "min_value": 25.0,
+        "max_value": 95.0,
+        "color": "#FF0000",
+        "data_post_frequency": 1000
+      }
     }
   }
 }

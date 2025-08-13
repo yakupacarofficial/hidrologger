@@ -83,7 +83,7 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
         if (mounted) {
           setState(() {
             _currentData = data;
-            _alarmParameters = data.alarmParameters;
+            // _alarmParameters'i burada güncelleme, sadece _loadAlarmData'da güncelle
           });
         }
       },
@@ -94,66 +94,70 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
   }
 
   void _loadAlarmData() async {
+    print('🔍 _loadAlarmData başlatılıyor...');
     // Alarm verilerini RESTful API'den al
     final alarmData = await widget.restfulService.fetchAlarmData();
+    print('📡 Alarm data alındı: $alarmData');
+    
     if (mounted && alarmData != null) {
-      setState(() {
-        // Alarm verilerini parse et - Yeni yapı
-        final alarmParameters = <String, AlarmParameter>{};
+      // Alarm verilerini parse et - Liste formatından map formatına çevir
+      final alarmParameters = <String, AlarmParameter>{};
+      
+      if (alarmData is List) {
+        print('📋 Liste formatındaki alarm verileri işleniyor...');
+        // Liste formatındaki alarm verilerini grupla
+        final channelGroups = <int, List<Map<String, dynamic>>>{};
         
-        if (alarmData['alarm'] != null) {
-          final alarmSection = alarmData['alarm'] as Map<String, dynamic>;
-          
-          alarmSection.forEach((channelKey, channelData) {
-            if (channelData is Map<String, dynamic>) {
-              // channel_1 -> 1 formatına çevir
-              final channelId = int.tryParse(channelKey.replaceFirst('channel_', '')) ?? 1;
-              final parameterKey = 'parameter$channelId';
-              
-              final alarms = <Alarm>[];
-              String alarmInfo = '';
-              
-              channelData.forEach((alarmKey, alarmData) {
-                if (alarmData is Map<String, dynamic>) {
-                  final alarm = Alarm(
-                    minValue: (alarmData['min_value'] as num?)?.toDouble() ?? 0.0,
-                    maxValue: (alarmData['max_value'] as num?)?.toDouble() ?? 100.0,
-                    color: alarmData['color'] as String? ?? '#FF0000',
-                    dataPostFrequency: (alarmData['data_post_frequency'] as num?)?.toInt() ?? 1000,
-                  );
-                  alarms.add(alarm);
-                  
-                  // İlk alarmın bilgisini al
-                  if (alarmInfo.isEmpty) {
-                    alarmInfo = alarmData['alarminfo'] as String? ?? 'Alarm Ayarları';
-                  }
-                }
-              });
-              
-              if (alarms.isNotEmpty) {
-                alarmParameters[parameterKey] = AlarmParameter(
-                  channelId: channelId,
-                  alarmInfo: alarmInfo,
-                  alarms: alarms,
-                );
-              }
-            }
-          });
+        for (final alarm in alarmData) {
+          final channelId = alarm['channel_id'] as int? ?? 1;
+          if (!channelGroups.containsKey(channelId)) {
+            channelGroups[channelId] = [];
+          }
+          channelGroups[channelId]!.add(alarm);
         }
         
-        _alarmParameters = alarmParameters;
-        _isLoading = false;
-        
-        // Debug: Alarm verilerini yazdır
-        print('Toplam alarm parametresi: ${_alarmParameters.length}');
-        _alarmParameters.forEach((key, value) {
-          print('Alarm Key: $key, Channel ID: ${value.channelId}, Alarm Count: ${value.alarms.length}');
-          for (int i = 0; i < value.alarms.length; i++) {
-            final alarm = value.alarms[i];
-            print('  Alarm $i - Min: ${alarm.minValue}, Max: ${alarm.maxValue}, MS: ${alarm.dataPostFrequency}');
+        // Her kanal için AlarmParameter oluştur
+        channelGroups.forEach((channelId, alarms) {
+          final parameterKey = 'parameter$channelId';
+          final alarmList = <Alarm>[];
+          String alarmInfo = '';
+          
+          for (final alarmData in alarms) {
+            final alarm = Alarm(
+              minValue: (alarmData['min_value'] as num?)?.toDouble() ?? 0.0,
+              maxValue: (alarmData['max_value'] as num?)?.toDouble() ?? 100.0,
+              color: alarmData['color'] as String? ?? '#FF0000',
+              dataPostFrequency: (alarmData['data_post_frequency'] as num?)?.toInt() ?? 1000,
+            );
+            alarmList.add(alarm);
+            
+            // İlk alarmın bilgisini al
+            if (alarmInfo.isEmpty) {
+              alarmInfo = alarmData['alarminfo'] as String? ?? 'Alarm Ayarları';
+            }
+          }
+          
+          if (alarmList.isNotEmpty) {
+            alarmParameters[parameterKey] = AlarmParameter(
+              channelId: channelId,
+              alarmInfo: alarmInfo,
+              alarms: alarmList,
+            );
           }
         });
-      });
+      }
+      
+      if (mounted) {
+        setState(() {
+          _alarmParameters = alarmParameters;
+          _isLoading = false;
+        });
+        
+        print('🎯 Toplam alarm parametresi: ${_alarmParameters.length}');
+        _alarmParameters.forEach((key, value) {
+          print('🔍 Alarm Key: $key, Channel ID: ${value.channelId}, Alarm Count: ${value.alarms.length}');
+        });
+      }
     } else {
       if (mounted) {
         setState(() {
@@ -753,8 +757,8 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                                     Text(
-                     'Kanal: ${channel?.name ?? 'Bilinmeyen Kanal'}',
+                  Text(
+                    'Kanal: ${channel?.name ?? 'Bilinmeyen Kanal'}',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -789,9 +793,6 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
                     ...alarmParameter.alarms.asMap().entries.map((alarmEntry) {
                       final index = alarmEntry.key;
                       final alarm = alarmEntry.value;
-                      
-                      // Debug: Alarm verilerini yazdır
-                      print('Alarm $index - Min: ${alarm.minValue}, Max: ${alarm.maxValue}, MS: ${alarm.dataPostFrequency}');
                       
                       return Container(
                         margin: const EdgeInsets.only(bottom: 8),
