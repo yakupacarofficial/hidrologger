@@ -1326,7 +1326,10 @@ class JSONReader:
                 "max_value": max_value,
                 "max_value_reset": max_value_reset,
                 "color": "#FF0000",
-                "data_post_frequency": 1000
+                "data_post_frequency": 1000,
+                "status": "active",
+                "trigger_time": 0,
+                "reset_time": 0
             }
             
             current_alarm_data["alarm"][channel_key][alarm_key] = new_alarm

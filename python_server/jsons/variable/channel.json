@@ -2,8 +2,8 @@
   "channel": [
     {
       "id": 1,
-      "name": "mdkdd",
-      "description": "mdmdkd",
+      "name": "ısısısı",
+      "description": "msksks",
       "channel_category": 1,
       "channel_sub_category": 2,
       "channel_parameter": 101,
@@ -13,8 +13,8 @@
     },
     {
       "id": 2,
-      "name": "Test Kanal",
-      "description": "Test açıklama",
+      "name": "Test Kanal 3",
+      "description": "Test açıklama 3",
       "channel_category": 1,
       "channel_sub_category": 1,
       "channel_parameter": 101,

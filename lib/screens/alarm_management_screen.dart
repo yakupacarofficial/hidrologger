@@ -130,6 +130,9 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
               maxValueReset: (alarmData['max_value_reset'] as num?)?.toDouble() ?? 0.0,
               color: alarmData['color'] as String? ?? '#FF0000',
               dataPostFrequency: (alarmData['data_post_frequency'] as num?)?.toInt() ?? 1000,
+              status: alarmData['status'] as String? ?? 'active',
+              triggerTime: alarmData['trigger_time'] as int? ?? 0,
+              resetTime: alarmData['reset_time'] as int? ?? 0,
             );
             alarmList.add(alarm);
             
@@ -213,6 +216,9 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
       maxValueReset: 40.0, // Varsayılan değer
       color: _selectedColor,
       dataPostFrequency: dataPostFrequency,
+      status: 'active',
+      triggerTime: 0,
+      resetTime: 0,
     );
 
     _saveAlarmData(newAlarm, alarmInfo);
@@ -292,6 +298,9 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
           "max_value_reset": alarm.maxValueReset,
           "color": alarm.color,
           "data_post_frequency": alarm.dataPostFrequency,
+          "status": alarm.status,
+          "trigger_time": alarm.triggerTime,
+          "reset_time": alarm.resetTime,
         };
       }
     });
@@ -458,6 +467,9 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
                   maxValueReset: 40.0, // Varsayılan değer
                   color: selectedColor,
                   dataPostFrequency: dataPostFrequency,
+                  status: 'active',
+                  triggerTime: 0,
+                  resetTime: 0,
                 ));
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -837,6 +849,14 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: Colors.grey[600],
+                                    ),
+                                  ),
+                                  Text(
+                                    'Status: ${alarm.status}',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: alarm.status == 'active' ? Colors.green : Colors.red,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
                                   Text(
