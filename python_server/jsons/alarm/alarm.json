@@ -9,7 +9,7 @@
         "max_value_reset": 1,
         "color": "#FF0000",
         "data_post_frequency": 1,
-        "status": "disable",
+        "status": "active",
         "trigger_time": 1,
         "reset_time": 1
       }

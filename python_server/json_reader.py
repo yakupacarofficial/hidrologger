@@ -1576,9 +1576,9 @@ class JSONReader:
                                 "max_value_reset": alarm_info.get('max_value_reset', 0.0),
                                 "color": alarm_info.get('color', '#FF0000'),
                                 "data_post_frequency": alarm_info.get('data_post_frequency', 1000),
-                                "status": "active",
-                                "trigger_time": 0,
-                                "reset_time": 0
+                                "status": alarm_info.get('status', 'active'),
+                                "trigger_time": alarm_info.get('trigger_time', 0),
+                                "reset_time": alarm_info.get('reset_time', 0)
                             }
                             formatted_alarms.append(formatted_alarm)
                             alarm_id += 1
@@ -1620,9 +1620,9 @@ class JSONReader:
                             "max_value_reset": alarm_info.get('max_value_reset', 0.0),
                             "color": alarm_info.get('color', '#FF0000'),
                             "data_post_frequency": alarm_info.get('data_post_frequency', 1000),
-                            "status": "active",
-                            "trigger_time": 0,
-                            "reset_time": 0
+                            "status": alarm_info.get('status', 'active'),
+                            "trigger_time": alarm_info.get('trigger_time', 0),
+                            "reset_time": alarm_info.get('reset_time', 0)
                         }
                         formatted_alarms.append(formatted_alarm)
                         alarm_id += 1
