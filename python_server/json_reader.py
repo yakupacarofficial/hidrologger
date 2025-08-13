@@ -487,15 +487,34 @@ class JSONReader:
             return False
 
     def save_alarm_data(self, alarm_data: Dict[str, Any]) -> bool:
-        """Alarm verilerini kaydet"""
+        """Alarm verilerini kaydet - Yeni yapı"""
         try:
             logger.info("Alarm verileri kaydediliyor...")
             
             alarm_file_path = os.path.join(self.alarm_path, "alarm.json")
             
+            # Mevcut alarm verilerini oku
+            current_alarm_data = self._read_json_file(alarm_file_path)
+            if current_alarm_data is None:
+                current_alarm_data = {"alarm": {}}
+            
+            # Alarm yapısını kontrol et
+            if "alarm" not in current_alarm_data:
+                current_alarm_data["alarm"] = {}
+            
+            # Yeni alarm verilerini mevcut verilerle birleştir
+            if "alarm" in alarm_data:
+                for channel_key, channel_alarms in alarm_data["alarm"].items():
+                    if channel_key not in current_alarm_data["alarm"]:
+                        current_alarm_data["alarm"][channel_key] = {}
+                    
+                    # Kanal için alarmları birleştir
+                    for alarm_key, alarm_info in channel_alarms.items():
+                        current_alarm_data["alarm"][channel_key][alarm_key] = alarm_info
+            
             # Dosyayı yaz
             with open(alarm_file_path, 'w', encoding='utf-8') as file:
-                json.dump(alarm_data, file, indent=2, ensure_ascii=False)
+                json.dump(current_alarm_data, file, indent=2, ensure_ascii=False)
             
             # Dosya değişiklik zamanını güncelle
             self.file_last_modified[alarm_file_path] = os.path.getmtime(alarm_file_path)
@@ -1276,36 +1295,44 @@ class JSONReader:
             return False
 
     def _add_alarm_for_channel(self, channel_id: int, min_value: float, max_value: float, min_value_reset: float, max_value_reset: float) -> bool:
-        """Kanal için alarm ayarlarını ekle"""
+        """Kanal için alarm ayarlarını ekle - Yeni yapı"""
         try:
             alarm_file_path = os.path.join(self.alarm_path, "alarm.json")
             current_alarm_data = self._read_json_file(alarm_file_path)
             if current_alarm_data is None:
-                current_alarm_data = {}
+                current_alarm_data = {"alarm": {}}
             
-            # Kanal için alarm parametresi oluştur
-            parameter_key = f"parameter{channel_id}"
-            alarm_info = f"Kanal {channel_id} alarm ayarları"
+            # Alarm yapısını kontrol et ve oluştur
+            if "alarm" not in current_alarm_data:
+                current_alarm_data["alarm"] = {}
             
-            new_alarm_parameter = {
-                "channel_id": channel_id,
-                "alarminfo": alarm_info,
-                "alarms": [
-                    {
-                        "min_value": min_value,
-                        "max_value": max_value,
-                        "color": "#FF0000",
-                        "data_post_frequency": 1000
-                    }
-                ]
+            # Kanal için alarm kaydı oluştur
+            channel_key = f"channel_{channel_id}"
+            
+            # Eğer kanal zaten varsa, mevcut alarmları koru
+            if channel_key not in current_alarm_data["alarm"]:
+                current_alarm_data["alarm"][channel_key] = {}
+            
+            # Yeni alarm numarasını belirle
+            existing_alarms = current_alarm_data["alarm"][channel_key]
+            alarm_number = len(existing_alarms) + 1
+            alarm_key = f"alarm_{alarm_number}"
+            
+            # Yeni alarm ekle
+            new_alarm = {
+                "alarminfo": f"Kanal {channel_id} Alarm {alarm_number} ayarları",
+                "min_value": min_value,
+                "max_value": max_value,
+                "color": "#FF0000",
+                "data_post_frequency": 1000
             }
             
-            current_alarm_data[parameter_key] = new_alarm_parameter
+            current_alarm_data["alarm"][channel_key][alarm_key] = new_alarm
             
             with open(alarm_file_path, 'w', encoding='utf-8') as file:
                 json.dump(current_alarm_data, file, indent=2, ensure_ascii=False)
             
-            logger.info(f"Kanal {channel_id} için alarm ayarları eklendi")
+            logger.info(f"Kanal {channel_id} için alarm {alarm_number} eklendi")
             return True
             
         except Exception as e:

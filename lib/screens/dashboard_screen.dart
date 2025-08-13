@@ -8,7 +8,7 @@ import '../widgets/connection_status_badge.dart';
 import 'channel_detail_screen.dart';
 import 'constant_data_screen.dart';
 import 'alarm_management_screen.dart';
-import 'sensor_wizard/sensor_wizard_screen.dart';
+
 import 'channel_wizard/channel_wizard_screen.dart';
 import 'station_detail_screen.dart';
 
@@ -364,17 +364,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     );
                   }
                   break;
-                case 'sensor_wizard':
-                  if (_currentData != null) {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => SensorWizardScreen(
-                          restfulService: widget.restfulService,
-                        ),
-                      ),
-                    );
-                  }
-                  break;
+
                 case 'constant_data':
                   if (_currentData != null) {
                     Navigator.of(context).push(
@@ -426,22 +416,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ],
                 ),
               ),
-              PopupMenuItem<String>(
-                value: 'sensor_wizard',
-                enabled: _currentData != null,
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.sensors,
-                      color: _currentData != null 
-                          ? Theme.of(context).colorScheme.onSurface
-                          : Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
-                    ),
-                    const SizedBox(width: 12),
-                    const Text('Sensör Sihirbazı'),
-                  ],
-                ),
-              ),
+
               PopupMenuItem<String>(
                 value: 'constant_data',
                 enabled: _currentData != null,

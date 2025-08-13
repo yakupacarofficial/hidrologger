@@ -2,11 +2,11 @@
   "logs": {
     "channel_1": {
       "channel_id": 1,
-      "channel_name": "TWSTOOO1",
+      "channel_name": "kdkdks",
       "data": [
         {
           "id": 1,
-          "timestamp": "2025-08-12T21:28:37Z",
+          "timestamp": "2025-08-13T15:08:03Z",
           "value": 20.0,
           "min_value": -10.0,
           "max_value": 50.0

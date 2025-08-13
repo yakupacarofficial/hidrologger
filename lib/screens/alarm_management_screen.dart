@@ -98,13 +98,49 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
     final alarmData = await widget.restfulService.fetchAlarmData();
     if (mounted && alarmData != null) {
       setState(() {
-        // Alarm verilerini parse et
+        // Alarm verilerini parse et - Yeni yapı
         final alarmParameters = <String, AlarmParameter>{};
-        alarmData.forEach((key, value) {
-          if (value is Map<String, dynamic>) {
-            alarmParameters[key] = AlarmParameter.fromJson(value);
-          }
-        });
+        
+        if (alarmData['alarm'] != null) {
+          final alarmSection = alarmData['alarm'] as Map<String, dynamic>;
+          
+          alarmSection.forEach((channelKey, channelData) {
+            if (channelData is Map<String, dynamic>) {
+              // channel_1 -> 1 formatına çevir
+              final channelId = int.tryParse(channelKey.replaceFirst('channel_', '')) ?? 1;
+              final parameterKey = 'parameter$channelId';
+              
+              final alarms = <Alarm>[];
+              String alarmInfo = '';
+              
+              channelData.forEach((alarmKey, alarmData) {
+                if (alarmData is Map<String, dynamic>) {
+                  final alarm = Alarm(
+                    minValue: (alarmData['min_value'] as num?)?.toDouble() ?? 0.0,
+                    maxValue: (alarmData['max_value'] as num?)?.toDouble() ?? 100.0,
+                    color: alarmData['color'] as String? ?? '#FF0000',
+                    dataPostFrequency: (alarmData['data_post_frequency'] as num?)?.toInt() ?? 1000,
+                  );
+                  alarms.add(alarm);
+                  
+                  // İlk alarmın bilgisini al
+                  if (alarmInfo.isEmpty) {
+                    alarmInfo = alarmData['alarminfo'] as String? ?? 'Alarm Ayarları';
+                  }
+                }
+              });
+              
+              if (alarms.isNotEmpty) {
+                alarmParameters[parameterKey] = AlarmParameter(
+                  channelId: channelId,
+                  alarmInfo: alarmInfo,
+                  alarms: alarms,
+                );
+              }
+            }
+          });
+        }
+        
         _alarmParameters = alarmParameters;
         _isLoading = false;
         
@@ -224,10 +260,32 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
   }
 
   Map<String, dynamic> _convertToJson(Map<String, AlarmParameter> alarmParameters) {
-    final result = <String, dynamic>{};
+    final result = <String, dynamic>{"alarm": {}};
+    
     alarmParameters.forEach((key, value) {
-      result[key] = value.toJson();
+      // parameter1 -> channel_1 formatına çevir
+      final channelId = value.channelId;
+      final channelKey = 'channel_$channelId';
+      
+      if (result["alarm"][channelKey] == null) {
+        result["alarm"][channelKey] = {};
+      }
+      
+      // Her alarm için ayrı kayıt oluştur
+      for (int i = 0; i < value.alarms.length; i++) {
+        final alarm = value.alarms[i];
+        final alarmKey = 'alarm_${i + 1}';
+        
+        result["alarm"][channelKey][alarmKey] = {
+          "alarminfo": value.alarmInfo,
+          "min_value": alarm.minValue,
+          "max_value": alarm.maxValue,
+          "color": alarm.color,
+          "data_post_frequency": alarm.dataPostFrequency,
+        };
+      }
     });
+    
     return result;
   }
 
