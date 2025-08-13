@@ -2,11 +2,11 @@
   "logs": {
     "channel_1": {
       "channel_id": 1,
-      "channel_name": "kdkdks",
+      "channel_name": "mdkdd",
       "data": [
         {
           "id": 1,
-          "timestamp": "2025-08-13T15:08:03Z",
+          "timestamp": "2025-08-13T15:48:59Z",
           "value": 20.0,
           "min_value": -10.0,
           "max_value": 50.0
@@ -15,14 +15,14 @@
     },
     "channel_2": {
       "channel_id": 2,
-      "channel_name": "Test Kanal 4",
+      "channel_name": "Test Kanal",
       "data": [
         {
           "id": 1,
-          "timestamp": "2025-08-13T15:11:55Z",
-          "value": 60.0,
-          "min_value": 25.0,
-          "max_value": 95.0
+          "timestamp": "2025-08-13T15:55:17Z",
+          "value": 20.0,
+          "min_value": -5.0,
+          "max_value": 45.0
         }
       ]
     }

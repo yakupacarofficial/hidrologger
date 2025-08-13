@@ -125,7 +125,9 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
           for (final alarmData in alarms) {
             final alarm = Alarm(
               minValue: (alarmData['min_value'] as num?)?.toDouble() ?? 0.0,
+              minValueReset: (alarmData['min_value_reset'] as num?)?.toDouble() ?? 0.0,
               maxValue: (alarmData['max_value'] as num?)?.toDouble() ?? 100.0,
+              maxValueReset: (alarmData['max_value_reset'] as num?)?.toDouble() ?? 0.0,
               color: alarmData['color'] as String? ?? '#FF0000',
               dataPostFrequency: (alarmData['data_post_frequency'] as num?)?.toInt() ?? 1000,
             );
@@ -206,7 +208,9 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
     
     final newAlarm = Alarm(
       minValue: minValue,
+      minValueReset: 0.0, // Varsayılan değer
       maxValue: maxValue,
+      maxValueReset: 40.0, // Varsayılan değer
       color: _selectedColor,
       dataPostFrequency: dataPostFrequency,
     );
@@ -283,7 +287,9 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
         result["alarm"][channelKey][alarmKey] = {
           "alarminfo": value.alarmInfo,
           "min_value": alarm.minValue,
+          "min_value_reset": alarm.minValueReset,
           "max_value": alarm.maxValue,
+          "max_value_reset": alarm.maxValueReset,
           "color": alarm.color,
           "data_post_frequency": alarm.dataPostFrequency,
         };
@@ -447,7 +453,9 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
               if (minValue != null && maxValue != null && minValue < maxValue) {
                 Navigator.of(context).pop(Alarm(
                   minValue: minValue,
+                  minValueReset: 0.0, // Varsayılan değer
                   maxValue: maxValue,
+                  maxValueReset: 40.0, // Varsayılan değer
                   color: selectedColor,
                   dataPostFrequency: dataPostFrequency,
                 ));
@@ -823,6 +831,13 @@ class _AlarmManagementScreenState extends State<AlarmManagementScreen> {
                                   Text(
                                     '${alarm.minValue} - ${alarm.maxValue}',
                                     style: const TextStyle(fontWeight: FontWeight.w600),
+                                  ),
+                                  Text(
+                                    'Reset: ${alarm.minValueReset} - ${alarm.maxValueReset}',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey[600],
+                                    ),
                                   ),
                                   Text(
                                     'MS: ${alarm.dataPostFrequency}',

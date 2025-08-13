@@ -2,9 +2,9 @@
   "channel": [
     {
       "id": 1,
-      "name": "kdkdks",
-      "description": "mdmdksk",
-      "channel_category": 2,
+      "name": "mdkdd",
+      "description": "mdmdkd",
+      "channel_category": 1,
       "channel_sub_category": 2,
       "channel_parameter": 101,
       "measurement_unit": 1,
@@ -13,8 +13,8 @@
     },
     {
       "id": 2,
-      "name": "Test Kanal 4",
-      "description": "Test açıklaması 4",
+      "name": "Test Kanal",
+      "description": "Test açıklama",
       "channel_category": 1,
       "channel_sub_category": 1,
       "channel_parameter": 101,

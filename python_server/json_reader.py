@@ -1322,7 +1322,9 @@ class JSONReader:
             new_alarm = {
                 "alarminfo": f"Kanal {channel_id} Alarm {alarm_number} ayarları",
                 "min_value": min_value,
+                "min_value_reset": min_value_reset,
                 "max_value": max_value,
+                "max_value_reset": max_value_reset,
                 "color": "#FF0000",
                 "data_post_frequency": 1000
             }
@@ -1566,7 +1568,9 @@ class JSONReader:
                                 "channel_id": channel_id,
                                 "alarminfo": alarm_info.get('alarminfo', f'Kanal {channel_id} Alarm'),
                                 "min_value": alarm_info.get('min_value', 0.0),
+                                "min_value_reset": alarm_info.get('min_value_reset', 0.0),
                                 "max_value": alarm_info.get('max_value', 100.0),
+                                "max_value_reset": alarm_info.get('max_value_reset', 0.0),
                                 "color": alarm_info.get('color', '#FF0000'),
                                 "data_post_frequency": alarm_info.get('data_post_frequency', 1000),
                                 "status": "active",
@@ -1608,7 +1612,9 @@ class JSONReader:
                             "channel_id": channel_id,
                             "alarminfo": alarm_info.get('alarminfo', f'Kanal {channel_id} Alarm'),
                             "min_value": alarm_info.get('min_value', 0.0),
+                            "min_value_reset": alarm_info.get('min_value_reset', 0.0),
                             "max_value": alarm_info.get('max_value', 100.0),
+                            "max_value_reset": alarm_info.get('max_value_reset', 0.0),
                             "color": alarm_info.get('color', '#FF0000'),
                             "data_post_frequency": alarm_info.get('data_post_frequency', 1000),
                             "status": "active",

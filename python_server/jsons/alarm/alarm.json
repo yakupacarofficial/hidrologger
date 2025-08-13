@@ -4,7 +4,9 @@
       "alarm_1": {
         "alarminfo": "Kanal 1 Alarm 1 ayarları",
         "min_value": -10.0,
+        "min_value_reset": 0.0,
         "max_value": 50.0,
+        "max_value_reset": 40.0,
         "color": "#FF0000",
         "data_post_frequency": 1000
       }
@@ -12,8 +14,10 @@
     "channel_2": {
       "alarm_1": {
         "alarminfo": "Kanal 2 Alarm 1 ayarları",
-        "min_value": 25.0,
-        "max_value": 95.0,
+        "min_value": -5.0,
+        "min_value_reset": 2.0,
+        "max_value": 45.0,
+        "max_value_reset": 35.0,
         "color": "#FF0000",
         "data_post_frequency": 1000
       }

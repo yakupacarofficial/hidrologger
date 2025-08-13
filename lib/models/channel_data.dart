@@ -283,13 +283,17 @@ class AlarmParameter {
 
 class Alarm {
   final double minValue;
+  final double minValueReset;
   final double maxValue;
+  final double maxValueReset;
   final String color;
   final int dataPostFrequency;
 
   Alarm({
     required this.minValue,
+    required this.minValueReset,
     required this.maxValue,
+    required this.maxValueReset,
     required this.color,
     required this.dataPostFrequency,
   });
@@ -297,7 +301,9 @@ class Alarm {
   factory Alarm.fromJson(Map<String, dynamic> json) {
     return Alarm(
       minValue: (json['min_value'] ?? 0.0).toDouble(),
+      minValueReset: (json['min_value_reset'] ?? 0.0).toDouble(),
       maxValue: (json['max_value'] ?? 0.0).toDouble(),
+      maxValueReset: (json['max_value_reset'] ?? 0.0).toDouble(),
       color: json['color'] ?? '#FF0000',
       dataPostFrequency: json['data_post_frequency'] ?? 1000,
     );
@@ -306,7 +312,9 @@ class Alarm {
   Map<String, dynamic> toJson() {
     return {
       'min_value': minValue,
+      'min_value_reset': minValueReset,
       'max_value': maxValue,
+      'max_value_reset': maxValueReset,
       'color': color,
       'data_post_frequency': dataPostFrequency,
     };
