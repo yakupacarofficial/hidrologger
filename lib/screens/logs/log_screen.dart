@@ -122,6 +122,12 @@ class _LogScreenState extends State<LogScreen> {
           }
         }
         
+        // Verileri ID'ye göre sırala (ilk gelen en üstte)
+        formattedData.sort((a, b) => (a['id'] as int).compareTo(b['id'] as int));
+        
+        // Verileri tarihe göre ters sırala (en yeni en üstte)
+        formattedData.sort((a, b) => (b['timestamp'] as DateTime).compareTo(a['timestamp'] as DateTime));
+        
         setState(() {
           _logData = formattedData;
         });

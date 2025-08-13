@@ -1660,6 +1660,12 @@ class JSONReader:
                 # Yeni format - direkt olarak log verisini döndür
                 filtered_logs.append(log)
             
+            # Verileri ID'ye göre sırala (ilk gelen en üstte)
+            filtered_logs.sort(key=lambda x: x.get('id', 0))
+            
+            # Verileri tarihe göre ters sırala (en yeni en üstte)
+            filtered_logs.sort(key=lambda x: x.get('value_timestamp', 0), reverse=True)
+            
             logger.info(f"{len(filtered_logs)} log verisi bulundu")
             return filtered_logs
             
