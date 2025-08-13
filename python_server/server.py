@@ -312,6 +312,28 @@ class RESTfulServer:
                     "error": str(e)
                 }), 500
 
+        @self.app.route('/api/data/channel_<int:channel_id>/<int:start_time>/<int:end_time>', methods=['GET'])
+        def get_channel_data_by_timerange(channel_id, start_time, end_time):
+            """Belirtilen kanal için belirli zaman aralığında log verilerini getir"""
+            try:
+                logger.info(f"Kanal {channel_id} için {start_time} - {end_time} arası log verileri istendi")
+                
+                # Timestamp'leri kontrol et
+                if start_time > end_time:
+                    return jsonify({
+                        "error": "Başlangıç zamanı bitiş zamanından büyük olamaz"
+                    }), 400
+                
+                logs = self.json_reader.get_logs(channel_id, start_time, end_time)
+                logger.info(f"Kanal {channel_id} için {len(logs)} log verisi bulundu")
+                
+                return jsonify(logs)
+            except Exception as e:
+                logger.error(f"Kanal {channel_id} log verileri getirme hatası: {e}")
+                return jsonify({
+                    "error": str(e)
+                }), 500
+
         @self.app.route('/api/station/<int:station_id>', methods=['GET'])
         def get_station(station_id):
             """İstasyon bilgisini getir"""

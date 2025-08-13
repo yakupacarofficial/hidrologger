@@ -404,31 +404,44 @@ class RESTfulService {
     }
   }
 
-  /// Log verilerini getir (/api/log)
+  /// Log verilerini getir (/api/data/channel_{channelId}/{startTime}/{endTime})
   Future<List<Map<String, dynamic>>?> fetchLogs({int? channelId, int? startTime, int? endTime}) async {
     try {
-      String url = '$_baseUrl/log';
-      List<String> queryParams = [];
+      String url;
       
-      if (channelId != null) {
-        queryParams.add('channel=$channelId');
+      // Yeni endpoint formatını kullan
+      if (channelId != null && startTime != null && endTime != null) {
+        url = '$_baseUrl/data/channel_$channelId/$startTime/$endTime';
+        print('=== FETCHLOGS YENİ ENDPOINT ===');
+        print('URL: $url');
+        print('Channel ID: $channelId');
+        print('Start Time: $startTime');
+        print('End Time: $endTime');
+      } else {
+        // Eski endpoint formatını kullan (geriye uyumluluk için)
+        url = '$_baseUrl/log';
+        List<String> queryParams = [];
+        
+        if (channelId != null) {
+          queryParams.add('channel=$channelId');
+        }
+        if (startTime != null) {
+          queryParams.add('start=$startTime');
+        }
+        if (endTime != null) {
+          queryParams.add('end=$endTime');
+        }
+        
+        if (queryParams.isNotEmpty) {
+          url += '?${queryParams.join('&')}';
+        }
+        
+        print('=== FETCHLOGS ESKİ ENDPOINT ===');
+        print('URL: $url');
+        print('Channel ID: $channelId');
+        print('Start Time: $startTime');
+        print('End Time: $endTime');
       }
-      if (startTime != null) {
-        queryParams.add('start=$startTime');
-      }
-      if (endTime != null) {
-        queryParams.add('end=$endTime');
-      }
-      
-      if (queryParams.isNotEmpty) {
-        url += '?${queryParams.join('&')}';
-      }
-
-      print('=== FETCHLOGS API ÇAĞRISI ===');
-      print('URL: $url');
-      print('Channel ID: $channelId');
-      print('Start Time: $startTime');
-      print('End Time: $endTime');
 
       final response = await http.get(
         Uri.parse(url),
