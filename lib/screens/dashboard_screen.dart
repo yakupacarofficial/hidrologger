@@ -31,10 +31,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
   
-  // Station ve WiFi bilgileri
+  // Station bilgileri
   final StationService _stationService = StationService();
   Map<String, dynamic>? _stationInfo;
-  String? _wifiIPAddress;
   
 
 
@@ -42,7 +41,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
     _listenToData();
-    _loadStationAndWiFiInfo();
+    _loadStationInfo();
   }
 
   void _listenToData() {
@@ -85,16 +84,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
   
-  void _loadStationAndWiFiInfo() async {
+  void _loadStationInfo() async {
     try {
       // Önce RESTful API'den station bilgilerini yüklemeyi dene
       final apiStationInfo = await widget.restfulService.fetchStationById(1);
-      final wifiIP = await _stationService.getWiFiIPAddress();
       
       if (mounted) {
         setState(() {
           _stationInfo = apiStationInfo;
-          _wifiIPAddress = wifiIP;
         });
         
         // API'den veri gelmezse local dosyadan yükle
@@ -108,16 +105,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
         }
       }
     } catch (e) {
-      print('Station ve WiFi bilgileri yüklenemedi: $e');
+      print('Station bilgileri yüklenemedi: $e');
       // API başarısız olursa local dosyadan yükle
       try {
         final localStationInfo = await _stationService.getStationInfo();
-        final wifiIP = await _stationService.getWiFiIPAddress();
         
         if (mounted) {
           setState(() {
             _stationInfo = localStationInfo;
-            _wifiIPAddress = wifiIP;
           });
         }
       } catch (localError) {
@@ -473,26 +468,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       body: Column(
         children: [
-          // Üst Bilgi Kartları
+          // İstasyon Bilgi Kartları
           Container(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
             child: Row(
               children: [
                 Expanded(
                   child: InfoCard(
-                    title: 'Kanal Sayısı',
-                    value: '${_currentData?.channelCount ?? 0}',
-                    icon: Icons.sensors,
-                    color: Colors.blue,
+                    title: 'İstasyon Adı',
+                    value: _stationInfo?['name'] ?? '--',
+                    icon: Icons.location_on,
+                    color: Colors.purple,
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: InfoCard(
-                    title: 'Veri Sayısı',
-                    value: '${_currentData?.dataCount ?? 0}',
-                    icon: Icons.data_usage,
-                    color: Colors.green,
+                    title: 'İstasyon Kodu',
+                    value: _stationInfo?['code'] ?? '--',
+                    icon: Icons.qr_code,
+                    color: Colors.indigo,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -504,41 +499,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         : '--',
                     icon: Icons.access_time,
                     color: Colors.orange,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          
-          // İstasyon Bilgi Kartları
-          Container(
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: InfoCard(
-                    title: 'Station',
-                    value: _stationInfo?['name'] ?? '--',
-                    icon: Icons.location_on,
-                    color: Colors.purple,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: InfoCard(
-                    title: 'Station Kodu',
-                    value: _stationInfo?['code'] ?? '--',
-                    icon: Icons.qr_code,
-                    color: Colors.indigo,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: InfoCard(
-                    title: 'WiFi IP',
-                    value: _wifiIPAddress ?? '--',
-                    icon: Icons.wifi,
-                    color: Colors.teal,
                   ),
                 ),
               ],
