@@ -234,7 +234,7 @@ class VariableData {
 
   String get valueTypeName {
     switch (valueType) {
-      case 1: return 'Unknown';
+      case 1: return 'INS';
       case 2: return 'AVG';
       case 3: return 'INS';
       case 4: return 'MAX';
@@ -242,7 +242,7 @@ class VariableData {
       case 6: return 'TOT24H';
       case 7: return 'TOT1H';
       case 8: return 'ENDEX';
-      default: return 'Unknown';
+      default: return 'INS';
     }
   }
 
